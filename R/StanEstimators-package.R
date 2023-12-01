@@ -10,5 +10,6 @@
 #' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom Rcpp RcppLdFlags
 #' @importFrom posterior as_draws_df
+#' @importFrom stats setNames
 #'
 NULL

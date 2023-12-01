@@ -12,10 +12,12 @@ RoxygenNote: 7.2.3
 NeedsCompilation: yes
 SystemRequirements: GNU make
 Imports:
-  Rcpp (>= 1.0.7),
-  RcppParallel (>= 5.1.4)
+  Rcpp,
+  RcppParallel,
+  posterior,
+  stats
 LinkingTo:
-  Rcpp (>= 1.0.7),
-  RcppEigen (>= 0.3.3.9.3),
-  BH (>= 1.75.0-0),
-  RcppParallel (>= 5.1.4)
+  Rcpp,
+  RcppEigen,
+  BH,
+  RcppParallel

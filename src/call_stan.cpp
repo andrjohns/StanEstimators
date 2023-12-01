@@ -1,7 +1,6 @@
 #include <estimator/estimator_ext_header.hpp>
 #include <estimator/estimator.hpp>
 #include <cmdstan/command.hpp>
-#include <stan/services/error_codes.hpp>
 #include <Rcpp.h>
 #include <RcppParallel.h>
 
@@ -37,7 +36,7 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
     else
       return Rcpp::wrap(0);
   } catch (const std::exception &e) {
-    std::cerr << e.what() << std::endl;
+    Rcpp::Rcerr << e.what() << std::endl;
     return Rcpp::wrap(0);
   }
 }

@@ -182,7 +182,7 @@ inline shared_context_ptr get_var_context(const std::string &file) {
     stan::json::json_data var_context(stream);
     return std::make_shared<stan::json::json_data>(var_context);
   }
-  std::cerr
+  Rcpp::Rcerr
       << "Warning: file '" << file
       << "' is being read as an 'RDump' file.\n"
          "\tThis format is deprecated and will not receive new features.\n"
@@ -266,7 +266,7 @@ context_vector get_vec_var_context(const std::string &file, size_t num_chains,
       throw std::invalid_argument(msg.str());
     }
     if (file_ending != ".json") {
-      std::cerr
+      Rcpp::Rcerr
           << "Warning: file '" << file
           << "' is being read as an 'RDump' file.\n"
              "\tThis format is deprecated and will not receive new features.\n"
@@ -315,7 +315,7 @@ context_vector get_vec_var_context(const std::string &file, size_t num_chains,
     }
   }
   // This should not happen
-  std::cerr
+  Rcpp::Rcerr
       << "Warning: file '" << file
       << "' is being read as an 'RDump' file.\n"
          "\tThis format is deprecated and will not receive new features.\n"

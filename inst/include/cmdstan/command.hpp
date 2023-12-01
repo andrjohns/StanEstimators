@@ -90,10 +90,10 @@ stan::math::mpi_cluster &get_mpi_cluster() {
 #endif
 
 int command(int argc, const char *argv[]) {
-  stan::callbacks::stream_writer info(std::cout);
-  stan::callbacks::stream_writer err(std::cerr);
-  stan::callbacks::stream_logger logger(std::cout, std::cout, std::cout,
-                                        std::cerr, std::cerr);
+  stan::callbacks::stream_writer info(Rcpp::Rcout);
+  stan::callbacks::stream_writer err(Rcpp::Rcerr);
+  stan::callbacks::stream_logger logger(Rcpp::Rcout, Rcpp::Rcout, Rcpp::Rcout,
+                                        Rcpp::Rcerr, Rcpp::Rcerr);
 
 #ifdef STAN_MPI
   stan::math::mpi_cluster &cluster = get_mpi_cluster();
@@ -117,11 +117,11 @@ int command(int argc, const char *argv[]) {
   int err_code = parser.parse_args(argc, argv, info, err);
   if (err_code == stan::services::error_codes::USAGE) {
     if (argc > 1)
-      std::cerr << "Failed to parse command arguments, cannot run model."
+      Rcpp::Rcerr << "Failed to parse command arguments, cannot run model."
                 << std::endl;
     return return_codes::NOT_OK;
   } else if (err_code != 0) {
-    std::cerr << "Unexpected failure, quitting." << std::endl;
+    Rcpp::Rcerr << "Unexpected failure, quitting." << std::endl;
     return return_codes::NOT_OK;
   }
   if (parser.help_printed())
@@ -133,7 +133,7 @@ int command(int argc, const char *argv[]) {
       = get_arg_val<int_argument>(parser, "opencl", "platform");
   if ((opencl_device_id >= 0 && opencl_platform_id < 0)  // default value -1
       || (opencl_device_id < 0 && opencl_platform_id >= 0)) {
-    std::cerr << "Please set both device and platform OpenCL IDs." << std::endl;
+    Rcpp::Rcerr << "Please set both device and platform OpenCL IDs." << std::endl;
     return return_codes::NOT_OK;
   } else if (opencl_device_id >= 0) {  // opencl_platform_id >= 0 by above test
     stan::math::opencl_context.select_device(opencl_platform_id,
@@ -181,7 +181,7 @@ int command(int argc, const char *argv[]) {
       = get_var_context(filename);
 
   stan::model::model_base &model
-      = new_model(*var_context, random_seed, &std::cout);
+      = new_model(*var_context, random_seed, &Rcpp::Rcout);
 
   // Setup callbacks
   stan::callbacks::interrupt interrupt;

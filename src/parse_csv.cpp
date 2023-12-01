@@ -1,4 +1,3 @@
-#include <stan/mcmc/chains.hpp>
 #include <stan/io/stan_csv_reader.hpp>
 #include <Rcpp.h>
 #include <RcppEigen.h>
@@ -54,11 +53,11 @@ RcppExport SEXP parse_csv_(SEXP filename_) {
   try {
     std::ifstream ifstream;
     ifstream.open(filename);
-    stan::io::stan_csv csv_parsed = stan::io::stan_csv_reader::parse(ifstream, &std::cout);
+    stan::io::stan_csv csv_parsed = stan::io::stan_csv_reader::parse(ifstream, nullptr);
     ifstream.close();
     return Rcpp::wrap(csv_to_r(csv_parsed));
   } catch (const std::exception &e) {
-    std::cerr << e.what() << std::endl;
+    Rcpp::Rcerr << e.what() << std::endl;
     return Rcpp::List::create(0);
   }
 }
