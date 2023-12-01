@@ -1,3 +1,4 @@
+#' @export
 stan_pathfinder <- function(fn, par_inits, ..., num_psis_draws = 1000,
                           num_paths = 4, save_single_paths = FALSE,
                           max_lbfgs_iters = 1000, num_draws = 1000,

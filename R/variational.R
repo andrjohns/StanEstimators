@@ -1,3 +1,4 @@
+#' @export
 stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
                              output_samples = 1000, iter = 1000,
                              grad_samples = 1, elbo_samples = 100,

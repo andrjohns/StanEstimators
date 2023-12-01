@@ -1,8 +1,3 @@
-write_data <- function(Npars, finite_diff, output_file) {
-  dat_string <- paste0("{ \"Npars\": ", Npars,", \"finite_diff\": ", as.integer(finite_diff)," }")
-  writeLines(dat_string, con = output_file)
-}
-
 stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
                         num_chains = 4, num_samples = 1000, num_warmup = 1000,
                         save_warmup = FALSE, thin = 1, output_dir = tempdir(),

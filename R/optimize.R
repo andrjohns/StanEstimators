@@ -1,3 +1,4 @@
+#' @export
 stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
                           jacobian = FALSE, iter = 2000,
                           save_iterations = FALSE, output_dir = tempdir(),
