@@ -1,5 +1,22 @@
+#' stan_pathfinder
+#'
+#' Estimate parameters using Stan's pathfinder algorithm
+#'
+#' @param fn
+#' @param par_inits
+#' @param ...
+#' @param num_psis_draws
+#' @param num_paths
+#' @param save_single_paths
+#' @param max_lbfgs_iters
+#' @param num_draws
+#' @param num_elbo_draws
+#' @param output_dir
+#' @param control
+#' @return
 #' @export
-stan_pathfinder <- function(fn, par_inits, ..., num_psis_draws = 1000,
+stan_pathfinder <- function(fn, par_inits, ..., par_constraints = list(),
+                          num_psis_draws = 1000,
                           num_paths = 4, save_single_paths = FALSE,
                           max_lbfgs_iters = 1000, num_draws = 1000,
                           num_elbo_draws = 25, output_dir = tempdir(),
@@ -7,10 +24,13 @@ stan_pathfinder <- function(fn, par_inits, ..., num_psis_draws = 1000,
   fn1 <- function(v) { fn(v, ...) }
   nPars <- length(par_inits)
   finite_diff <- 1
+  bound_inds <- par_constraints[[1]]$indices
+  lower_bounds <- par_constraints[[1]]$lower
+  upper_bounds <- par_constraints[[1]]$upper
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
-  write_data(nPars, finite_diff, data_file)
+  write_data(nPars, finite_diff, bound_inds, lower_bounds, upper_bounds, data_file)
 
   args <- c(
     "pathfinder",

@@ -1,15 +1,35 @@
+#' stan_optimize
+#'
+#' Estimate parameters using Stan's optimization algorithms
+#'
+#' @param fn
+#' @param par_inits
+#' @param ...
+#' @param algorithm
+#' @param jacobian
+#' @param iter
+#' @param save_iterations
+#' @param output_dir
+#' @param laplace_draws
+#' @param laplace_jacobian
+#' @param control
+#' @return
 #' @export
 stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
+                          par_constraints = list(),
                           jacobian = FALSE, iter = 2000,
                           save_iterations = FALSE, output_dir = tempdir(),
                           laplace_draws = NULL, laplace_jacobian = NULL, control = list()) {
   fn1 <- function(v) { fn(v, ...) }
   nPars <- length(par_inits)
   finite_diff <- 1
+  bound_inds <- par_constraints[[1]]$indices
+  lower_bounds <- par_constraints[[1]]$lower
+  upper_bounds <- par_constraints[[1]]$upper
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
-  write_data(nPars, finite_diff, data_file)
+  write_data(nPars, finite_diff, bound_inds, lower_bounds, upper_bounds, data_file)
 
   args <- c(
     "optimize",

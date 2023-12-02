@@ -1,4 +1,23 @@
+#' stan_sample
+#'
+#' Estimate parameters using Stan's sampling algorithms
+#'
+#' @param fn
+#' @param par_inits
+#' @param ...
+#' @param algorithm
+#' @param engine
+#' @param num_chains
+#' @param num_samples
+#' @param num_warmup
+#' @param save_warmup
+#' @param thin
+#' @param output_dir
+#' @param control
+#' @return
+#' @export
 stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
+                        par_constraints = list(),
                         num_chains = 4, num_samples = 1000, num_warmup = 1000,
                         save_warmup = FALSE, thin = 1, output_dir = tempdir(),
                         control = list()) {
@@ -9,7 +28,10 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
-  write_data(nPars, finite_diff, data_file)
+  bound_inds <- par_constraints[[1]]$indices
+  lower_bounds <- par_constraints[[1]]$lower
+  upper_bounds <- par_constraints[[1]]$upper
+  write_data(nPars, finite_diff, bound_inds, lower_bounds, upper_bounds, data_file)
   args <- c(
     "sample",
     paste0("num_chains=", num_chains),
@@ -24,7 +46,11 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
   )
 
   call <- call_stan(args, ll_fun = fn1, grad_fun = fn1)
-  output_files <- paste0(output_file_base, paste0("_", 1:num_chains, ".csv"))
+  if (num_chains > 1) {
+    output_files <- paste0(output_file_base, paste0("_", 1:num_chains, ".csv"))
+  } else {
+    output_files <- paste0(output_file_base, ".csv")
+  }
   all_samples <- lapply(output_files, function(filepath) {
     parse_csv(filepath)
   })

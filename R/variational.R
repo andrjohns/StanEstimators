@@ -1,5 +1,22 @@
+#' stan_variational
+#'
+#' Estimate parameters using Stan's variational inference algorithms
+#'
+#' @param fn
+#' @param par_inits
+#' @param ...
+#' @param algorithm
+#' @param output_samples
+#' @param iter
+#' @param grad_samples
+#' @param elbo_samples
+#' @param eval_elbo
+#' @param output_dir
+#' @param control
+#' @return
 #' @export
 stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
+                             par_constraints = list(),
                              output_samples = 1000, iter = 1000,
                              grad_samples = 1, elbo_samples = 100,
                              eval_elbo = 100, output_dir = tempdir(),
@@ -8,10 +25,13 @@ stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
   nPars <- length(par_inits)
   finite_diff <- 1
 
+  bound_inds <- par_constraints[[1]]$indices
+  lower_bounds <- par_constraints[[1]]$lower
+  upper_bounds <- par_constraints[[1]]$upper
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file <- tempfile(fileext = ".csv", tmpdir = output_dir)
   output_file_base <- tools::file_path_sans_ext(output_file)
-  write_data(nPars, finite_diff, data_file)
+  write_data(nPars, finite_diff, bound_inds, lower_bounds, upper_bounds, data_file)
 
   args <- c(
     "variational",

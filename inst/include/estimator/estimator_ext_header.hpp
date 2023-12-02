@@ -3,6 +3,7 @@
 #include <codecvt>
 #include <stan/math.hpp>
 #include <RcppEigen.h>
+#include <estimator/constrains.hpp>
 
 namespace internal {
   Rcpp::Function ll_fun("ls");
@@ -10,12 +11,13 @@ namespace internal {
 }
 
 template <typename T, stan::require_st_arithmetic<T>* = nullptr>
-double r_function(const T& v, int finite_diff, std::ostream *pstream__) {
+double r_function(const T& v, int finite_diff, std::ostream* pstream__) {
+
   return Rcpp::as<double>(internal::ll_fun(v));
 }
 
 template <typename T, stan::require_st_var<T>* = nullptr>
-stan::math::var r_function(const T& v, int finite_diff, std::ostream *pstream__) {
+stan::math::var r_function(const T& v, int finite_diff, std::ostream* pstream__) {
   using stan::math::finite_diff_gradient_auto;
   using stan::math::make_callback_var;
 
@@ -25,15 +27,18 @@ stan::math::var r_function(const T& v, int finite_diff, std::ostream *pstream__)
   Eigen::VectorXd grad;
   if (finite_diff == 1) {
     finite_diff_gradient_auto(
-      [&](const auto& x) { return Rcpp::as<double>(internal::ll_fun(x)); }, v.val(), ret, grad);
-      arena_grad = grad;
+      [&](const auto& x) { return Rcpp::as<double>(internal::ll_fun(x)); },
+      v.val(), ret, grad);
+    arena_grad = grad;
   } else {
     ret = Rcpp::as<double>(internal::ll_fun(v.val()));
     arena_grad = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(internal::grad_fun(v.val()));
   }
 
   return make_callback_var(
-    ret, [arena_v, arena_grad](auto& vi) mutable { arena_v.adj() += vi.adj() * arena_grad; });
+    ret, [arena_v, arena_grad](auto& vi) mutable {
+      arena_v.adj() += vi.adj() * arena_grad;
+    });
 }
 
 /**
