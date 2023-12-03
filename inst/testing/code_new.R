@@ -11,8 +11,6 @@ write_data <- function(Npars, finite_diff, output_file) {
 
 write_data(2, 1, "testdata3.json")
 
-y <- rnorm(500, 10, 2)
-ll <- function(v) { sum(dnorm(y, v[1], exp(v[2]), log = TRUE)) }
 
 args <- c("sample",
           "num_chains=1",
@@ -22,7 +20,7 @@ call_stan(args, ll_fun = fn1, grad_fun = fn1)
 
 parsed_raw <- parse_csv(normalizePath("output_test.csv"))
 lapply(parsed_raw, )
-devtools::load_all("~/Git/Dev/StanEstimators/")
+devtools::load_all("~/Git/Dev/StanEstimators/", recompile = TRUE)
 setwd("~/Git/Dev/StanEstimators/")
 
 y <- rnorm(500, 10, 2)
@@ -30,8 +28,41 @@ ll <- function(v, x) {
   sum(dnorm(x, v[1], exp(v[2]), log = TRUE))
 }
 
-make_wrapper <- function(fn, arg) {
-  function(v) { fn(v, arg) }
+test_wrapper <- function(fn, arg, ...) {
+  fn1 <- function(v) { fn(v, ...) }
+  fn1(arg)
 }
 
-t <- stan_optimize(ll, c(10, 2), y)
+test_wrapper(ll, c(10, 2), y)
+
+
+y <- rnorm(500, 10, 2)
+fn <- function(v, x) { sum(dnorm(x, v[1], v[2], log = TRUE)) }
+
+grad_fun <- function(v, x) {
+  mu <- v[1]
+  sigma <- v[2]
+
+  inv_sigma <- 1 / sigma
+  y_scaled = (x - mu) * inv_sigma
+  scaled_diff = inv_sigma * y_scaled
+  c(
+    sum(scaled_diff),
+    sum(inv_sigma * (y_scaled*y_scaled) - inv_sigma)
+  )
+}
+
+t <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0))
+t2 <- stan_optimize(fn, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
+
+args <- c(
+  "optimize",
+  paste0("algorithm=", "lbfgs"),
+  paste0("jacobian=", 0),
+  paste0("iter=", 2000),
+  paste0("save_iterations=", 0),
+  "data",
+  paste0("file=", "file=/var/folders/1d/rjvd0h_n0yq20j13h4gdfytw0000gn/T//Rtmph3NGzQ/fileef7cf8243b4.json"),
+  "output",
+  paste0("file=", "file=/var/folders/1d/rjvd0h_n0yq20j13h4gdfytw0000gn/T//Rtmph3NGzQ/fileef7c312ae660.csv")
+)

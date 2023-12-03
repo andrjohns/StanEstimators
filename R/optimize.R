@@ -16,13 +16,20 @@
 #' @return
 #' @export
 stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
-                        lower = -Inf, upper = Inf,
+                          grad_fun = NULL, lower = -Inf, upper = Inf,
                           jacobian = FALSE, iter = 2000,
                           save_iterations = FALSE, output_dir = tempdir(),
                           laplace_draws = NULL, laplace_jacobian = NULL, control = list()) {
-  fn1 <- function(v) { fn(v, ...) }
+  fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
+  if (!is.null(grad_fun)) {
+    gr1 <- prepare_function(grad_fun, par_inits, ..., grad = TRUE)
+  } else {
+    gr1 <- fn1
+  }
+
   nPars <- length(par_inits)
-  finite_diff <- 1
+  finite_diff <- as.integer(is.null(grad_fun))
+
   if ((length(par_inits) > 1) && (length(lower) == 1)) {
     lower <- rep(lower, length(par_inits))
   }
@@ -47,7 +54,7 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
     paste0("file=", output_file)
   )
 
-  call <- call_stan(args, ll_fun = fn1, grad_fun = fn1)
+  call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
   parsed <- parse_csv(output_file)
   ret_list <- list(
     metadata = parsed$metadata,
