@@ -15,6 +15,7 @@ Imports:
   Rcpp,
   RcppParallel,
   posterior,
+  loo,
   stats
 LinkingTo:
   Rcpp,

@@ -1,3 +1,16 @@
+setOldClass("draws_df")
+setClass("StanPathfinder",
+  slots = c(
+    metadata = "list",
+    timing = "list",
+    draws = "draws_df"
+  )
+)
+
+setMethod("summary", "StanPathfinder", function(object, ...) {
+  posterior::summarise_draws(object@draws)
+})
+
 #' stan_pathfinder
 #'
 #' Estimate parameters using Stan's pathfinder algorithm
@@ -63,11 +76,9 @@ stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
 
   parsed <- parse_csv(output_file)
-  list(
+  new("StanPathfinder",
     metadata = parsed$metadata,
     timing = parsed$timing,
-    draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header)),
-    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
-    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
+    draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header))
   )
 }

@@ -9,12 +9,13 @@ stan_optimize(
   par_inits,
   ...,
   algorithm = "lbfgs",
+  grad_fun = NULL,
+  lower = -Inf,
+  upper = Inf,
   jacobian = FALSE,
   iter = 2000,
   save_iterations = FALSE,
   output_dir = tempdir(),
-  laplace_draws = NULL,
-  laplace_jacobian = NULL,
   control = list()
 )
 }

@@ -1,3 +1,16 @@
+setClass("StanVariational",
+  slots = c(
+    metadata = "list",
+    timing = "list",
+    estimates = "data.frame",
+    draws = "draws_df"
+  )
+)
+
+setMethod("summary", "StanVariational", function(object, ...) {
+  posterior::summarise_draws(object@draws)
+})
+
 #' stan_variational
 #'
 #' Estimate parameters using Stan's variational inference algorithms
@@ -62,12 +75,10 @@ stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
   parsed <- parse_csv(output_file)
   estimates <- setNames(data.frame(parsed$samples), parsed$header)
-  list(
+  new("StanVariational",
     metadata = parsed$metadata,
     timing = parsed$timing,
     estimates = estimates[1,],
-    draws = posterior::as_draws_df(estimates[-1,]),
-    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
-    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
+    draws = posterior::as_draws_df(estimates[-1,])
   )
 }

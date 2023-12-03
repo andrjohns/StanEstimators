@@ -53,7 +53,7 @@ grad_fun <- function(v, x) {
 }
 
 t <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0))
-t2 <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
+t2 <- stan_sample(ll, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
 
 ll2 <- function(v, x) { sum(dnorm(x, v[1], exp(v[2]), log = TRUE)) }
 t2 <- stan_optimize(ll2, c(10, 2), y)
@@ -76,4 +76,12 @@ test2 <- apply(posterior::subset_draws(t_dr, "pars"), 1, function(pars) {
   sapply(y, function(y_val) { ll(numpars, y_val) })
 })
 
+pointwise_ll <- function(v, y) {
+  dnorm(y, v[1], v[2], log = TRUE)
+}
 
+loglik <- t(apply(t2$draws, 1, function(est_row) {
+  pointwise_ll(as.numeric(est_row[par_inds]), y)
+}))
+
+loo::loo(loglik, r_eff = loo::relative_eff(exp(loglik), chain_id = t2$draws$.chain))

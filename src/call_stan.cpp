@@ -28,7 +28,7 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
     }
   }
   const char** argv2 = const_cast<const char**>(argv);
-
+  //stan::math::init_threadpool_tbb(4);
   try {
     int err_code = cmdstan::command(argc, argv2);
     if (err_code == 0)

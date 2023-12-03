@@ -1,3 +1,37 @@
+setOldClass("draws_df")
+setClass("StanMCMC",
+  slots = c(
+    metadata = "list",
+    adaptation = "list",
+    timing = "list",
+    diagnostics = "draws_df",
+    draws = "draws_df",
+    log_prob = "function",
+    lower_bounds = "numeric",
+    upper_bounds = "numeric"
+  )
+)
+
+loo <- function(object, ...) {
+  UseMethod("loo")
+}
+
+setMethod("summary", "StanMCMC", function(object, ...) {
+  posterior::summarise_draws(object@draws)
+})
+
+setMethod("loo", "StanMCMC", function(object, pointwise_ll_fun, data, moment_match = FALSE, ...) {
+  par_inds <- grep("pars", colnames(object@draws))
+  loglik <- t(apply(object@draws, 1, function(est_row) {
+    apply(data, 1, function(data_row) {
+      pointwise_ll_fun(as.numeric(est_row[par_inds]), data_row)
+    })
+  }))
+  loo::loo(loglik,
+            r_eff = loo::relative_eff(exp(loglik), chain_id = object@draws$.chain),
+            ...)
+})
+
 #' stan_sample
 #'
 #' Estimate parameters using Stan's sampling algorithms
@@ -18,7 +52,7 @@
 #' @export
 stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
                         grad_fun = NULL, lower = -Inf, upper = Inf,
-                        num_chains = 4, num_samples = 1000, num_warmup = 1000,
+                        num_chains = 4, num_threads = 1, num_samples = 1000, num_warmup = 1000,
                         save_warmup = FALSE, thin = 1, output_dir = tempdir(),
                         control = list()) {
   fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
@@ -54,7 +88,8 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
     paste0("file=", data_file),
     paste0("init=", init_file),
     "output",
-    paste0("file=", output_file)
+    paste0("file=", output_file),
+    paste0("num_threads=", num_threads)
   )
 
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
@@ -80,13 +115,14 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
 
-  list(
+  new("StanMCMC",
     metadata = metadata,
     adaptation = adaptation,
     timing = timing,
     diagnostics = posterior::subset_draws(draws, variable = diagnostic_vars),
     draws = posterior::subset_draws(draws, variable = par_vars),
-    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
-    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
+    log_prob = fn1,
+    lower_bounds = lower,
+    upper_bounds = upper
   )
 }

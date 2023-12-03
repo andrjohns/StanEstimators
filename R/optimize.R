@@ -1,3 +1,15 @@
+setClass("StanOptimize",
+  slots = c(
+    metadata = "list",
+    timing = "list",
+    estimates = "data.frame"
+  )
+)
+
+setMethod("summary", "StanOptimize", function(object, ...) {
+  object@estimates
+})
+
 #' stan_optimize
 #'
 #' Estimate parameters using Stan's optimization algorithms
@@ -59,11 +71,9 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
 
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
   parsed <- parse_csv(output_file)
-  list(
+  new("StanOptimize",
     metadata = parsed$metadata,
     timing = parsed$timing,
-    estimates = setNames(data.frame(parsed$samples), parsed$header),
-    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
-    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
+    estimates = setNames(data.frame(parsed$samples), parsed$header)
   )
 }
