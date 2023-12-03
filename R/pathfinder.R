@@ -15,15 +15,23 @@
 #' @param control
 #' @return
 #' @export
-stan_pathfinder <- function(fn, par_inits, ..., lower = -Inf, upper = Inf,
+stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
+                          lower = -Inf, upper = Inf,
                           num_psis_draws = 1000,
                           num_paths = 4, save_single_paths = FALSE,
                           max_lbfgs_iters = 1000, num_draws = 1000,
                           num_elbo_draws = 25, output_dir = tempdir(),
                           control = list()) {
-  fn1 <- function(v) { fn(v, ...) }
+  fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
+  if (!is.null(grad_fun)) {
+    gr1 <- prepare_function(grad_fun, par_inits, ..., grad = TRUE)
+  } else {
+    gr1 <- fn1
+  }
+
   nPars <- length(par_inits)
-  finite_diff <- 1
+  finite_diff <- as.integer(is.null(grad_fun))
+
   if ((length(par_inits) > 1) && (length(lower) == 1)) {
     lower <- rep(lower, length(par_inits))
   }
@@ -31,9 +39,11 @@ stan_pathfinder <- function(fn, par_inits, ..., lower = -Inf, upper = Inf,
     upper <- rep(upper, length(par_inits))
   }
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
+  init_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
   write_data(nPars, finite_diff, lower, upper, data_file)
+  write_inits(par_inits, init_file)
 
   args <- c(
     "pathfinder",
@@ -45,11 +55,12 @@ stan_pathfinder <- function(fn, par_inits, ..., lower = -Inf, upper = Inf,
     paste0("num_elbo_draws=", num_elbo_draws),
     "data",
     paste0("file=", data_file),
+    paste0("init=", init_file),
     "output",
     paste0("file=", output_file)
   )
 
-  call <- call_stan(args, ll_fun = fn1, grad_fun = fn1)
+  call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
 
   parsed <- parse_csv(output_file)
   list(

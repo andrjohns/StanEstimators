@@ -11,6 +11,16 @@ write_data <- function(Npars, finite_diff, lower_bounds, upper_bounds, data_file
   invisible(NULL)
 }
 
+write_inits <- function(inits, init_filepath) {
+  dat_string <- paste(
+    '{',
+    '"pars" : [', paste0(inits, collapse = ','), ']',
+    '}'
+  )
+  writeLines(dat_string, con = init_filepath)
+  invisible(NULL)
+}
+
 prepare_function <- function(fn, inits, ..., grad = FALSE) {
   fn_wrapper <- function(v) { fn(v, ...) }
   fn_type <- ifelse(isTRUE(grad), "Gradient", "Log-Likelihood")

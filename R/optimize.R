@@ -38,9 +38,11 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
   }
 
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
+  init_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
   write_data(nPars, finite_diff, lower, upper, data_file)
+  write_inits(par_inits, init_file)
 
   args <- c(
     "optimize",
@@ -50,6 +52,7 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
     paste0("save_iterations=", as.integer(save_iterations)),
     "data",
     paste0("file=", data_file),
+    paste0("init=", init_file),
     "output",
     paste0("file=", output_file)
   )

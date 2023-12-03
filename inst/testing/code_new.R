@@ -37,10 +37,7 @@ test_wrapper(ll, c(10, 2), y)
 
 
 y <- rnorm(500, 10, 2)
-ll <- function(v, x) {
-  if (v[2] < 0) { print(v[2]) }
-  sum(dnorm(x, v[1], v[2], log = TRUE))
-  }
+ll <- function(v, x) { sum(dnorm(x, v[1], v[2], log = TRUE)) }
 
 grad_fun <- function(v, x) {
   mu <- v[1]
