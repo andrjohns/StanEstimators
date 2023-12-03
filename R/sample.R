@@ -16,10 +16,12 @@ loo <- function(object, ...) {
   UseMethod("loo")
 }
 
+#' @export
 setMethod("summary", "StanMCMC", function(object, ...) {
   posterior::summarise_draws(object@draws)
 })
 
+#' @export
 setMethod("loo", "StanMCMC", function(object, pointwise_ll_fun, data, moment_match = FALSE, ...) {
   par_inds <- grep("pars", colnames(object@draws))
   loglik <- t(apply(object@draws, 1, function(est_row) {

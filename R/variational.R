@@ -7,6 +7,7 @@ setClass("StanVariational",
   )
 )
 
+#' @export
 setMethod("summary", "StanVariational", function(object, ...) {
   posterior::summarise_draws(object@draws)
 })

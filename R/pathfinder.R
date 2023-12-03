@@ -7,6 +7,7 @@ setClass("StanPathfinder",
   )
 )
 
+#' @export
 setMethod("summary", "StanPathfinder", function(object, ...) {
   posterior::summarise_draws(object@draws)
 })

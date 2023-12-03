@@ -6,6 +6,7 @@ setClass("StanOptimize",
   )
 )
 
+#' @export
 setMethod("summary", "StanOptimize", function(object, ...) {
   object@estimates
 })
