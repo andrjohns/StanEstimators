@@ -15,7 +15,7 @@
 #' @param control
 #' @return
 #' @export
-stan_pathfinder <- function(fn, par_inits, ..., par_constraints = list(),
+stan_pathfinder <- function(fn, par_inits, ..., lower = -Inf, upper = Inf,
                           num_psis_draws = 1000,
                           num_paths = 4, save_single_paths = FALSE,
                           max_lbfgs_iters = 1000, num_draws = 1000,
@@ -24,13 +24,16 @@ stan_pathfinder <- function(fn, par_inits, ..., par_constraints = list(),
   fn1 <- function(v) { fn(v, ...) }
   nPars <- length(par_inits)
   finite_diff <- 1
-  bound_inds <- par_constraints[[1]]$indices
-  lower_bounds <- par_constraints[[1]]$lower
-  upper_bounds <- par_constraints[[1]]$upper
+  if ((length(par_inits) > 1) && (length(lower) == 1)) {
+    lower <- rep(lower, length(par_inits))
+  }
+  if ((length(par_inits) > 1) && (length(upper) == 1)) {
+    upper <- rep(upper, length(par_inits))
+  }
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
-  write_data(nPars, finite_diff, bound_inds, lower_bounds, upper_bounds, data_file)
+  write_data(nPars, finite_diff, lower, upper, data_file)
 
   args <- c(
     "pathfinder",

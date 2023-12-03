@@ -4,28 +4,21 @@ namespace estimator_model_namespace {
 using stan::model::model_base_crtp;
 using namespace stan::math;
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 15> locations_array__ =
+static constexpr std::array<const char*, 10> locations_array__ =
   {" (found before start of program)",
-  " (in 'inst/include/estimator/estimator.stan', line 17, column 2 to column 21)",
-  " (in 'inst/include/estimator/estimator.stan', line 21, column 2 to column 99)",
-  " (in 'inst/include/estimator/estimator.stan', line 25, column 2 to column 54)",
-  " (in 'inst/include/estimator/estimator.stan', line 8, column 2 to column 12)",
-  " (in 'inst/include/estimator/estimator.stan', line 9, column 2 to column 18)",
-  " (in 'inst/include/estimator/estimator.stan', line 10, column 2 to column 14)",
-  " (in 'inst/include/estimator/estimator.stan', line 11, column 8 to column 15)",
-  " (in 'inst/include/estimator/estimator.stan', line 11, column 2 to column 32)",
-  " (in 'inst/include/estimator/estimator.stan', line 12, column 9 to column 16)",
-  " (in 'inst/include/estimator/estimator.stan', line 12, column 2 to column 31)",
-  " (in 'inst/include/estimator/estimator.stan', line 13, column 9 to column 16)",
-  " (in 'inst/include/estimator/estimator.stan', line 13, column 2 to column 31)",
-  " (in 'inst/include/estimator/estimator.stan', line 17, column 9 to column 14)",
-  " (in 'inst/include/estimator/estimator.stan', line 21, column 9 to column 14)"};
+  " (in 'inst/include/estimator/estimator.stan', line 13, column 2 to column 61)",
+  " (in 'inst/include/estimator/estimator.stan', line 17, column 2 to column 42)",
+  " (in 'inst/include/estimator/estimator.stan', line 6, column 2 to column 12)",
+  " (in 'inst/include/estimator/estimator.stan', line 7, column 2 to column 18)",
+  " (in 'inst/include/estimator/estimator.stan', line 8, column 9 to column 14)",
+  " (in 'inst/include/estimator/estimator.stan', line 8, column 2 to column 29)",
+  " (in 'inst/include/estimator/estimator.stan', line 9, column 9 to column 14)",
+  " (in 'inst/include/estimator/estimator.stan', line 9, column 2 to column 29)",
+  " (in 'inst/include/estimator/estimator.stan', line 13, column 49 to column 54)"};
 class estimator_model final : public model_base_crtp<estimator_model> {
  private:
   int Npars;
   int finite_diff;
-  int Nbounds;
-  std::vector<int> bound_inds;
   Eigen::Matrix<double,-1,1> lower_bounds_data__;
   Eigen::Matrix<double,-1,1> upper_bounds_data__;
   Eigen::Map<Eigen::Matrix<double,-1,1>> lower_bounds{nullptr, 0};
@@ -53,82 +46,62 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     try {
       int pos__;
       pos__ = 1;
-      current_statement__ = 4;
+      current_statement__ = 3;
       context__.validate_dims("data initialization", "Npars", "int",
         std::vector<size_t>{});
       Npars = std::numeric_limits<int>::min();
-      current_statement__ = 4;
+      current_statement__ = 3;
       Npars = context__.vals_i("Npars")[(1 - 1)];
-      current_statement__ = 5;
+      current_statement__ = 4;
       context__.validate_dims("data initialization", "finite_diff", "int",
         std::vector<size_t>{});
       finite_diff = std::numeric_limits<int>::min();
-      current_statement__ = 5;
+      current_statement__ = 4;
       finite_diff = context__.vals_i("finite_diff")[(1 - 1)];
+      current_statement__ = 5;
+      stan::math::validate_non_negative_index("lower_bounds", "Npars", Npars);
       current_statement__ = 6;
-      context__.validate_dims("data initialization", "Nbounds", "int",
-        std::vector<size_t>{});
-      Nbounds = std::numeric_limits<int>::min();
-      current_statement__ = 6;
-      Nbounds = context__.vals_i("Nbounds")[(1 - 1)];
-      current_statement__ = 7;
-      stan::math::validate_non_negative_index("bound_inds", "Nbounds",
-        Nbounds);
-      current_statement__ = 8;
-      context__.validate_dims("data initialization", "bound_inds", "int",
-        std::vector<size_t>{static_cast<size_t>(Nbounds)});
-      bound_inds = std::vector<int>(Nbounds, std::numeric_limits<int>::min());
-      current_statement__ = 8;
-      bound_inds = context__.vals_i("bound_inds");
-      current_statement__ = 9;
-      stan::math::validate_non_negative_index("lower_bounds", "Nbounds",
-        Nbounds);
-      current_statement__ = 10;
       context__.validate_dims("data initialization", "lower_bounds",
-        "double", std::vector<size_t>{static_cast<size_t>(Nbounds)});
-      lower_bounds_data__ = Eigen::Matrix<double,-1,1>::Constant(Nbounds,
+        "double", std::vector<size_t>{static_cast<size_t>(Npars)});
+      lower_bounds_data__ = Eigen::Matrix<double,-1,1>::Constant(Npars,
                               std::numeric_limits<double>::quiet_NaN());
       new (&lower_bounds)
         Eigen::Map<Eigen::Matrix<double,-1,1>>(lower_bounds_data__.data(),
-        Nbounds);
+        Npars);
       {
         std::vector<local_scalar_t__> lower_bounds_flat__;
-        current_statement__ = 10;
+        current_statement__ = 6;
         lower_bounds_flat__ = context__.vals_r("lower_bounds");
         pos__ = 1;
-        for (int sym1__ = 1; sym1__ <= Nbounds; ++sym1__) {
+        for (int sym1__ = 1; sym1__ <= Npars; ++sym1__) {
           stan::model::assign(lower_bounds, lower_bounds_flat__[(pos__ - 1)],
             "assigning variable lower_bounds", stan::model::index_uni(sym1__));
           pos__ = (pos__ + 1);
         }
       }
-      current_statement__ = 11;
-      stan::math::validate_non_negative_index("upper_bounds", "Nbounds",
-        Nbounds);
-      current_statement__ = 12;
+      current_statement__ = 7;
+      stan::math::validate_non_negative_index("upper_bounds", "Npars", Npars);
+      current_statement__ = 8;
       context__.validate_dims("data initialization", "upper_bounds",
-        "double", std::vector<size_t>{static_cast<size_t>(Nbounds)});
-      upper_bounds_data__ = Eigen::Matrix<double,-1,1>::Constant(Nbounds,
+        "double", std::vector<size_t>{static_cast<size_t>(Npars)});
+      upper_bounds_data__ = Eigen::Matrix<double,-1,1>::Constant(Npars,
                               std::numeric_limits<double>::quiet_NaN());
       new (&upper_bounds)
         Eigen::Map<Eigen::Matrix<double,-1,1>>(upper_bounds_data__.data(),
-        Nbounds);
+        Npars);
       {
         std::vector<local_scalar_t__> upper_bounds_flat__;
-        current_statement__ = 12;
+        current_statement__ = 8;
         upper_bounds_flat__ = context__.vals_r("upper_bounds");
         pos__ = 1;
-        for (int sym1__ = 1; sym1__ <= Nbounds; ++sym1__) {
+        for (int sym1__ = 1; sym1__ <= Npars; ++sym1__) {
           stan::model::assign(upper_bounds, upper_bounds_flat__[(pos__ - 1)],
             "assigning variable upper_bounds", stan::model::index_uni(sym1__));
           pos__ = (pos__ + 1);
         }
       }
-      current_statement__ = 13;
+      current_statement__ = 9;
       stan::math::validate_non_negative_index("pars", "Npars", Npars);
-      current_statement__ = 14;
-      stan::math::validate_non_negative_index("constrained_pars", "Npars",
-        Npars);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -167,16 +140,18 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     try {
       Eigen::Matrix<local_scalar_t__,-1,1> pars;
       current_statement__ = 1;
-      pars = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars);
-      Eigen::Matrix<local_scalar_t__,-1,1> constrained_pars;
-      current_statement__ = 2;
-      stan::model::assign(constrained_pars,
-        constrain_pars_lp<propto__>(pars, bound_inds, lower_bounds,
-          upper_bounds, lp__, lp_accum__, pstream__),
-        "assigning variable constrained_pars");
+      pars = in__.template read_constrain_lub<
+               Eigen::Matrix<local_scalar_t__,-1,1>,
+               jacobian__>(lower_bounds, upper_bounds, lp__, Npars);
+      current_statement__ = 1;
+      stan::math::check_matching_dims("constraint", "pars", pars, "lower",
+        lower_bounds);
+      current_statement__ = 1;
+      stan::math::check_matching_dims("constraint", "pars", pars, "upper",
+        upper_bounds);
       {
-        current_statement__ = 3;
-        lp_accum__.add(r_function(constrained_pars, finite_diff, pstream__));
+        current_statement__ = 2;
+        lp_accum__.add(r_function(pars, finite_diff, pstream__));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -210,16 +185,18 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     try {
       Eigen::Matrix<local_scalar_t__,-1,1> pars;
       current_statement__ = 1;
-      pars = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars);
-      Eigen::Matrix<local_scalar_t__,-1,1> constrained_pars;
-      current_statement__ = 2;
-      stan::model::assign(constrained_pars,
-        constrain_pars_lp<propto__>(pars, bound_inds, lower_bounds,
-          upper_bounds, lp__, lp_accum__, pstream__),
-        "assigning variable constrained_pars");
+      pars = in__.template read_constrain_lub<
+               Eigen::Matrix<local_scalar_t__,-1,1>,
+               jacobian__>(lower_bounds, upper_bounds, lp__, Npars);
+      current_statement__ = 1;
+      stan::math::check_matching_dims("constraint", "pars", pars, "lower",
+        lower_bounds);
+      current_statement__ = 1;
+      stan::math::check_matching_dims("constraint", "pars", pars, "upper",
+        upper_bounds);
       {
-        current_statement__ = 3;
-        lp_accum__.add(r_function(constrained_pars, finite_diff, pstream__));
+        current_statement__ = 2;
+        lp_accum__.add(r_function(pars, finite_diff, pstream__));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -264,23 +241,20 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     try {
       Eigen::Matrix<double,-1,1> pars;
       current_statement__ = 1;
-      pars = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars);
-      Eigen::Matrix<double,-1,1> constrained_pars =
-        Eigen::Matrix<double,-1,1>::Constant(Npars,
-          std::numeric_limits<double>::quiet_NaN());
+      pars = in__.template read_constrain_lub<
+               Eigen::Matrix<local_scalar_t__,-1,1>,
+               jacobian__>(lower_bounds, upper_bounds, lp__, Npars);
+      current_statement__ = 1;
+      stan::math::check_matching_dims("constraint", "pars", pars, "lower",
+        lower_bounds);
+      current_statement__ = 1;
+      stan::math::check_matching_dims("constraint", "pars", pars, "upper",
+        upper_bounds);
       out__.write(pars);
       if (stan::math::logical_negation(
             (stan::math::primitive_value(emit_transformed_parameters__) ||
             stan::math::primitive_value(emit_generated_quantities__)))) {
         return ;
-      }
-      current_statement__ = 2;
-      stan::model::assign(constrained_pars,
-        constrain_pars_lp<propto__>(pars, bound_inds, lower_bounds,
-          upper_bounds, lp__, lp_accum__, pstream__),
-        "assigning variable constrained_pars");
-      if (emit_transformed_parameters__) {
-        out__.write(constrained_pars);
       }
       if (stan::math::logical_negation(emit_generated_quantities__)) {
         return ;
@@ -310,7 +284,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
       stan::model::assign(pars,
         in__.read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars),
         "assigning variable pars");
-      out__.write(pars);
+      out__.write_free_lub(lower_bounds, upper_bounds, pars);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -346,7 +320,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
           pos__ = (pos__ + 1);
         }
       }
-      out__.write(pars);
+      out__.write_free_lub(lower_bounds, upper_bounds, pars);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -356,11 +330,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
                   emit_transformed_parameters__ = true, const bool
                   emit_generated_quantities__ = true) const {
     names__ = std::vector<std::string>{"pars"};
-    if (emit_transformed_parameters__) {
-      std::vector<std::string> temp{"constrained_pars"};
-      names__.reserve(names__.size() + temp.size());
-      names__.insert(names__.end(), temp.begin(), temp.end());
-    }
+    if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {}
   }
   inline void
@@ -370,12 +340,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     dimss__ = std::vector<std::vector<size_t>>{std::vector<size_t>{static_cast<
                                                                     size_t>(
                                                                     Npars)}};
-    if (emit_transformed_parameters__) {
-      std::vector<std::vector<size_t>>
-        temp{std::vector<size_t>{static_cast<size_t>(Npars)}};
-      dimss__.reserve(dimss__.size() + temp.size());
-      dimss__.insert(dimss__.end(), temp.begin(), temp.end());
-    }
+    if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {}
   }
   inline void
@@ -386,12 +351,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
       param_names__.emplace_back(std::string() + "pars" + '.' +
         std::to_string(sym1__));
     }
-    if (emit_transformed_parameters__) {
-      for (int sym1__ = 1; sym1__ <= Npars; ++sym1__) {
-        param_names__.emplace_back(std::string() + "constrained_pars" + '.' +
-          std::to_string(sym1__));
-      }
-    }
+    if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {}
   }
   inline void
@@ -402,19 +362,14 @@ class estimator_model final : public model_base_crtp<estimator_model> {
       param_names__.emplace_back(std::string() + "pars" + '.' +
         std::to_string(sym1__));
     }
-    if (emit_transformed_parameters__) {
-      for (int sym1__ = 1; sym1__ <= Npars; ++sym1__) {
-        param_names__.emplace_back(std::string() + "constrained_pars" + '.' +
-          std::to_string(sym1__));
-      }
-    }
+    if (emit_transformed_parameters__) {}
     if (emit_generated_quantities__) {}
   }
   inline std::string get_constrained_sizedtypes() const {
-    return std::string("[{\"name\":\"pars\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Npars) + "},\"block\":\"parameters\"},{\"name\":\"constrained_pars\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Npars) + "},\"block\":\"transformed_parameters\"}]");
+    return std::string("[{\"name\":\"pars\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Npars) + "},\"block\":\"parameters\"}]");
   }
   inline std::string get_unconstrained_sizedtypes() const {
-    return std::string("[{\"name\":\"pars\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Npars) + "},\"block\":\"parameters\"},{\"name\":\"constrained_pars\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Npars) + "},\"block\":\"transformed_parameters\"}]");
+    return std::string("[{\"name\":\"pars\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(Npars) + "},\"block\":\"parameters\"}]");
   }
   // Begin method overload boilerplate
   template <typename RNG> inline void
@@ -424,7 +379,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
               emit_generated_quantities = true, std::ostream*
               pstream = nullptr) const {
     const size_t num_params__ = Npars;
-    const size_t num_transformed = emit_transformed_parameters * (Npars);
+    const size_t num_transformed = emit_transformed_parameters * (0);
     const size_t num_gen_quantities = emit_generated_quantities * (0);
     const size_t num_to_write = num_params__ + num_transformed +
       num_gen_quantities;
@@ -441,7 +396,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
               emit_generated_quantities = true, std::ostream*
               pstream = nullptr) const {
     const size_t num_params__ = Npars;
-    const size_t num_transformed = emit_transformed_parameters * (Npars);
+    const size_t num_transformed = emit_transformed_parameters * (0);
     const size_t num_gen_quantities = emit_generated_quantities * (0);
     const size_t num_to_write = num_params__ + num_transformed +
       num_gen_quantities;

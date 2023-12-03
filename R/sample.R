@@ -17,21 +17,24 @@
 #' @return
 #' @export
 stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
-                        par_constraints = list(),
+                        lower = -Inf, upper = Inf,
                         num_chains = 4, num_samples = 1000, num_warmup = 1000,
                         save_warmup = FALSE, thin = 1, output_dir = tempdir(),
                         control = list()) {
   fn1 <- function(v) { fn(v, ...) }
+  if ((length(par_inits) > 1) && (length(lower) == 1)) {
+    lower <- rep(lower, length(par_inits))
+  }
+  if ((length(par_inits) > 1) && (length(upper) == 1)) {
+    upper <- rep(upper, length(par_inits))
+  }
 
   nPars <- length(par_inits)
   finite_diff <- 1
   data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
   output_file_base <- tempfile(tmpdir = output_dir)
   output_file <- paste0(output_file_base, ".csv")
-  bound_inds <- par_constraints[[1]]$indices
-  lower_bounds <- par_constraints[[1]]$lower
-  upper_bounds <- par_constraints[[1]]$upper
-  write_data(nPars, finite_diff, bound_inds, lower_bounds, upper_bounds, data_file)
+  write_data(nPars, finite_diff, lower, upper, data_file)
   args <- c(
     "sample",
     paste0("num_chains=", num_chains),

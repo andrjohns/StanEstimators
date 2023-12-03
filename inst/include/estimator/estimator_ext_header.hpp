@@ -3,7 +3,6 @@
 #include <codecvt>
 #include <stan/math.hpp>
 #include <RcppEigen.h>
-#include <estimator/constrains.hpp>
 
 namespace internal {
   Rcpp::Function ll_fun("ls");
