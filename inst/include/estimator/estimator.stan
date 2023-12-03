@@ -1,5 +1,5 @@
 functions {
-  real r_function(vector x, int finite_diff);
+  real r_function(vector x, int finite_diff, vector lower_bounds, vector upper_bounds);
 }
 
 data {
@@ -14,5 +14,5 @@ parameters {
 }
 
 model {
-  target += r_function(pars, finite_diff);
+  target += r_function(pars, finite_diff, lower_bounds, upper_bounds);
 }

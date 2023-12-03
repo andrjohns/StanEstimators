@@ -7,7 +7,7 @@ stan::math::profile_map profiles__;
 static constexpr std::array<const char*, 10> locations_array__ =
   {" (found before start of program)",
   " (in 'inst/include/estimator/estimator.stan', line 13, column 2 to column 61)",
-  " (in 'inst/include/estimator/estimator.stan', line 17, column 2 to column 42)",
+  " (in 'inst/include/estimator/estimator.stan', line 17, column 2 to column 70)",
   " (in 'inst/include/estimator/estimator.stan', line 6, column 2 to column 12)",
   " (in 'inst/include/estimator/estimator.stan', line 7, column 2 to column 18)",
   " (in 'inst/include/estimator/estimator.stan', line 8, column 9 to column 14)",
@@ -151,7 +151,8 @@ class estimator_model final : public model_base_crtp<estimator_model> {
         upper_bounds);
       {
         current_statement__ = 2;
-        lp_accum__.add(r_function(pars, finite_diff, pstream__));
+        lp_accum__.add(r_function(pars, finite_diff, lower_bounds,
+                         upper_bounds, pstream__));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -196,7 +197,8 @@ class estimator_model final : public model_base_crtp<estimator_model> {
         upper_bounds);
       {
         current_statement__ = 2;
-        lp_accum__.add(r_function(pars, finite_diff, pstream__));
+        lp_accum__.add(r_function(pars, finite_diff, lower_bounds,
+                         upper_bounds, pstream__));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);

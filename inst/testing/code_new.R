@@ -37,7 +37,10 @@ test_wrapper(ll, c(10, 2), y)
 
 
 y <- rnorm(500, 10, 2)
-fn <- function(v, x) { sum(dnorm(x, v[1], v[2], log = TRUE)) }
+ll <- function(v, x) {
+  if (v[2] < 0) { print(v[2]) }
+  sum(dnorm(x, v[1], v[2], log = TRUE))
+  }
 
 grad_fun <- function(v, x) {
   mu <- v[1]
@@ -53,7 +56,7 @@ grad_fun <- function(v, x) {
 }
 
 t <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0))
-t2 <- stan_optimize(fn, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
+t2 <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
 
 args <- c(
   "optimize",
