@@ -13,7 +13,6 @@ cp -r cmdstan-$CMDSTAN_VER/src/cmdstan include/cmdstan
 cp -r cmdstan-$CMDSTAN_VER/stan/src/stan include/stan
 cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/stan/math include/stan/math
 cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/stan/math.hpp include/stan/math.hpp
-cp -r cmdstan-$CMDSTAN_VER/stan/lib/rapidjson_*/rapidjson include/rapidjson
 
 mkdir include/sundials
 cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/lib/sundials_*/include include/sundials

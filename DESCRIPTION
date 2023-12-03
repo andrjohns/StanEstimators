@@ -20,4 +20,5 @@ LinkingTo:
   Rcpp,
   RcppEigen,
   BH,
-  RcppParallel
+  RcppParallel,
+  rapidjsonr
