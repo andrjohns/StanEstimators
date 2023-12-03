@@ -55,6 +55,9 @@ grad_fun <- function(v, x) {
 t <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0))
 t2 <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
 
+ll2 <- function(v, x) { sum(dnorm(x, v[1], exp(v[2]), log = TRUE)) }
+t2 <- stan_optimize(ll2, c(10, 2), y)
+
 args <- c(
   "optimize",
   paste0("algorithm=", "lbfgs"),
@@ -66,3 +69,11 @@ args <- c(
   "output",
   paste0("file=", "file=/var/folders/1d/rjvd0h_n0yq20j13h4gdfytw0000gn/T//Rtmph3NGzQ/fileef7c312ae660.csv")
 )
+
+t_dr <- t$draws
+test2 <- apply(posterior::subset_draws(t_dr, "pars"), 1, function(pars) {
+  numpars <- as.numeric(pars)
+  sapply(y, function(y_val) { ll(numpars, y_val) })
+})
+
+

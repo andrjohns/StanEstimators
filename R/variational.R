@@ -66,6 +66,8 @@ stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
     metadata = parsed$metadata,
     timing = parsed$timing,
     estimates = estimates[1,],
-    draws = posterior::as_draws_df(estimates[-1,])
+    draws = posterior::as_draws_df(estimates[-1,]),
+    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
+    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
   )
 }

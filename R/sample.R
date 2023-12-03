@@ -85,6 +85,8 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
     adaptation = adaptation,
     timing = timing,
     diagnostics = posterior::subset_draws(draws, variable = diagnostic_vars),
-    draws = posterior::subset_draws(draws, variable = par_vars)
+    draws = posterior::subset_draws(draws, variable = par_vars),
+    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
+    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
   )
 }

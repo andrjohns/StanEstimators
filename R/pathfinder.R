@@ -66,6 +66,8 @@ stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
   list(
     metadata = parsed$metadata,
     timing = parsed$timing,
-    draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header))
+    draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header)),
+    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
+    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
   )
 }

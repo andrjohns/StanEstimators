@@ -37,7 +37,7 @@ Eigen::VectorXd constrain_grads(const T& v, const TLower& lower_bounds, const TU
 
 template <typename T, typename TLower, typename TUpper,
           stan::require_st_arithmetic<T>* = nullptr>
-double r_function(const T& v, int finite_diff,
+double r_function(const T& v, int finite_diff, int no_bounds,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
   return Rcpp::as<double>(internal::ll_fun(v));
@@ -45,7 +45,7 @@ double r_function(const T& v, int finite_diff,
 
 template <typename T, typename TLower, typename TUpper,
           stan::require_st_var<T>* = nullptr>
-stan::math::var r_function(const T& v, int finite_diff,
+stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
   using stan::math::finite_diff_gradient_auto;
@@ -55,13 +55,23 @@ stan::math::var r_function(const T& v, int finite_diff,
   if (finite_diff == 1) {
     double ret;
     Eigen::VectorXd grad;
-    Eigen::VectorXd unconstrained = stan::math::lub_free(v.val(), lower_bounds, upper_bounds);
-    finite_diff_gradient_auto(
-      [&](const auto& x) {
-        return Rcpp::as<double>(internal::ll_fun(stan::math::lub_constrain(x, lower_bounds, upper_bounds)));
-      }, unconstrained, ret, grad);
+    stan::arena_t<Eigen::VectorXd> arena_grad;
+    if (no_bounds == 1) {
+      finite_diff_gradient_auto(
+        [&](const auto& x) {
+          return Rcpp::as<double>(internal::ll_fun(x));
+        }, v.val(), ret, grad);
 
-    stan::arena_t<Eigen::VectorXd> arena_grad = grad.cwiseProduct(constrain_grads(unconstrained, lower_bounds, upper_bounds));
+      arena_grad = grad;
+    } else {
+      Eigen::VectorXd unconstrained = stan::math::lub_free(v.val(), lower_bounds, upper_bounds);
+      finite_diff_gradient_auto(
+        [&](const auto& x) {
+          return Rcpp::as<double>(internal::ll_fun(stan::math::lub_constrain(x, lower_bounds, upper_bounds)));
+        }, unconstrained, ret, grad);
+
+      arena_grad = grad.cwiseProduct(constrain_grads(unconstrained, lower_bounds, upper_bounds));
+    }
     return make_callback_var(ret, [arena_v, arena_grad](auto& vi) mutable {
       arena_v.adj() += vi.adj() * arena_grad;
     });

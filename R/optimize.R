@@ -19,7 +19,7 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
                           jacobian = FALSE, iter = 2000,
                           save_iterations = FALSE, output_dir = tempdir(),
-                          laplace_draws = NULL, laplace_jacobian = NULL, control = list()) {
+                          control = list()) {
   fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
   if (!is.null(grad_fun)) {
     gr1 <- prepare_function(grad_fun, par_inits, ..., grad = TRUE)
@@ -59,27 +59,11 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
 
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
   parsed <- parse_csv(output_file)
-  ret_list <- list(
+  list(
     metadata = parsed$metadata,
     timing = parsed$timing,
-    estimates = setNames(data.frame(parsed$samples), parsed$header)
+    estimates = setNames(data.frame(parsed$samples), parsed$header),
+    constrain_pars = function(x) { constrain_pars(x, lower, upper) },
+    unconstrain_pars = function(x) { unconstrain_pars(x, lower, upper) }
   )
-
-  if (!is.null(laplace_draws)) {
-    laplace_output <- paste0(output_file_base, "_laplace.csv")
-    laplace_args <- c(
-      "laplace",
-      paste0("mode=", output_file),
-      paste0("jacobian=", as.integer(laplace_jacobian)),
-      paste0("draws=", laplace_draws),
-      "data",
-      paste0("file=", data_file),
-      "output",
-      paste0("file=", laplace_output)
-    )
-    laplace_call <- call_stan(laplace_args, ll_fun = fn1, grad_fun = fn1)
-    laplace_parsed <- parse_csv(laplace_output)
-    ret_list$draws <- posterior::as_draws_df(setNames(data.frame(laplace_parsed$samples), laplace_parsed$header))
-  }
-  ret_list
 }

@@ -1,8 +1,10 @@
 write_data <- function(Npars, finite_diff, lower_bounds, upper_bounds, data_file) {
+  no_bounds <- all(lower_bounds == -Inf) && all(upper_bounds == Inf)
   dat_string <- paste(
     '{',
     '"Npars" : ', Npars, ',',
     '"finite_diff" : ', finite_diff, ',',
+    '"no_bounds" : ', as.integer(no_bounds), ',',
     '"lower_bounds" : [', paste0(lower_bounds, collapse = ','), '],',
     '"upper_bounds" : [', paste0(upper_bounds, collapse = ','), ']',
     '}'
