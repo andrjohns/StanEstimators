@@ -5,10 +5,12 @@ Authors@R: c(
   person(given = c("Andrew", "R."), family = "Johnson", role = c("aut", "cre"),
           email = "andrew.johnson@arjohnsonau.com",
           comment = c(ORCID = "0000-0001-7000-8065")),
-  person("Lawrence Livermore National Security", role="cph", comment = "SUNDIALS sources"),
-  person("Stan Development Team", role="cph", comment = "CmdStan sources")
+  person("Lawrence Livermore National Security", role="cph",
+          comment = "SUNDIALS sources and headers"),
+  person("Stan Development Team", role="cph",
+          comment = "CmdStan sources and headers")
   )
-Description: Allows for the estimation of parameters for R functions using the
+Description: Allows for the estimation of parameters for 'R' functions using the
     various algorithms implemented in the 'Stan' probabilistic programming
     language.
 License: MIT + file LICENSE
