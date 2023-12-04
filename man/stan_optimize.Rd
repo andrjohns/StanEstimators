@@ -12,12 +12,75 @@ stan_optimize(
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
+  seed = NULL,
+  refresh = NULL,
+  save_latent_dynamics = FALSE,
+  output_dir = NULL,
+  output_basename = NULL,
+  sig_figs = NULL,
   jacobian = FALSE,
-  iter = 2000,
-  save_iterations = FALSE,
-  output_dir = tempdir(),
-  control = list()
+  init_alpha = NULL,
+  iter = NULL,
+  tol_obj = NULL,
+  tol_rel_obj = NULL,
+  tol_grad = NULL,
+  tol_rel_grad = NULL,
+  tol_param = NULL,
+  history_size = NULL
 )
+}
+\arguments{
+\item{fn}{Function to estimate parameters for}
+
+\item{par_inits}{Initial values}
+
+\item{...}{Additional arguments to pass to the function}
+
+\item{algorithm}{(string) The optimization algorithm. One of \code{"lbfgs"},
+\code{"bfgs"}, or \code{"newton"}.}
+
+\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+
+\item{lower}{Lower bound constraint(s) for parameters}
+
+\item{upper}{Upper bound constraint(s) for parameters}
+
+\item{seed}{Random seed}
+
+\item{refresh}{Number of iterations for printing}
+
+\item{save_latent_dynamics}{Save diagnostic CSV files to a specified location}
+
+\item{output_dir}{Directory to store outputs}
+
+\item{output_basename}{Basename to use for output files}
+
+\item{sig_figs}{Number of significant digits to use for printing}
+
+\item{jacobian}{(logical) Whether or not to use the Jacobian adjustment for
+constrained variables. For historical reasons, the default is \code{FALSE}, meaning optimization
+yields the (regularized) maximum likelihood estimate. Setting it to \code{TRUE}
+yields the maximum a posteriori estimate.}
+
+\item{init_alpha}{(positive real) The initial step size parameter.}
+
+\item{iter}{(positive integer) The maximum number of iterations.}
+
+\item{tol_obj}{(positive real) Convergence tolerance on changes in objective function value.}
+
+\item{tol_rel_obj}{(positive real) Convergence tolerance on relative changes in objective function value.}
+
+\item{tol_grad}{(positive real) Convergence tolerance on the norm of the gradient.}
+
+\item{tol_rel_grad}{(positive real) Convergence tolerance on the relative norm of the gradient.}
+
+\item{tol_param}{(positive real) Convergence tolerance on changes in parameter value.}
+
+\item{history_size}{(positive integer) The size of the history used when
+approximating the Hessian. Only available for L-BFGS.}
+}
+\value{
+\code{StanOptimize} object
 }
 \description{
 Estimate parameters using Stan's optimization algorithms

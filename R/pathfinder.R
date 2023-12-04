@@ -77,7 +77,7 @@ stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
 
   parsed <- parse_csv(output_file)
-  new("StanPathfinder",
+  methods::new("StanPathfinder",
     metadata = parsed$metadata,
     timing = parsed$timing,
     draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header))

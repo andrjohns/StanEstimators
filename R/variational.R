@@ -76,7 +76,7 @@ stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
   call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
   parsed <- parse_csv(output_file)
   estimates <- setNames(data.frame(parsed$samples), parsed$header)
-  new("StanVariational",
+  methods::new("StanVariational",
     metadata = parsed$metadata,
     timing = parsed$timing,
     estimates = estimates[1,],

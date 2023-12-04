@@ -1,10 +1,16 @@
 Package: StanEstimators
-Title: What the Package Does (One Line, Title Case)
+Title: Estimate Parameters for Arbitrary R Functions using 'Stan'
 Version: 0.0.0.9000
-Authors@R:
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+  person(given = c("Andrew", "R."), family = "Johnson", role = c("aut", "cre"),
+          email = "andrew.johnson@arjohnsonau.com",
+          comment = c(ORCID = "0000-0001-7000-8065")),
+  person("Lawrence Livermore National Security", role="cph", comment = "SUNDIALS sources"),
+  person("Stan Development Team", role="cph", comment = "CmdStan sources")
+  )
+Description: Allows for the estimation of parameters for R functions using the
+    various algorithms implemented in the 'Stan' probabilistic programming
+    language.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -15,7 +21,7 @@ Imports:
   Rcpp,
   RcppParallel,
   posterior,
-  loo,
+  methods,
   stats
 LinkingTo:
   Rcpp,

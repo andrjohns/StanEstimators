@@ -52,7 +52,7 @@ grad_fun <- function(v, x) {
   )
 }
 
-t <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0))
+t <- stan_optimize(ll, c(10, 2), y, lower = c(-Inf, 0), refresh=10)
 t2 <- stan_sample(ll, c(10, 2), y, lower = c(-Inf, 0), grad_fun = grad_fun)
 
 ll2 <- function(v, x) { sum(dnorm(x, v[1], exp(v[2]), log = TRUE)) }

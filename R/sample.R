@@ -12,26 +12,9 @@ setClass("StanMCMC",
   )
 )
 
-loo <- function(object, ...) {
-  UseMethod("loo")
-}
-
 #' @export
 setMethod("summary", "StanMCMC", function(object, ...) {
   posterior::summarise_draws(object@draws)
-})
-
-#' @export
-setMethod("loo", "StanMCMC", function(object, pointwise_ll_fun, data, moment_match = FALSE, ...) {
-  par_inds <- grep("pars", colnames(object@draws))
-  loglik <- t(apply(object@draws, 1, function(est_row) {
-    apply(data, 1, function(data_row) {
-      pointwise_ll_fun(as.numeric(est_row[par_inds]), data_row)
-    })
-  }))
-  loo::loo(loglik,
-            r_eff = loo::relative_eff(exp(loglik), chain_id = object@draws$.chain),
-            ...)
 })
 
 #' stan_sample
@@ -117,7 +100,7 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
 
-  new("StanMCMC",
+  methods::new("StanMCMC",
     metadata = metadata,
     adaptation = adaptation,
     timing = timing,

@@ -35,8 +35,8 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
       return Rcpp::wrap(1);
     else
       return Rcpp::wrap(0);
-  } catch (...) {
-    Rcpp::Rcerr << "Failed!" << std::endl;
+  } catch (const std::exception& e) {
+    Rcpp::Rcerr << e.what() << std::endl;
     return Rcpp::wrap(0);
   }
 }
