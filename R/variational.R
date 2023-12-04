@@ -31,50 +31,52 @@ setMethod("summary", "StanVariational", function(object, ...) {
 #' @export
 stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
                              grad_fun = NULL, lower = -Inf, upper = Inf,
-                             output_samples = 1000, iter = 1000,
-                             grad_samples = 1, elbo_samples = 100,
-                             eval_elbo = 100, output_dir = tempdir(),
-                             control = list()) {
-  fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
-  if (!is.null(grad_fun)) {
-    gr1 <- prepare_function(grad_fun, par_inits, ..., grad = TRUE)
-  } else {
-    gr1 <- fn1
-  }
+                              seed = NULL,
+                              refresh = NULL,
+                              output_dir = NULL,
+                              output_basename = NULL,
+                              sig_figs = NULL,
+                              iter = NULL,
+                              grad_samples = NULL,
+                              elbo_samples = NULL,
+                              eta = NULL,
+                              adapt_engaged = NULL,
+                              adapt_iter = NULL,
+                              tol_rel_obj = NULL,
+                              eval_elbo = NULL,
+                              output_samples = NULL) {
+  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+                            output_dir, output_basename)
+  method_args <- list(
+    algorithm = algorithm,
+    iter = iter,
+    grad_samples = grad_samples,
+    elbo_samples = elbo_samples,
+    eta = eta,
+    adapt = list( engaged = adapt_engaged, iter = adapt_iter),
+    tol_rel_obj = NULL,
+    eval_elbo = NULL,
+    output_samples = NULL
+    )
 
-  nPars <- length(par_inits)
-  finite_diff <- as.integer(is.null(grad_fun))
-
-  if ((length(par_inits) > 1) && (length(lower) == 1)) {
-    lower <- rep(lower, length(par_inits))
-  }
-  if ((length(par_inits) > 1) && (length(upper) == 1)) {
-    upper <- rep(upper, length(par_inits))
-  }
-  data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
-  init_file <- tempfile(fileext = ".json", tmpdir = output_dir)
-  output_file <- tempfile(fileext = ".csv", tmpdir = output_dir)
-  output_file_base <- tools::file_path_sans_ext(output_file)
-  write_data(nPars, finite_diff, lower, upper, data_file)
-  write_inits(par_inits, init_file)
-
-  args <- c(
-    "variational",
-    paste0("algorithm=", algorithm),
-    paste0("output_samples=", as.integer(output_samples)),
-    paste0("iter=", iter),
-    paste0("grad_samples=", as.integer(grad_samples)),
-    paste0("elbo_samples=", as.integer(elbo_samples)),
-    paste0("eval_elbo=", as.integer(eval_elbo)),
-    "data",
-    paste0("file=", data_file),
-    paste0("init=", init_file),
-    "output",
-    paste0("file=", output_file)
+  output <- list(
+    file = inputs$output_filepath,
+    diagnostic_file = NULL,
+    refresh = refresh,
+    sig_figs = sig_figs,
+    profile_file = NULL
   )
+  args <- build_stan_call(method = "variational",
+                          method_args = method_args,
+                          data_file = inputs$data_filepath,
+                          init = inputs$init_filepath,
+                          seed = seed,
+                          output_args = output,
+                          num_threads = NULL)
 
-  call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
-  parsed <- parse_csv(output_file)
+  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
+
+  parsed <- parse_csv(inputs$output_filepath)
   estimates <- setNames(data.frame(parsed$samples), parsed$header)
   methods::new("StanVariational",
     metadata = parsed$metadata,

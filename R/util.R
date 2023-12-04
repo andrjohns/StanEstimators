@@ -91,7 +91,8 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
     upper_bounds = upper,
     data_filepath = tempfile(fileext = ".json", tmpdir = output_dir),
     init_filepath = tempfile(fileext = ".json", tmpdir = output_dir),
-    output_filepath = paste0(output_basename, ".csv")
+    output_filepath = paste0(output_basename, ".csv"),
+    output_basename = output_basename
   )
   write_file("inits", structured)
   write_file("data", structured)
@@ -211,19 +212,48 @@ cmdstan_syntax_tree <- list(
 
 parse_method_args <- function(method, method_args) {
   method_tree <- cmdstan_syntax_tree[[method]]
-  algorithm <- method_args$algorithm
-  algorithm_args <- sapply(method_tree$algorithm[[method_args$algorithm]], function(arg) {
-    ifelse(!is.null(method_args$algorithm_args[[arg]]),
-          paste0(arg, "=", method_args$algorithm_args[[arg]]),
-          "")
-  })
+  return_args <- c(method)
+  if (!is.null(method_tree$algorithm)) {
+    algorithm <- method_args$algorithm
+    algo_tree <- method_tree$algorithm[[method_args$algorithm]]
+    engine_string <- ""
 
-  other_args <- sapply(method_tree[-grep("algorithm", names(method_tree))], function(arg) {
+    if (!is.null(algo_tree$engine)) {
+      engine_args <- sapply(algo_tree$engine[[method_args$algorithm_args$engine]], function(eng_arg) {
+        ifelse(!is.null(method_args$algorithm_args$engine_args[[eng_arg]]),
+               paste0(eng_arg, "=", method_args$algorithm_args$engine_args[[eng_arg]]),
+               "")
+      })
+      algo_tree <- algo_tree[-grep("engine", names(algo_tree))]
+      engine_string <- c(paste0("engine=", method_args$algorithm_args$engine), engine_args)
+    }
+
+    algorithm_args <- sapply(algo_tree, function(arg) {
+        ifelse(!is.null(method_args$algorithm_args[[arg]]),
+              paste0(arg, "=", method_args$algorithm_args[[arg]]),
+              "")
+    })
+    return_args <- c(return_args, paste0("algorithm=", algorithm), engine_string, algorithm_args[algorithm_args != ""])
+    method_tree <- method_tree[-grep("algorithm", names(method_tree))]
+  }
+  if (!is.null(method_tree$adapt)) {
+    adapt_args <- sapply(method_tree$adapt, function(arg) {
+      ifelse(!is.null(method_args$adapt[[arg]]),
+             paste0(arg, "=", method_args$adapt[[arg]]),
+             "")
+    })
+    adapt_args <- adapt_args[adapt_args != ""]
+    if (length(adapt_args) > 0)
+    return_args <- c(return_args, "adapt", adapt_args)
+    method_tree <- method_tree[-grep("adapt", names(method_tree))]
+  }
+
+  other_args <- sapply(method_tree, function(arg) {
     ifelse(!is.null(method_args[[arg]]),
           paste0(arg, "=", method_args[[arg]]),
           "")
   })
-  c(method, paste0("algorithm=", algorithm), algorithm_args[algorithm_args != ""], other_args[other_args != ""])
+  c(return_args, unlist(other_args[other_args != ""]))
 }
 
 parse_output_args <- function(output_args) {

@@ -31,52 +31,56 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #' @export
 stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
                           lower = -Inf, upper = Inf,
-                          num_psis_draws = 1000,
-                          num_paths = 4, save_single_paths = FALSE,
-                          max_lbfgs_iters = 1000, num_draws = 1000,
-                          num_elbo_draws = 25, output_dir = tempdir(),
-                          control = list()) {
-  fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
-  if (!is.null(grad_fun)) {
-    gr1 <- prepare_function(grad_fun, par_inits, ..., grad = TRUE)
-  } else {
-    gr1 <- fn1
-  }
-
-  nPars <- length(par_inits)
-  finite_diff <- as.integer(is.null(grad_fun))
-
-  if ((length(par_inits) > 1) && (length(lower) == 1)) {
-    lower <- rep(lower, length(par_inits))
-  }
-  if ((length(par_inits) > 1) && (length(upper) == 1)) {
-    upper <- rep(upper, length(par_inits))
-  }
-  data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
-  init_file <- tempfile(fileext = ".json", tmpdir = output_dir)
-  output_file_base <- tempfile(tmpdir = output_dir)
-  output_file <- paste0(output_file_base, ".csv")
-  write_data(nPars, finite_diff, lower, upper, data_file)
-  write_inits(par_inits, init_file)
-
-  args <- c(
-    "pathfinder",
-    paste0("num_psis_draws=", num_psis_draws),
-    paste0("num_paths=", num_paths),
-    paste0("save_single_paths=", as.integer(save_single_paths)),
-    paste0("max_lbfgs_iters=", max_lbfgs_iters),
-    paste0("num_draws=", num_draws),
-    paste0("num_elbo_draws=", num_elbo_draws),
-    "data",
-    paste0("file=", data_file),
-    paste0("init=", init_file),
-    "output",
-    paste0("file=", output_file)
+                          seed = NULL,
+                          refresh = NULL,
+                          output_dir = NULL,
+                          output_basename = NULL,
+                          sig_figs = NULL,
+                          init_alpha = NULL, tol_obj = NULL,
+                          tol_rel_obj = NULL, tol_grad = NULL,
+                          tol_rel_grad = NULL, tol_param = NULL,
+                          history_size = NULL, num_psis_draws = NULL,
+                          num_paths = NULL, save_single_paths = NULL,
+                          max_lbfgs_iters = NULL, num_draws = NULL,
+                          num_elbo_draws = NULL) {
+  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+                            output_dir, output_basename)
+  method_args <- list(
+    init_alpha = init_alpha,
+    tol_obj = tol_obj,
+    tol_rel_obj = tol_rel_obj,
+    tol_grad = tol_grad,
+    tol_rel_grad = tol_rel_grad,
+    tol_param = tol_param,
+    history_size = history_size,
+    num_psis_draws = num_psis_draws,
+    num_paths = num_paths,
+    save_single_paths = save_single_paths,
+    max_lbfgs_iters = max_lbfgs_iters,
+    num_draws = num_draws,
+    num_elbo_draws = num_elbo_draws
   )
 
-  call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
+  output <- list(
+    file = inputs$output_filepath,
+    diagnostic_file = NULL,
+    refresh = refresh,
+    sig_figs = sig_figs,
+    profile_file = NULL
+  )
 
-  parsed <- parse_csv(output_file)
+  args <- build_stan_call(method = "pathfinder",
+                          method_args = method_args,
+                          data_file = inputs$data_filepath,
+                          init = inputs$init_filepath,
+                          seed = seed,
+                          output_args = output,
+                          num_threads = NULL)
+
+  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
+
+  parsed <- parse_csv(inputs$output_filepath)
+
   methods::new("StanPathfinder",
     metadata = parsed$metadata,
     timing = parsed$timing,

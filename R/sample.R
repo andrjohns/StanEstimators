@@ -36,52 +36,81 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @return
 #' @export
 stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
-                        grad_fun = NULL, lower = -Inf, upper = Inf,
-                        num_chains = 4, num_threads = 1, num_samples = 1000, num_warmup = 1000,
-                        save_warmup = FALSE, thin = 1, output_dir = tempdir(),
-                        control = list()) {
-  fn1 <- prepare_function(fn, par_inits, ..., grad = FALSE)
-  if (!is.null(grad_fun)) {
-    gr1 <- prepare_function(grad_fun, par_inits, ..., grad = TRUE)
-  } else {
-    gr1 <- fn1
-  }
-
-  nPars <- length(par_inits)
-  finite_diff <- as.integer(is.null(grad_fun))
-  if ((length(par_inits) > 1) && (length(lower) == 1)) {
-    lower <- rep(lower, length(par_inits))
-  }
-  if ((length(par_inits) > 1) && (length(upper) == 1)) {
-    upper <- rep(upper, length(par_inits))
-  }
-
-  data_file <- tempfile(fileext = ".json", tmpdir = output_dir)
-  init_file <- tempfile(fileext = ".json", tmpdir = output_dir)
-  output_file_base <- tempfile(tmpdir = output_dir)
-  output_file <- paste0(output_file_base, ".csv")
-  write_data(nPars, finite_diff, lower, upper, data_file)
-  write_inits(par_inits, init_file)
-  args <- c(
-    "sample",
-    paste0("num_chains=", num_chains),
-    paste0("num_samples=", num_samples),
-    paste0("num_warmup=", num_warmup),
-    paste0("save_warmup=", as.integer(save_warmup)),
-    paste0("thin=", as.integer(thin)),
-    "data",
-    paste0("file=", data_file),
-    paste0("init=", init_file),
-    "output",
-    paste0("file=", output_file),
-    paste0("num_threads=", num_threads)
+                          grad_fun = NULL, lower = -Inf, upper = Inf,
+                          seed = NULL,
+                          refresh = NULL,
+                          output_dir = NULL,
+                          output_basename = NULL,
+                          sig_figs = NULL,
+                          num_chains = 4,
+                          num_samples = 1000,
+                          num_warmup = 1000,
+                          save_warmup = NULL,
+                          thin = NULL,
+                          adapt_engaged = NULL,
+                          adapt_gamma = NULL,
+                          adapt_delta = NULL,
+                          adapt_kappa = NULL,
+                          adapt_t0 = NULL,
+                          adapt_init_buffer = NULL,
+                          adapt_term_buffer = NULL,
+                          adapt_window = NULL,
+                          int_time = NULL,
+                          max_treedepth = NULL,
+                          metric = NULL,
+                          metric_file = NULL,
+                          stepsize = NULL,
+                          stepsize_jitter = NULL) {
+  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+                            output_dir, output_basename)
+  method_args <- list(
+    algorithm = algorithm,
+    algorithm_args = list(
+      engine = engine,
+      engine_args = list(int_time = int_time, max_depth = max_treedepth),
+      metric = metric,
+      metric_file = metric_file,
+      stepsize = stepsize,
+      stepsize_jitter = stepsize_jitter
+    ),
+    adapt = list(
+      engaged = adapt_engaged,
+      gamma = adapt_gamma,
+      delta = adapt_delta,
+      kappa = adapt_kappa,
+      t0 = adapt_t0,
+      init_buffer = adapt_init_buffer,
+      term_buffer = adapt_term_buffer,
+      window = adapt_window
+    ),
+    num_samples = num_samples,
+    num_warmup = num_warmup,
+    save_warmup = save_warmup,
+    thin = thin,
+    num_chains = num_chains
   )
 
-  call <- call_stan(args, ll_fun = fn1, grad_fun = gr1)
+  output <- list(
+    file = inputs$output_filepath,
+    diagnostic_file = NULL,
+    refresh = refresh,
+    sig_figs = sig_figs,
+    profile_file = NULL
+  )
+  args <- build_stan_call(method = "sample",
+                          method_args = method_args,
+                          data_file = inputs$data_filepath,
+                          init = inputs$init_filepath,
+                          seed = seed,
+                          output_args = output,
+                          num_threads = NULL)
+
+  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
+
   if (num_chains > 1) {
-    output_files <- paste0(output_file_base, paste0("_", 1:num_chains, ".csv"))
+    output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))
   } else {
-    output_files <- paste0(output_file_base, ".csv")
+    output_files <- paste0(inputs$output_basename, ".csv")
   }
   all_samples <- lapply(output_files, function(filepath) {
     parse_csv(filepath)
@@ -106,7 +135,7 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
     timing = timing,
     diagnostics = posterior::subset_draws(draws, variable = diagnostic_vars),
     draws = posterior::subset_draws(draws, variable = par_vars),
-    log_prob = fn1,
+    log_prob = inputs$ll_function,
     lower_bounds = lower,
     upper_bounds = upper
   )
