@@ -12,14 +12,74 @@ stan_variational(
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
-  output_samples = 1000,
-  iter = 1000,
-  grad_samples = 1,
-  elbo_samples = 100,
-  eval_elbo = 100,
-  output_dir = tempdir(),
-  control = list()
+  seed = NULL,
+  refresh = NULL,
+  output_dir = NULL,
+  output_basename = NULL,
+  sig_figs = NULL,
+  iter = NULL,
+  grad_samples = NULL,
+  elbo_samples = NULL,
+  eta = NULL,
+  adapt_engaged = NULL,
+  adapt_iter = NULL,
+  tol_rel_obj = NULL,
+  eval_elbo = NULL,
+  output_samples = NULL
 )
+}
+\arguments{
+\item{fn}{Function to estimate parameters for}
+
+\item{par_inits}{Initial values}
+
+\item{...}{Additional arguments to pass to the function}
+
+\item{algorithm}{(string) The variational inference algorithm. One of
+\code{"meanfield"} or \code{"fullrank"}.}
+
+\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+
+\item{lower}{Lower bound constraint(s) for parameters}
+
+\item{upper}{Upper bound constraint(s) for parameters}
+
+\item{seed}{Random seed}
+
+\item{refresh}{Number of iterations for printing}
+
+\item{output_dir}{Directory to store outputs}
+
+\item{output_basename}{Basename to use for output files}
+
+\item{sig_figs}{Number of significant digits to use for printing}
+
+\item{iter}{(positive integer) The \emph{maximum} number of iterations.}
+
+\item{grad_samples}{(positive integer) The number of samples for Monte Carlo
+estimate of gradients.}
+
+\item{elbo_samples}{(positive integer) The number of samples for Monte Carlo
+estimate of ELBO (objective function).}
+
+\item{eta}{(positive real) The step size weighting parameter for adaptive
+step size sequence.}
+
+\item{adapt_engaged}{(logical) Do warmup adaptation?}
+
+\item{adapt_iter}{(positive integer) The \emph{maximum} number of adaptation
+iterations.}
+
+\item{tol_rel_obj}{(positive real) Convergence tolerance on the relative norm
+of the objective.}
+
+\item{eval_elbo}{(positive integer) Evaluate ELBO every Nth iteration.}
+
+\item{output_samples}{(positive integer) Number of approximate posterior
+samples to draw and save.}
+}
+\value{
+\code{StanVariational} object
 }
 \description{
 Estimate parameters using Stan's variational inference algorithms

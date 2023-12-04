@@ -18,7 +18,6 @@ setClass("StanOptimize",
 #' @param ... Additional arguments, currently unused.
 #'
 #' @export
-
 setMethod("summary", "StanOptimize", function(object, ...) {
   object@estimates
 })
@@ -37,10 +36,10 @@ setMethod("summary", "StanOptimize", function(object, ...) {
 #' @param upper Upper bound constraint(s) for parameters
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
-#' @param save_iterations Save optimization iterations to output file
 #' @param output_dir Directory to store outputs
 #' @param output_basename Basename to use for output files
 #' @param sig_figs Number of significant digits to use for printing
+#' @param save_iterations Save optimization iterations to output file
 #' @param jacobian (logical) Whether or not to use the Jacobian adjustment for
 #'   constrained variables. For historical reasons, the default is `FALSE`, meaning optimization
 #'   yields the (regularized) maximum likelihood estimate. Setting it to `TRUE`

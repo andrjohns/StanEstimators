@@ -12,6 +12,16 @@ setClass("StanMCMC",
   )
 )
 
+#' Summary method for objects of class \code{StanMCMC}.
+#'
+#' @docType methods
+#' @name summary-StanMCMC
+#' @rdname summary-StanMCMC
+#' @aliases summary-StanMCMC summary,StanMCMC-method
+#'
+#' @param object A \code{StanMCMC} object.
+#' @param ... Additional arguments, currently unused.
+#'
 #' @export
 setMethod("summary", "StanMCMC", function(object, ...) {
   posterior::summarise_draws(object@draws)
@@ -21,19 +31,56 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #'
 #' Estimate parameters using Stan's sampling algorithms
 #'
-#' @param fn
-#' @param par_inits
-#' @param ...
-#' @param algorithm
-#' @param engine
-#' @param num_chains
-#' @param num_samples
-#' @param num_warmup
-#' @param save_warmup
-#' @param thin
-#' @param output_dir
-#' @param control
-#' @return
+#' @param fn Function to estimate parameters for
+#' @param par_inits Initial values
+#' @param ... Additional arguments to pass to the function
+#' @param algorithm (string) The sampling algorithm. One of `"hmc"`
+#'    or `"fixed_param"`.
+#' @param engine (string) The `HMC` engine to use, one of `"nuts"` or `"static"`
+#' @param grad_fun Function calculating gradients w.r.t. each parameter
+#' @param lower Lower bound constraint(s) for parameters
+#' @param upper Upper bound constraint(s) for parameters
+#' @param seed Random seed
+#' @param refresh Number of iterations for printing
+#' @param output_dir Directory to store outputs
+#' @param output_basename Basename to use for output files
+#' @param sig_figs Number of significant digits to use for printing
+#' @param num_chains (positive integer) The number of Markov chains to run. The
+#'   default is 4.
+#' @param num_samples (positive integer) The number of post-warmup iterations
+#'   to run per chain.
+#' @param num_warmup (positive integer) The number of warmup iterations to run
+#'   per chain.
+#' @param save_warmup (logical) Should warmup iterations be saved? The default
+#'   is `FALSE`.
+#' @param thin (positive integer) The period between saved samples. This should
+#'   typically be left at its default (no thinning) unless memory is a problem.
+#' @param adapt_engaged (logical) Do warmup adaptation? The default is `TRUE`.
+#' @param adapt_gamma (positive real) Adaptation regularization scale.
+#' @param adapt_delta (real in `(0,1)`) The adaptation target acceptance
+#'   statistic.
+#' @param adapt_kappa (positive real) Adaptation relaxation exponent.
+#' @param adapt_t0 (positive real) Adaptation iteration offset.
+#' @param adapt_init_buffer (nonnegative integer) Width of initial fast timestep
+#'   adaptation interval during warmup.
+#' @param adapt_term_buffer (nonnegative integer) Width of final fast timestep
+#'   adaptation interval during warmup.
+#' @param adapt_window (nonnegative integer) Initial width of slow timestep/metric
+#'   adaptation interval.
+#' @param int_time (positive real) Total integration time
+#' @param max_treedepth (positive integer) The maximum allowed tree depth for
+#'   the NUTS engine.
+#' @param metric (string) One of `"diag_e"`, `"dense_e"`, or `"unit_e"`,
+#'   specifying the geometry of the base manifold.
+#' @param metric_file (character vector) The paths to JSON or
+#'   Rdump files (one per chain) compatible with CmdStan that contain
+#'   precomputed inverse metrics.
+#' @param stepsize (positive real) The _initial_ step size for the discrete
+#'   approximation to continuous Hamiltonian dynamics.
+#' @param stepsize_jitter (real in `(0,1)`) Allows step size to be “jittered”
+#'    randomly during sampling to avoid any poor interactions with a
+#'    fixed step size and regions of high curvature.
+#' @return \code{StanMCMC} object
 #' @export
 stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
                           grad_fun = NULL, lower = -Inf, upper = Inf,

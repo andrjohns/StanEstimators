@@ -13,15 +13,116 @@ stan_sample(
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
+  seed = NULL,
+  refresh = NULL,
+  output_dir = NULL,
+  output_basename = NULL,
+  sig_figs = NULL,
   num_chains = 4,
-  num_threads = 1,
   num_samples = 1000,
   num_warmup = 1000,
-  save_warmup = FALSE,
-  thin = 1,
-  output_dir = tempdir(),
-  control = list()
+  save_warmup = NULL,
+  thin = NULL,
+  adapt_engaged = NULL,
+  adapt_gamma = NULL,
+  adapt_delta = NULL,
+  adapt_kappa = NULL,
+  adapt_t0 = NULL,
+  adapt_init_buffer = NULL,
+  adapt_term_buffer = NULL,
+  adapt_window = NULL,
+  int_time = NULL,
+  max_treedepth = NULL,
+  metric = NULL,
+  metric_file = NULL,
+  stepsize = NULL,
+  stepsize_jitter = NULL
 )
+}
+\arguments{
+\item{fn}{Function to estimate parameters for}
+
+\item{par_inits}{Initial values}
+
+\item{...}{Additional arguments to pass to the function}
+
+\item{algorithm}{(string) The sampling algorithm. One of \code{"hmc"}
+or \code{"fixed_param"}.}
+
+\item{engine}{(string) The \code{HMC} engine to use, one of \code{"nuts"} or \code{"static"}}
+
+\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+
+\item{lower}{Lower bound constraint(s) for parameters}
+
+\item{upper}{Upper bound constraint(s) for parameters}
+
+\item{seed}{Random seed}
+
+\item{refresh}{Number of iterations for printing}
+
+\item{output_dir}{Directory to store outputs}
+
+\item{output_basename}{Basename to use for output files}
+
+\item{sig_figs}{Number of significant digits to use for printing}
+
+\item{num_chains}{(positive integer) The number of Markov chains to run. The
+default is 4.}
+
+\item{num_samples}{(positive integer) The number of post-warmup iterations
+to run per chain.}
+
+\item{num_warmup}{(positive integer) The number of warmup iterations to run
+per chain.}
+
+\item{save_warmup}{(logical) Should warmup iterations be saved? The default
+is \code{FALSE}.}
+
+\item{thin}{(positive integer) The period between saved samples. This should
+typically be left at its default (no thinning) unless memory is a problem.}
+
+\item{adapt_engaged}{(logical) Do warmup adaptation? The default is \code{TRUE}.}
+
+\item{adapt_gamma}{(positive real) Adaptation regularization scale.}
+
+\item{adapt_delta}{(real in \verb{(0,1)}) The adaptation target acceptance
+statistic.}
+
+\item{adapt_kappa}{(positive real) Adaptation relaxation exponent.}
+
+\item{adapt_t0}{(positive real) Adaptation iteration offset.}
+
+\item{adapt_init_buffer}{(nonnegative integer) Width of initial fast timestep
+adaptation interval during warmup.}
+
+\item{adapt_term_buffer}{(nonnegative integer) Width of final fast timestep
+adaptation interval during warmup.}
+
+\item{adapt_window}{(nonnegative integer) Initial width of slow timestep/metric
+adaptation interval.}
+
+\item{int_time}{(positive real) Total integration time}
+
+\item{max_treedepth}{(positive integer) The maximum allowed tree depth for
+the NUTS engine.}
+
+\item{metric}{(string) One of \code{"diag_e"}, \code{"dense_e"}, or \code{"unit_e"},
+specifying the geometry of the base manifold.}
+
+\item{metric_file}{(character vector) The paths to JSON or
+Rdump files (one per chain) compatible with CmdStan that contain
+precomputed inverse metrics.}
+
+\item{stepsize}{(positive real) The \emph{initial} step size for the discrete
+approximation to continuous Hamiltonian dynamics.}
+
+\item{stepsize_jitter}{(real in \verb{(0,1)}) Allows step size to be “jittered”
+randomly during sampling to avoid any poor interactions with a
+fixed step size and regions of high curvature.}
+}
+\value{
+\code{StanMCMC} object
 }
 \description{
 Estimate parameters using Stan's sampling algorithms

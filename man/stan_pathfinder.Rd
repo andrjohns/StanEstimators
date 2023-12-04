@@ -11,15 +11,82 @@ stan_pathfinder(
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
-  num_psis_draws = 1000,
-  num_paths = 4,
-  save_single_paths = FALSE,
-  max_lbfgs_iters = 1000,
-  num_draws = 1000,
-  num_elbo_draws = 25,
-  output_dir = tempdir(),
-  control = list()
+  seed = NULL,
+  refresh = NULL,
+  output_dir = NULL,
+  output_basename = NULL,
+  sig_figs = NULL,
+  init_alpha = NULL,
+  tol_obj = NULL,
+  tol_rel_obj = NULL,
+  tol_grad = NULL,
+  tol_rel_grad = NULL,
+  tol_param = NULL,
+  history_size = NULL,
+  num_psis_draws = NULL,
+  num_paths = NULL,
+  save_single_paths = NULL,
+  max_lbfgs_iters = NULL,
+  num_draws = NULL,
+  num_elbo_draws = NULL
 )
+}
+\arguments{
+\item{fn}{Function to estimate parameters for}
+
+\item{par_inits}{Initial values}
+
+\item{...}{Additional arguments to pass to the function}
+
+\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+
+\item{lower}{Lower bound constraint(s) for parameters}
+
+\item{upper}{Upper bound constraint(s) for parameters}
+
+\item{seed}{Random seed}
+
+\item{refresh}{Number of iterations for printing}
+
+\item{output_dir}{Directory to store outputs}
+
+\item{output_basename}{Basename to use for output files}
+
+\item{sig_figs}{Number of significant digits to use for printing}
+
+\item{init_alpha}{(positive real) The initial step size parameter.}
+
+\item{tol_obj}{(positive real) Convergence tolerance on changes in objective function value.}
+
+\item{tol_rel_obj}{(positive real) Convergence tolerance on relative changes in objective function value.}
+
+\item{tol_grad}{(positive real) Convergence tolerance on the norm of the gradient.}
+
+\item{tol_rel_grad}{(positive real) Convergence tolerance on the relative norm of the gradient.}
+
+\item{tol_param}{(positive real) Convergence tolerance on changes in parameter value.}
+
+\item{history_size}{(positive integer) The size of the history used when
+approximating the Hessian.}
+
+\item{num_psis_draws}{(positive integer) Number PSIS draws to return.}
+
+\item{num_paths}{(positive integer) Number of single pathfinders to run.}
+
+\item{save_single_paths}{(logical) Whether to save the results of single
+pathfinder runs in multi-pathfinder.}
+
+\item{max_lbfgs_iters}{(positive integer) The maximum number of iterations
+for LBFGS.}
+
+\item{num_draws}{(positive integer) Number of draws to return after performing
+pareto smooted importance sampling (PSIS).}
+
+\item{num_elbo_draws}{(positive integer) Number of draws to make when
+calculating the ELBO of the approximation at each iteration of LBFGS.}
+}
+\value{
+\code{StanPathfinder} object
 }
 \description{
 Estimate parameters using Stan's pathfinder algorithm

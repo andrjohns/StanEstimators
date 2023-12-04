@@ -7,6 +7,16 @@ setClass("StanPathfinder",
   )
 )
 
+#' Summary method for objects of class \code{StanPathfinder}.
+#'
+#' @docType methods
+#' @name summary-StanPathfinder
+#' @rdname summary-StanPathfinder
+#' @aliases summary-StanPathfinder summary,StanPathfinder-method
+#'
+#' @param object A \code{StanPathfinder} object.
+#' @param ... Additional arguments, currently unused.
+#'
 #' @export
 setMethod("summary", "StanPathfinder", function(object, ...) {
   posterior::summarise_draws(object@draws)
@@ -16,18 +26,36 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #'
 #' Estimate parameters using Stan's pathfinder algorithm
 #'
-#' @param fn
-#' @param par_inits
-#' @param ...
-#' @param num_psis_draws
-#' @param num_paths
-#' @param save_single_paths
-#' @param max_lbfgs_iters
-#' @param num_draws
-#' @param num_elbo_draws
-#' @param output_dir
-#' @param control
-#' @return
+#' @param fn Function to estimate parameters for
+#' @param par_inits Initial values
+#' @param ... Additional arguments to pass to the function
+#' @param grad_fun Function calculating gradients w.r.t. each parameter
+#' @param lower Lower bound constraint(s) for parameters
+#' @param upper Upper bound constraint(s) for parameters
+#' @param seed Random seed
+#' @param refresh Number of iterations for printing
+#' @param output_dir Directory to store outputs
+#' @param output_basename Basename to use for output files
+#' @param sig_figs Number of significant digits to use for printing
+#' @param init_alpha (positive real) The initial step size parameter.
+#' @param tol_obj (positive real) Convergence tolerance on changes in objective function value.
+#' @param tol_rel_obj (positive real) Convergence tolerance on relative changes in objective function value.
+#' @param tol_grad (positive real) Convergence tolerance on the norm of the gradient.
+#' @param tol_rel_grad (positive real) Convergence tolerance on the relative norm of the gradient.
+#' @param tol_param (positive real) Convergence tolerance on changes in parameter value.
+#' @param history_size (positive integer) The size of the history used when
+#'   approximating the Hessian.
+#' @param num_psis_draws (positive integer) Number PSIS draws to return.
+#' @param num_paths (positive integer) Number of single pathfinders to run.
+#' @param save_single_paths (logical) Whether to save the results of single
+#'   pathfinder runs in multi-pathfinder.
+#' @param max_lbfgs_iters (positive integer) The maximum number of iterations
+#'   for LBFGS.
+#' @param num_draws (positive integer) Number of draws to return after performing
+#'   pareto smooted importance sampling (PSIS).
+#' @param num_elbo_draws (positive integer) Number of draws to make when
+#'   calculating the ELBO of the approximation at each iteration of LBFGS.
+#' @return \code{StanPathfinder} object
 #' @export
 stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
                           lower = -Inf, upper = Inf,

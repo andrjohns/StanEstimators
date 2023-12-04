@@ -7,6 +7,16 @@ setClass("StanVariational",
   )
 )
 
+#' Summary method for objects of class \code{StanVariational}.
+#'
+#' @docType methods
+#' @name summary-StanVariational
+#' @rdname summary-StanVariational
+#' @aliases summary-StanVariational summary,StanVariational-method
+#'
+#' @param object A \code{StanVariational} object.
+#' @param ... Additional arguments, currently unused.
+#'
 #' @export
 setMethod("summary", "StanVariational", function(object, ...) {
   posterior::summarise_draws(object@draws)
@@ -16,18 +26,35 @@ setMethod("summary", "StanVariational", function(object, ...) {
 #'
 #' Estimate parameters using Stan's variational inference algorithms
 #'
-#' @param fn
-#' @param par_inits
-#' @param ...
-#' @param algorithm
-#' @param output_samples
-#' @param iter
-#' @param grad_samples
-#' @param elbo_samples
-#' @param eval_elbo
-#' @param output_dir
-#' @param control
-#' @return
+#' @param fn Function to estimate parameters for
+#' @param par_inits Initial values
+#' @param ... Additional arguments to pass to the function
+#' @param algorithm (string) The variational inference algorithm. One of
+#'  `"meanfield"` or `"fullrank"`.
+#' @param grad_fun Function calculating gradients w.r.t. each parameter
+#' @param lower Lower bound constraint(s) for parameters
+#' @param upper Upper bound constraint(s) for parameters
+#' @param seed Random seed
+#' @param refresh Number of iterations for printing
+#' @param output_dir Directory to store outputs
+#' @param output_basename Basename to use for output files
+#' @param sig_figs Number of significant digits to use for printing
+#' @param iter (positive integer) The _maximum_ number of iterations.
+#' @param grad_samples (positive integer) The number of samples for Monte Carlo
+#'   estimate of gradients.
+#' @param elbo_samples (positive integer) The number of samples for Monte Carlo
+#'   estimate of ELBO (objective function).
+#' @param eta (positive real) The step size weighting parameter for adaptive
+#'   step size sequence.
+#' @param adapt_engaged (logical) Do warmup adaptation?
+#' @param adapt_iter (positive integer) The _maximum_ number of adaptation
+#'   iterations.
+#' @param tol_rel_obj (positive real) Convergence tolerance on the relative norm
+#'   of the objective.
+#' @param eval_elbo (positive integer) Evaluate ELBO every Nth iteration.
+#' @param output_samples (positive integer) Number of approximate posterior
+#'   samples to draw and save.
+#' @return \code{StanVariational} object
 #' @export
 stan_variational <- function(fn, par_inits, ..., algorithm = "meanfield",
                              grad_fun = NULL, lower = -Inf, upper = Inf,

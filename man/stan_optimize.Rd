@@ -14,11 +14,11 @@ stan_optimize(
   upper = Inf,
   seed = NULL,
   refresh = NULL,
-  save_latent_dynamics = FALSE,
   output_dir = NULL,
   output_basename = NULL,
   sig_figs = NULL,
-  jacobian = FALSE,
+  save_iterations = NULL,
+  jacobian = NULL,
   init_alpha = NULL,
   iter = NULL,
   tol_obj = NULL,
@@ -49,13 +49,13 @@ stan_optimize(
 
 \item{refresh}{Number of iterations for printing}
 
-\item{save_latent_dynamics}{Save diagnostic CSV files to a specified location}
-
 \item{output_dir}{Directory to store outputs}
 
 \item{output_basename}{Basename to use for output files}
 
 \item{sig_figs}{Number of significant digits to use for printing}
+
+\item{save_iterations}{Save optimization iterations to output file}
 
 \item{jacobian}{(logical) Whether or not to use the Jacobian adjustment for
 constrained variables. For historical reasons, the default is \code{FALSE}, meaning optimization
