@@ -210,6 +210,7 @@ cmdstan_syntax_tree <- list(
   "num_threads"
 )
 
+# Need to refactor this, what a mess
 parse_method_args <- function(method, method_args) {
   method_tree <- cmdstan_syntax_tree[[method]]
   return_args <- c(method)

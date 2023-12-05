@@ -18,16 +18,16 @@ grad <- function(v, x) {
 
 test_that("stan_sample runs", {
   expect_no_error(
-    fit <- stan_sample(loglik_fun, inits, y, lower = c(-Inf, 0),
+    samp_fd <- stan_sample(loglik_fun, inits, y, lower = c(-Inf, 0),
                         num_chains = 1, seed = 1234)
   )
   expect_no_error(
-    fit <- stan_sample(loglik_fun, inits, y, grad_fun = grad,
+    samp_gd <- stan_sample(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0),
                         num_chains = 1, seed = 1234)
   )
   expect_no_error(
-    fit <- stan_sample(loglik_fun, inits, y, grad_fun = grad,
+    samp_gd_dense <- stan_sample(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0),
                         metric = "dense_e",
                         num_chains = 1, seed = 1234)
@@ -36,15 +36,15 @@ test_that("stan_sample runs", {
 
 test_that("stan_optimize runs", {
   expect_no_error(
-    fit <- stan_optimize(loglik_fun, inits, y, lower = c(-Inf, 0),
+    opt_fd <- stan_optimize(loglik_fun, inits, y, lower = c(-Inf, 0),
                          seed = 1234)
   )
   expect_no_error(
-    fit <- stan_optimize(loglik_fun, inits, y, grad_fun = grad,
+    opt_gd <- stan_optimize(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0), seed = 1234)
   )
   expect_no_error(
-    fit <- stan_optimize(loglik_fun, inits, y, grad_fun = grad,
+    opt_gd_bfgs <- stan_optimize(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0),
                         algorithm = "bfgs",
                         seed = 1234)
@@ -53,15 +53,15 @@ test_that("stan_optimize runs", {
 
 test_that("stan_variational runs", {
   expect_no_error(
-    fit <- stan_variational(loglik_fun, inits, y, lower = c(-Inf, 0),
+    var_fd <- stan_variational(loglik_fun, inits, y, lower = c(-Inf, 0),
                          seed = 1234)
   )
   expect_no_error(
-    fit <- stan_variational(loglik_fun, inits, y, grad_fun = grad,
+    var_gd <- stan_variational(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0), seed = 1234)
   )
   expect_no_error(
-    fit <- stan_variational(loglik_fun, inits, y, grad_fun = grad,
+    var_gd_fullrank <- stan_variational(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0),
                         algorithm = "fullrank",
                         seed = 1234)
@@ -70,11 +70,24 @@ test_that("stan_variational runs", {
 
 test_that("stan_pathfinder runs", {
   expect_no_error(
-    fit <- stan_pathfinder(loglik_fun, inits, y, lower = c(-Inf, 0),
+    path_fd <- stan_pathfinder(loglik_fun, inits, y, lower = c(-Inf, 0),
                          seed = 1234)
   )
   expect_no_error(
-    fit <- stan_pathfinder(loglik_fun, inits, y, grad_fun = grad,
+    path_gd <- stan_pathfinder(loglik_fun, inits, y, grad_fun = grad,
                         lower = c(-Inf, 0), seed = 1234)
   )
+})
+
+test_that("stan_laplace runs", {
+  opt_fd <- stan_optimize(loglik_fun, inits, y, lower = c(-Inf, 0),
+                        seed = 1234)
+  opt_mode <- stan_laplace(loglik_fun, inits, y,
+                            lower = c(-Inf, 0),
+                            mode = opt_fd)
+  num_mode <- stan_laplace(loglik_fun, inits, y,
+                            lower = c(-Inf, 0),
+                            mode = c(10, 2))
+  no_mode <- stan_laplace(loglik_fun, inits, y,
+                            lower = c(-Inf, 0))
 })

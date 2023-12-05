@@ -134,6 +134,33 @@ summary(opt_fd)
 summary(opt_grad)
 ```
 
+### Laplace Approximation
+
+```{r, results=FALSE, message=FALSE, warning=FALSE}
+# Can provide the mode as a numeric vector: 
+lapl_num <- stan_laplace(loglik_fun, inits, y,
+                          mode = c(10, 2),
+                          lower = c(-Inf, 0),
+                          seed = 1234)
+
+# Can provide the mode as a StanOptimize object: 
+lapl_opt <- stan_laplace(loglik_fun, inits, y,
+                          mode = opt_fd,
+                          lower = c(-Inf, 0),
+                          seed = 1234)
+
+# Can estimate the mode before sampling: 
+lapl_est <- stan_laplace(loglik_fun, inits, y,
+                          lower = c(-Inf, 0),
+                          seed = 1234)
+```
+
+```{r}
+summary(lapl_num)
+summary(lapl_opt)
+summary(lapl_est)
+```
+
 ### Variational Inference
 
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
