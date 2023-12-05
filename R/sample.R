@@ -33,7 +33,7 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #'
 #' @param fn Function to estimate parameters for
 #' @param par_inits Initial values
-#' @param ... Additional arguments to pass to the function
+#' @param additional_args List of additional arguments to pass to the function
 #' @param algorithm (string) The sampling algorithm. One of `"hmc"`
 #'    or `"fixed_param"`.
 #' @param engine (string) The `HMC` engine to use, one of `"nuts"` or `"static"`
@@ -82,7 +82,8 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #'    fixed step size and regions of high curvature.
 #' @return \code{StanMCMC} object
 #' @export
-stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
+stan_sample <- function(fn, par_inits, additional_args = list(),
+                          algorithm = "hmc", engine = "nuts",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
                           seed = NULL,
                           refresh = NULL,
@@ -108,7 +109,7 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
                           metric_file = NULL,
                           stepsize = NULL,
                           stepsize_jitter = NULL) {
-  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+  inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
                             output_dir, output_basename)
   method_args <- list(
     algorithm = algorithm,
@@ -163,12 +164,10 @@ stan_sample <- function(fn, par_inits, ..., algorithm = "hmc", engine = "nuts",
     parse_csv(filepath)
   })
   draw_names <- all_samples[[1]]$header
-  all_draws <- lapply(all_samples, function(chain) {
-    setNames(data.frame(chain$samples), chain$header)
-  })
   metadata <- all_samples[[1]]$metadata
   adaptation <- lapply(all_samples, function(chain) { chain$adaptation })
   timing <- lapply(all_samples, function(chain) { chain$timing })
+  par_cols <- grep("pars", draw_names)
   draws <- lapply(all_samples, function(chain) {
     setNames(data.frame(chain$samples), chain$header)
   })

@@ -28,7 +28,7 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #'
 #' @param fn Function to estimate parameters for
 #' @param par_inits Initial values
-#' @param ... Additional arguments to pass to the function
+#' @param additional_args List of additional arguments to pass to the function
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
@@ -57,7 +57,7 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #'   calculating the ELBO of the approximation at each iteration of LBFGS.
 #' @return \code{StanPathfinder} object
 #' @export
-stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
+stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = NULL,
                           lower = -Inf, upper = Inf,
                           seed = NULL,
                           refresh = NULL,
@@ -71,7 +71,7 @@ stan_pathfinder <- function(fn, par_inits, ..., grad_fun = NULL,
                           num_paths = NULL, save_single_paths = NULL,
                           max_lbfgs_iters = NULL, num_draws = NULL,
                           num_elbo_draws = NULL) {
-  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+  inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
                             output_dir, output_basename)
   method_args <- list(
     init_alpha = init_alpha,

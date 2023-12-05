@@ -7,7 +7,7 @@
 stan_optimize(
   fn,
   par_inits,
-  ...,
+  additional_args = list(),
   algorithm = "lbfgs",
   grad_fun = NULL,
   lower = -Inf,
@@ -34,7 +34,7 @@ stan_optimize(
 
 \item{par_inits}{Initial values}
 
-\item{...}{Additional arguments to pass to the function}
+\item{additional_args}{List of additional arguments to pass to the function}
 
 \item{algorithm}{(string) The optimization algorithm. One of \code{"lbfgs"},
 \code{"bfgs"}, or \code{"newton"}.}

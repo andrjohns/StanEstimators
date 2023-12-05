@@ -7,7 +7,7 @@
 stan_variational(
   fn,
   par_inits,
-  ...,
+  additional_args = list(),
   algorithm = "meanfield",
   grad_fun = NULL,
   lower = -Inf,
@@ -33,7 +33,7 @@ stan_variational(
 
 \item{par_inits}{Initial values}
 
-\item{...}{Additional arguments to pass to the function}
+\item{additional_args}{List of additional arguments to pass to the function}
 
 \item{algorithm}{(string) The variational inference algorithm. One of
 \code{"meanfield"} or \code{"fullrank"}.}

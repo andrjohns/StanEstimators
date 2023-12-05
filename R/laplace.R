@@ -29,7 +29,7 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 #'
 #' @param fn Function to estimate parameters for
 #' @param par_inits Initial values
-#' @param ... Additional arguments to pass to the function
+#' @param additional_args List of additional arguments to pass to the function
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
@@ -48,7 +48,7 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 #'  `stan_optimize()` if `mode=NULL`.
 #' @return \code{StanLaplace} object
 #' @export
-stan_laplace <- function(fn, par_inits, ...,
+stan_laplace <- function(fn, par_inits, additional_args = list(),
                              grad_fun = NULL, lower = -Inf, upper = Inf,
                               seed = NULL,
                               refresh = NULL,
@@ -59,7 +59,7 @@ stan_laplace <- function(fn, par_inits, ...,
                               jacobian = NULL,
                               draws = NULL,
                               opt_args = NULL) {
-  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+  inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
                             output_dir, output_basename)
   mode_file <- paste0(inputs$output_basename, "_mode.json")
   if (!is.null(mode)) {
@@ -73,7 +73,7 @@ stan_laplace <- function(fn, par_inits, ...,
     curr_args <- list(
       fn = fn,
       par_inits = par_inits,
-      ...,
+      additional_args = additional_args,
       grad_fun = grad_fun,
       lower = lower,
       upper = upper,
@@ -117,6 +117,7 @@ stan_laplace <- function(fn, par_inits, ...,
 
   parsed <- parse_csv(inputs$output_filepath)
   estimates <- setNames(data.frame(parsed$samples), parsed$header)
+
   methods::new("StanLaplace",
     metadata = parsed$metadata,
     timing = parsed$timing,

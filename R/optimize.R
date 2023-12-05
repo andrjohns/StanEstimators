@@ -28,7 +28,7 @@ setMethod("summary", "StanOptimize", function(object, ...) {
 #'
 #' @param fn Function to estimate parameters for
 #' @param par_inits Initial values
-#' @param ... Additional arguments to pass to the function
+#' @param additional_args List of additional arguments to pass to the function
 #' @param algorithm (string) The optimization algorithm. One of `"lbfgs"`,
 #'   `"bfgs"`, or `"newton"`.
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
@@ -55,7 +55,7 @@ setMethod("summary", "StanOptimize", function(object, ...) {
 #'   approximating the Hessian. Only available for L-BFGS.
 #' @return \code{StanOptimize} object
 #' @export
-stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
+stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "lbfgs",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
                           seed = NULL,
                           refresh = NULL,
@@ -72,7 +72,7 @@ stan_optimize <- function(fn, par_inits, ..., algorithm = "lbfgs",
                           tol_rel_grad = NULL,
                           tol_param = NULL,
                           history_size = NULL) {
-  inputs <- prepare_inputs(fn, par_inits, list(...), grad_fun, lower, upper,
+  inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
                             output_dir, output_basename)
 
   method_args <- list(

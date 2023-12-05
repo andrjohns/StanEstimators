@@ -7,7 +7,7 @@
 stan_sample(
   fn,
   par_inits,
-  ...,
+  additional_args = list(),
   algorithm = "hmc",
   engine = "nuts",
   grad_fun = NULL,
@@ -44,7 +44,7 @@ stan_sample(
 
 \item{par_inits}{Initial values}
 
-\item{...}{Additional arguments to pass to the function}
+\item{additional_args}{List of additional arguments to pass to the function}
 
 \item{algorithm}{(string) The sampling algorithm. One of \code{"hmc"}
 or \code{"fixed_param"}.}

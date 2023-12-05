@@ -7,7 +7,7 @@
 stan_pathfinder(
   fn,
   par_inits,
-  ...,
+  additional_args = list(),
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
@@ -36,7 +36,7 @@ stan_pathfinder(
 
 \item{par_inits}{Initial values}
 
-\item{...}{Additional arguments to pass to the function}
+\item{additional_args}{List of additional arguments to pass to the function}
 
 \item{grad_fun}{Function calculating gradients w.r.t. each parameter}
 

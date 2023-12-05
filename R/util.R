@@ -213,7 +213,7 @@ cmdstan_syntax_tree <- list(
 # Need to refactor this, what a mess
 parse_method_args <- function(method, method_args) {
   method_tree <- cmdstan_syntax_tree[[method]]
-  return_args <- c(method)
+  return_args <- c("")
   if (!is.null(method_tree$algorithm)) {
     algorithm <- method_args$algorithm
     algo_tree <- method_tree$algorithm[[method_args$algorithm]]
@@ -268,7 +268,11 @@ parse_output_args <- function(output_args) {
 }
 
 build_stan_call <- function(method, method_args, data_file, init, seed, output_args, num_threads) {
-  method_string <- parse_method_args(method, method_args)
+  if (method == "diagnose") {
+    method_string <- ""
+  } else {
+    method_string <- parse_method_args(method, method_args)
+  }
   data_string <- c("data", paste0("file=", data_file))
   init_string <- paste0("init=", init)
   if (!is.null(seed)) {
@@ -278,6 +282,6 @@ build_stan_call <- function(method, method_args, data_file, init, seed, output_a
   }
   output_string <- parse_output_args(output_args)
   num_threads_string <- ifelse(!is.null(num_threads), paste0("num_threads=", num_threads), "")
-  args <- unlist(c(method_string, data_string, init_string, random_string, output_string, num_threads_string))
+  args <- unlist(c(method, method_string, data_string, init_string, random_string, output_string, num_threads_string))
   args[args != ""]
 }
