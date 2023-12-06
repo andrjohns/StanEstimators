@@ -38,5 +38,8 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
   } catch (const std::exception& e) {
     Rcpp::Rcerr << e.what() << std::endl;
     return Rcpp::wrap(0);
+  } catch (...) {
+    Rcpp::Rcerr << "Unknown exception thrown!" << std::endl;
+    return Rcpp::wrap(0);
   }
 }
