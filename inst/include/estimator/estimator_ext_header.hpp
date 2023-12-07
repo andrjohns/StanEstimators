@@ -5,10 +5,10 @@
 #include <RcppEigen.h>
 
 namespace internal {
-  Rcpp::Function ll_fun("ls");
-  Rcpp::Function grad_fun("ls");
+  SEXP ll_call;
+  SEXP env;
+  SEXP grad_call;
 }
-
 
 double constrain_grads_impl(double x, double lb_val, double ub_val) {
   const bool is_lb_inf = lb_val == stan::math::NEGATIVE_INFTY;
@@ -40,12 +40,13 @@ template <typename T, typename TLower, typename TUpper,
 double r_function(const T& v, int finite_diff, int no_bounds,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
-  return Rcpp::as<double>(internal::ll_fun(v));
+
+  return Rcpp::as<double>(Rcpp::Rcpp_fast_eval(Rf_lang2(internal::ll_call, Rcpp::wrap(v)), internal::env));
 }
 
 template <typename T, typename TLower, typename TUpper,
           stan::require_st_var<T>* = nullptr>
-stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
+stan::math::var r_function(T& v, int finite_diff, int no_bounds,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
   using stan::math::finite_diff_gradient_auto;
@@ -59,7 +60,7 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
     if (no_bounds == 1) {
       finite_diff_gradient_auto(
         [&](const auto& x) {
-          return Rcpp::as<double>(internal::ll_fun(x));
+          return Rcpp::as<double>(Rcpp::Rcpp_fast_eval(Rf_lang2(internal::ll_call, Rcpp::wrap(x)), internal::env));
         }, v.val(), ret, grad);
 
       arena_grad = grad;
@@ -67,7 +68,8 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
       Eigen::VectorXd unconstrained = stan::math::lub_free(v.val(), lower_bounds, upper_bounds);
       finite_diff_gradient_auto(
         [&](const auto& x) {
-          return Rcpp::as<double>(internal::ll_fun(stan::math::lub_constrain(x, lower_bounds, upper_bounds)));
+          auto ret = stan::math::lub_constrain(x, lower_bounds, upper_bounds);
+          return Rcpp::as<double>(Rcpp::Rcpp_fast_eval(Rf_lang2(internal::ll_call, Rcpp::wrap(ret)), internal::env));
         }, unconstrained, ret, grad);
 
       arena_grad = grad.cwiseProduct(constrain_grads(unconstrained, lower_bounds, upper_bounds));
@@ -77,9 +79,9 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
     });
   } else {
     return make_callback_var(
-      Rcpp::as<double>(internal::ll_fun(v.val())),
+      Rcpp::as<double>(Rcpp::Rcpp_fast_eval(Rf_lang2(internal::ll_call, Rcpp::wrap(arena_v.val())), internal::env)),
       [arena_v](auto& vi) mutable {
-        arena_v.adj() += vi.adj() * Rcpp::as<Eigen::Map<Eigen::VectorXd>>(internal::grad_fun(arena_v.val()));
+        arena_v.adj() += vi.adj() * Rcpp::as<Eigen::Map<Eigen::VectorXd>>(Rcpp::Rcpp_fast_eval(Rf_lang2(internal::grad_call, Rcpp::wrap(arena_v.val())), internal::env));
     });
   }
 }

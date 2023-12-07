@@ -153,7 +153,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           output_args = output,
                           num_threads = NULL)
 
-  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
+  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function, env = parent.frame())
 
   if (num_chains > 1) {
     output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))
