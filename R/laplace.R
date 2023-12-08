@@ -113,7 +113,7 @@ stan_laplace <- function(fn, par_inits, additional_args = list(),
                           output_args = output,
                           num_threads = NULL)
 
-  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function, env = parent.frame())
+  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
 
   parsed <- parse_csv(inputs$output_filepath)
   estimates <- setNames(data.frame(parsed$samples), parsed$header)

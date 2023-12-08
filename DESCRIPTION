@@ -31,7 +31,6 @@ LinkingTo:
   BH,
   RcppParallel,
   rapidjsonr
-Suggests:
+Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-UseLTO: true
