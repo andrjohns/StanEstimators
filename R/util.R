@@ -75,11 +75,13 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
   }
   bounds_types <- sapply(seq_len(length(par_inits)), function(i) {
     if (lower[i] != -Inf && upper[i] != Inf) {
-      2
-    } else if (lower[i] != -Inf || upper[i] != Inf) {
-      1
-    } else {
       3
+    } else if (lower[i] != -Inf) {
+      1
+    } else if (upper[i] != Inf) {
+      2
+    } else {
+      4
     }
   })
   if (is.null(output_dir)) {
