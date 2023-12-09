@@ -88,8 +88,7 @@ library(StanEstimators)
 
 fit <- stan_sample(loglik_fun, inits, additional_args = list(y),
                    lower = c(-Inf, 0), # Enforce a positivity constraint for SD
-                   num_chains = 1,
-                        seed = 1234)
+                   num_chains = 1, seed = 1234)
 ```
 
 We can see that the parameters were recovered accurately and that the estimation

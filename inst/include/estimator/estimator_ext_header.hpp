@@ -9,52 +9,57 @@ namespace internal {
   Rcpp::Function grad_fun("ls");
 }
 
+enum boundsType {
+  SINGLE = 1,
+  BOTH = 2,
+  NONE = 3
+};
+
+inline double single_b_step(double x, double lb, double hs) {
+  return std::exp(hs) * (x - lb) + lb;
+}
+
+inline double both_b_step(double x, double lb, double ub, double hs) {
+  return lb + (ub - lb) / (1 + (std::exp(-hs) * x - ub) / (lb - x));
+}
+
+inline double fdiff_step(int type, double x, double lb, double ub, double hs) {
+  switch(type) {
+    case SINGLE:
+      return single_b_step(x, lb, hs);
+    case BOTH:
+      return both_b_step(x, lb, ub, hs);
+    case NONE:
+      return x + hs;
+  }
+  return stan::math::NOT_A_NUMBER;
+}
 
 template <typename F, typename T>
-Eigen::VectorXd fdiff(const F& f, const T& x) {
+Eigen::VectorXd fdiff(const F& f, const T& x,
+                            std::vector<int> cons_type,
+                            Eigen::VectorXd lower,
+                            Eigen::VectorXd upper) {
   static int h_scale[6] = {3, 2, 1, -3, -2, -1};
   static int mults[6] = {1, -9, 45, -1, 9, -45};
   Eigen::VectorXd x_temp(x);
-  return Eigen::VectorXd::NullaryExpr(x.size(), [&f, &x, &x_temp](Eigen::Index i) {
+  return Eigen::VectorXd::NullaryExpr(x.size(), [&f, &x, &x_temp, &cons_type, &lower, &upper](Eigen::Index i) {
     double h = stan::math::finite_diff_stepsize(x[i]);
     double delta_f = 0;
     for (int j = 0; j < 6; ++j) {
-      x_temp[i] = x[i] + h * h_scale[j];
+      x_temp[i] = fdiff_step(cons_type[i], x[i], lower[i], upper[i], h * h_scale[j]);
       delta_f += f(x_temp) * mults[j];
     }
     x_temp[i] = x[i];
-    return delta_f / (60 * h);
+    return delta_f / (60 * h * (cons_type[i] == 3 ? 1 : x[i]));
   });
 }
 
-double constrain_grads_impl(double x, double lb_val, double ub_val) {
-  const bool is_lb_inf = lb_val == stan::math::NEGATIVE_INFTY;
-  const bool is_ub_inf = ub_val == stan::math::INFTY;
-  if (unlikely(is_ub_inf && is_lb_inf)) {
-    return 1.0;
-  } else if (unlikely(is_ub_inf)) {
-    return 1.0 / (std::exp(x));
-  } else if (unlikely(is_lb_inf)) {
-    return - 1.0 / (std::exp(x));
-  } else {
-    double diff = ub_val - lb_val;
-    double inv_logit_x = stan::math::inv_logit(x);
-    return 1.0 / (diff * inv_logit_x * (1.0 - inv_logit_x));
-  }
-}
-
-template <typename T, typename TLower, typename TUpper>
-Eigen::VectorXd constrain_grads(const T& v, const TLower& lower_bounds, const TUpper& upper_bounds) {
-  return stan::math::apply_scalar_ternary(
-    [](const auto& x, const auto& lb, const auto& ub) {
-      return constrain_grads_impl(x, lb, ub);
-    }, v, lower_bounds, upper_bounds
-  );
-}
 
 template <typename T, typename TLower, typename TUpper,
           stan::require_st_arithmetic<T>* = nullptr>
 double r_function(const T& v, int finite_diff, int no_bounds,
+                  std::vector<int> bounds_types,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
   return Rcpp::as<double>(internal::ll_fun(v));
@@ -63,6 +68,7 @@ double r_function(const T& v, int finite_diff, int no_bounds,
 template <typename T, typename TLower, typename TUpper,
           stan::require_st_var<T>* = nullptr>
 stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
+                  std::vector<int> bounds_types,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
   using stan::math::finite_diff_gradient_auto;
@@ -70,26 +76,11 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
 
   stan::arena_t<stan::plain_type_t<T>> arena_v = v;
   if (finite_diff == 1) {
-    double ret;
-    Eigen::VectorXd grad;
-    stan::arena_t<Eigen::VectorXd> arena_grad;
-    if (no_bounds == 1) {
-      grad = fdiff(
-        [&](const auto& x) {
-          return Rcpp::as<double>(internal::ll_fun(x));
-        }, v.val());
-
-      arena_grad = grad;
-    } else {
-      Eigen::VectorXd unconstrained = stan::math::lub_free(v.val(), lower_bounds, upper_bounds);
-      grad = fdiff(
-        [&](const auto& x) {
-          return Rcpp::as<double>(internal::ll_fun(stan::math::lub_constrain(x, lower_bounds, upper_bounds)));
-        }, unconstrained);
-
-      arena_grad = grad.cwiseProduct(constrain_grads(unconstrained, lower_bounds, upper_bounds));
-    }
-    return make_callback_var(Rcpp::as<double>(internal::ll_fun(v.val())), [arena_v, arena_grad](auto& vi) mutable {
+  stan::arena_t<Eigen::VectorXd> arena_grad = fdiff(
+        [&](const auto& x) { return Rcpp::as<double>(internal::ll_fun(x)); },
+        v.val(), bounds_types, lower_bounds, upper_bounds);
+    return make_callback_var(
+      Rcpp::as<double>(internal::ll_fun(v.val())), [arena_v, arena_grad](auto& vi) mutable {
       arena_v.adj() += vi.adj() * arena_grad;
     });
   } else {

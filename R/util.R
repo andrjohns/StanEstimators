@@ -1,4 +1,4 @@
-write_data <- function(Npars, finite_diff, lower_bounds, upper_bounds, data_filepath) {
+write_data <- function(Npars, finite_diff, lower_bounds, upper_bounds, bounds_types, data_filepath) {
   no_bounds <- all(lower_bounds == -Inf) && all(upper_bounds == Inf)
   dat_string <- paste(
     '{',
@@ -6,7 +6,8 @@ write_data <- function(Npars, finite_diff, lower_bounds, upper_bounds, data_file
     '"finite_diff" : ', finite_diff, ',',
     '"no_bounds" : ', as.integer(no_bounds), ',',
     '"lower_bounds" : [', paste0(lower_bounds, collapse = ','), '],',
-    '"upper_bounds" : [', paste0(upper_bounds, collapse = ','), ']',
+    '"upper_bounds" : [', paste0(upper_bounds, collapse = ','), '],',
+    '"bounds_types" : [', paste0(bounds_types, collapse = ','), ']',
     '}'
   )
   writeLines(dat_string, con = data_filepath)
@@ -25,7 +26,7 @@ write_inits <- function(inits, init_filepath) {
 
 write_file <- function(what, input_list) {
   if (what == "data") {
-    args <- c("Npars", "finite_diff", "lower_bounds", "upper_bounds", "data_filepath")
+    args <- c("Npars", "finite_diff", "lower_bounds", "upper_bounds", "bounds_types", "data_filepath")
     write_fun <- write_data
   } else if (what == "inits") {
     args <- c("inits", "init_filepath")
@@ -72,6 +73,15 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
   if ((length(par_inits) > 1) && (length(upper) == 1)) {
     upper <- rep(upper, length(par_inits))
   }
+  bounds_types <- sapply(seq_len(length(par_inits)), function(i) {
+    if (lower[i] != -Inf && upper[i] != Inf) {
+      2
+    } else if (lower[i] != -Inf || upper[i] != Inf) {
+      1
+    } else {
+      3
+    }
+  })
   if (is.null(output_dir)) {
     output_dir <- tempdir()
   }
@@ -89,6 +99,7 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
     Npars = length(par_inits),
     lower_bounds = lower,
     upper_bounds = upper,
+    bounds_types = bounds_types,
     data_filepath = tempfile(fileext = ".json", tmpdir = output_dir),
     init_filepath = tempfile(fileext = ".json", tmpdir = output_dir),
     output_filepath = paste0(output_basename, ".csv"),
