@@ -28,8 +28,8 @@ test_that("stan_sample runs", {
   )
   expect_no_error(
     samp_gd_par <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
-                        lower = c(-Inf, 0), num_threads = 4,
-                        num_chains = 4, seed = 1234)
+                        lower = c(-Inf, 0), num_threads = 2,
+                        num_chains = 2, seed = 1234)
   )
   expect_no_error(
     samp_gd_dense <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
@@ -84,7 +84,7 @@ test_that("stan_pathfinder runs", {
   )
   expect_no_error(
     path_gd_par <- stan_pathfinder(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
-                        num_threads = 4, lower = c(-Inf, 0), seed = 1234)
+                        num_threads = 2, num_paths = 2, lower = c(-Inf, 0), seed = 1234)
   )
 })
 
