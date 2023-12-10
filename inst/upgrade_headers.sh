@@ -29,8 +29,10 @@ gsed -i -e 's/std::cout/Rcpp::Rcout/g' include/cmdstan/command.hpp
 gsed -i -e 's/std::cerr/Rcpp::Rcerr/g' include/cmdstan/command.hpp
 gsed -i -e 's/std::cerr/Rcpp::Rcerr/g' include/cmdstan/command_helper.hpp
 
-rm -rf include/stan/math/opencl
-gsed -i -e 's/#include <stan\/math\/opencl\/rev.hpp>//g' include/stan/math/rev.hpp
+# Gives -Woverflow errors under windows
+gsed -i -e 's/const unsigned long prime/const unsigned long long prime/g' ../src/sundials/sundials/sundials_hashmap.h
+gsed -i -e 's/unsigned long hash/unsigned long long hash/g' ../src/sundials/sundials/sundials_hashmap.h
+
 
 rm cmdstan-$CMDSTAN_VER.tar.gz
 rm -rf cmdstan-$CMDSTAN_VER

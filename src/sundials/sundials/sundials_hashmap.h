@@ -32,8 +32,8 @@
  */
 static unsigned long fnv1a_hash(const char* str)
 {
-  const unsigned long prime = 14695981039346656037U;   /* prime */
-  unsigned long hash        = 1099511628211U;          /* offset basis */
+  const unsigned long long prime = 14695981039346656037U;   /* prime */
+  unsigned long long hash        = 1099511628211U;          /* offset basis */
   char c;
   while ((c = *str++))
     hash = (hash^c) * prime;
