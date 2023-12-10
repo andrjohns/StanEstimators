@@ -10,6 +10,14 @@ namespace internal {
 }
 
 enum boundsType { LOWER = 1, UPPER = 2, BOTH = 3, NONE = 4 };
+std::mutex m;
+
+double call_ll(const Eigen::VectorXd& vals) {
+  m.lock();
+  double ret = Rcpp::as<double>(internal::ll_fun(vals));
+  m.unlock();
+  return ret;
+}
 
 template <typename F, typename T>
 Eigen::VectorXd fdiff(const F& f, const T& x,
@@ -63,7 +71,7 @@ double r_function(const T& v, int finite_diff, int no_bounds,
                   std::vector<int> bounds_types,
                   const TLower& lower_bounds, const TUpper& upper_bounds,
                   std::ostream* pstream__) {
-  return Rcpp::as<double>(internal::ll_fun(v));
+  return call_ll(v);
 }
 
 template <typename T, typename TLower, typename TUpper,
@@ -78,18 +86,21 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
   stan::arena_t<stan::plain_type_t<T>> arena_v = v;
   if (finite_diff == 1) {
     stan::arena_t<Eigen::VectorXd> arena_grad =
-      fdiff([&](const auto& x) { return Rcpp::as<double>(internal::ll_fun(x)); },
+      fdiff([&](const auto& x) { return call_ll(x); },
             v.val(), bounds_types, lower_bounds, upper_bounds);
     return make_callback_var(
-      Rcpp::as<double>(internal::ll_fun(v.val())),
+      call_ll(v.val()),
       [arena_v, arena_grad](auto& vi) mutable {
         arena_v.adj() += vi.adj() * arena_grad;
       });
   } else {
     return make_callback_var(
-      Rcpp::as<double>(internal::ll_fun(v.val())),
+      call_ll(v.val()),
       [arena_v](auto& vi) mutable {
-        arena_v.adj() += vi.adj() * Rcpp::as<Eigen::Map<Eigen::VectorXd>>(internal::grad_fun(arena_v.val()));
+        m.lock();
+        Eigen::Map<Eigen::VectorXd> ret = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(internal::grad_fun(arena_v.val()));
+        m.unlock();
+        arena_v.adj() += vi.adj() * ret;
     });
   }
 }

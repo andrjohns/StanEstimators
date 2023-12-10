@@ -4,7 +4,7 @@
 #include <Rcpp.h>
 #include <RcppParallel.h>
 
-RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
+RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun, SEXP num_threads) {
   internal::ll_fun = Rcpp::Function(ll_fun);
   internal::grad_fun = Rcpp::Function(grad_fun);
   std::vector<std::string> options = Rcpp::as<std::vector<std::string>>(options_vector);
@@ -28,9 +28,17 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
     }
   }
   const char** argv2 = const_cast<const char**>(argv);
-  //stan::math::init_threadpool_tbb(4);
   try {
-    int err_code = cmdstan::command(argc, argv2);
+    tbb::task_arena limited(Rcpp::as<int>(num_threads));
+    tbb::task_group tg;
+    int err_code;
+    limited.execute([&]{
+      tg.run([&]{
+        err_code = cmdstan::command(argc, argv2);
+      });
+    });
+    limited.execute([&]{ tg.wait(); });
+
     if (err_code == 0)
       return Rcpp::wrap(1);
     else

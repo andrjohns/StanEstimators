@@ -1,7 +1,7 @@
-call_stan <- function(options_vector, ll_fun, grad_fun) {
+call_stan <- function(options_vector, ll_fun, grad_fun, num_threads = 1) {
   sinkfile <- tempfile()
   sink(file = file(sinkfile, open = "wt"), type = "message")
-  status <- .Call(`call_stan_`, options_vector, ll_fun, grad_fun)
+  status <- .Call(`call_stan_`, options_vector, ll_fun, grad_fun, num_threads)
   sink(file = NULL, type = "message")
   sinklines <- paste(readLines(sinkfile), collapse = "\n")
   if ((status == 0) && (sinklines != "")) {

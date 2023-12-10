@@ -45,6 +45,7 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @param output_dir Directory to store outputs
 #' @param output_basename Basename to use for output files
 #' @param sig_figs Number of significant digits to use for printing
+#' @param num_threads Number of threads to use
 #' @param num_chains (positive integer) The number of Markov chains to run. The
 #'   default is 4.
 #' @param num_samples (positive integer) The number of post-warmup iterations
@@ -90,6 +91,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           output_dir = NULL,
                           output_basename = NULL,
                           sig_figs = NULL,
+                          num_threads = 1,
                           num_chains = 4,
                           num_samples = 1000,
                           num_warmup = 1000,
@@ -151,9 +153,9 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           init = inputs$init_filepath,
                           seed = seed,
                           output_args = output,
-                          num_threads = NULL)
+                          num_threads = num_threads)
 
-  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
+  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function, num_threads = num_threads)
 
   if (num_chains > 1) {
     output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))

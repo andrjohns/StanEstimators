@@ -37,6 +37,7 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #' @param output_dir Directory to store outputs
 #' @param output_basename Basename to use for output files
 #' @param sig_figs Number of significant digits to use for printing
+#' @param num_threads Number of threads to use
 #' @param init_alpha (positive real) The initial step size parameter.
 #' @param tol_obj (positive real) Convergence tolerance on changes in objective function value.
 #' @param tol_rel_obj (positive real) Convergence tolerance on relative changes in objective function value.
@@ -63,7 +64,7 @@ stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = 
                           refresh = NULL,
                           output_dir = NULL,
                           output_basename = NULL,
-                          sig_figs = NULL,
+                          sig_figs = NULL, num_threads = 1,
                           init_alpha = NULL, tol_obj = NULL,
                           tol_rel_obj = NULL, tol_grad = NULL,
                           tol_rel_grad = NULL, tol_param = NULL,
@@ -103,7 +104,7 @@ stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = 
                           init = inputs$init_filepath,
                           seed = seed,
                           output_args = output,
-                          num_threads = NULL)
+                          num_threads = num_threads)
 
   call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
 

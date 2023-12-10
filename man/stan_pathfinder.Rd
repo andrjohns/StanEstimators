@@ -16,6 +16,7 @@ stan_pathfinder(
   output_dir = NULL,
   output_basename = NULL,
   sig_figs = NULL,
+  num_threads = 1,
   init_alpha = NULL,
   tol_obj = NULL,
   tol_rel_obj = NULL,
@@ -53,6 +54,8 @@ stan_pathfinder(
 \item{output_basename}{Basename to use for output files}
 
 \item{sig_figs}{Number of significant digits to use for printing}
+
+\item{num_threads}{Number of threads to use}
 
 \item{init_alpha}{(positive real) The initial step size parameter.}
 
