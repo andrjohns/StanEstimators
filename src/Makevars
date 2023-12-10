@@ -1,5 +1,6 @@
 PKG_CPPFLAGS = -I"../inst/include" -I"../inst/include/sundials" -I"./sundials/sundials" -D_REENTRANT -DSTAN_THREADS
 PKG_CPPFLAGS += -DSTRICT_R_HEADERS -D_HAS_AUTO_PTR_ETC=0 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
+PKG_CPPFLAGS += -DRCPP_PARALLEL_USE_TBB=1
 PKG_CPPFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | tail -n 1)
 PKG_CPPFLAGS += -include ../inst/include/sundials/stan_sundials_printf_override.hpp
 PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()" | tail -n 1)
