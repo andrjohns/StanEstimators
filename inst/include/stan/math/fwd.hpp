@@ -4,7 +4,7 @@
 #include <stan/math/prim/fun/Eigen.hpp>
 
 #ifdef STAN_OPENCL
-#include <stan/math/opencl/prim.hpp>
+#include <opencl/prim.hpp>
 #endif
 
 #include <stan/math/fwd/core.hpp>

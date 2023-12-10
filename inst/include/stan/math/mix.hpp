@@ -12,7 +12,7 @@
 #include <stan/math/fwd/prob.hpp>
 
 #ifdef STAN_OPENCL
-#include <stan/math/opencl/rev.hpp>
+#include <opencl/rev.hpp>
 #endif
 
 #include <stan/math/rev/core.hpp>

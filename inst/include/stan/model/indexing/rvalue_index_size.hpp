@@ -4,7 +4,7 @@
 #include <stan/model/indexing/index.hpp>
 
 #ifdef STAN_OPENCL
-#include <stan/math/opencl/indexing_rev.hpp>
+#include <opencl/indexing_rev.hpp>
 #endif
 
 namespace stan {

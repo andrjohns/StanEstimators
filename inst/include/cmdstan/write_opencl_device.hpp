@@ -3,7 +3,7 @@
 
 #include <stan/callbacks/writer.hpp>
 #ifdef STAN_OPENCL
-#include <stan/math/opencl/opencl_context.hpp>
+#include <opencl/opencl_context.hpp>
 #endif
 #include <string>
 
