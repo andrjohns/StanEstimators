@@ -10,13 +10,9 @@ namespace internal {
 }
 
 enum boundsType { LOWER = 1, UPPER = 2, BOTH = 3, NONE = 4 };
-std::mutex m;
 
-double call_ll(const Eigen::VectorXd& vals) {
-  m.lock();
-  double ret = Rcpp::as<double>(internal::ll_fun(vals));
-  m.unlock();
-  return ret;
+inline double call_ll(const Eigen::VectorXd& vals) {
+  return Rcpp::as<double>(internal::ll_fun(vals));
 }
 
 template <typename F, typename T>
@@ -97,9 +93,7 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
     return make_callback_var(
       call_ll(v.val()),
       [arena_v](auto& vi) mutable {
-        m.lock();
         Eigen::Map<Eigen::VectorXd> ret = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(internal::grad_fun(arena_v.val()));
-        m.unlock();
         arena_v.adj() += vi.adj() * ret;
     });
   }

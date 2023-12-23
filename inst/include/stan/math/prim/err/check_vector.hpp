@@ -9,7 +9,7 @@
 #include <typeinfo>
 
 #ifdef STAN_OPENCL
-#include <opencl/value_type.hpp>
+#include <stan/math/opencl/value_type.hpp>
 #endif
 
 namespace stan {

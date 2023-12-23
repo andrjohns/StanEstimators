@@ -1,35 +1,4 @@
-PKG_CPPFLAGS = -I"../inst/include" -I"../inst/include/sundials" -I"./sundials/sundials" -D_REENTRANT -DSTAN_THREADS
+PKG_CPPFLAGS = -I"../inst/include" -I"../inst/include/sundials" -D_REENTRANT -DSTAN_THREADS -DRCPP_PARALLEL_USE_TBB=1
 PKG_CPPFLAGS += -DSTRICT_R_HEADERS -D_HAS_AUTO_PTR_ETC=0 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
-PKG_CPPFLAGS += -DRCPP_PARALLEL_USE_TBB=1
 PKG_CPPFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | tail -n 1)
-PKG_CPPFLAGS += -include ../inst/include/sundials/stan_sundials_printf_override.hpp
 PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()" | tail -n 1)
-PKG_LIBS += ../inst/lib/$(R_ARCH)/libCmdStan.a
-
-SUNDIALS_SOURCES := \
-  $(wildcard sundials/cvodes/*.c) \
-  $(wildcard sundials/sundials/*.c) \
-  $(wildcard sundials/sunmatrix/band/[^f]*.c) \
-  $(wildcard sundials/sunmatrix/dense/[^f]*.c) \
-  $(wildcard sundials/sunlinsol/band/[^f]*.c) \
-  $(wildcard sundials/sunlinsol/dense/[^f]*.c) \
-  $(wildcard sundials/sunnonlinsol/newton/[^f]*.c) \
-  $(wildcard sundials/sunnonlinsol/fixedpoint/[^f]*.c) \
-  $(wildcard sundials/idas/*.c) \
-  $(patsubst %.c,%.o, $(wildcard sundials/kinsol/[^f]*.c)) \
-  sundials/nvector/serial/nvector_serial.c
-
-STATIC_SOURCES = $(SUNDIALS_SOURCES) cmdstan_main.cpp
-STATIC_OBJECTS = $(SUNDIALS_SOURCES:.c=.o) cmdstan_main.o
-
-SOURCES = call_stan.cpp constrains.cpp init.cpp parse_csv.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
-
-$(SHLIB): ../inst/lib/$(R_ARCH)/libCmdStan.a
-
-../inst/lib/$(R_ARCH)/libCmdStan.a: $(STATIC_OBJECTS)
-	@mkdir -p ../inst/lib/$(R_ARCH)
-	$(AR) -rs ../inst/lib/$(R_ARCH)/libCmdStan.a $(STATIC_OBJECTS)
-
-clean:
-	$(RM) $(STATIC_OBJECTS) $(OBJECTS) ../inst/lib/$(R_ARCH)/libCmdStan.a

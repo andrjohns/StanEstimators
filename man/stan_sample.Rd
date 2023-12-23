@@ -18,7 +18,6 @@ stan_sample(
   output_dir = NULL,
   output_basename = NULL,
   sig_figs = NULL,
-  num_threads = 1,
   num_chains = 4,
   num_samples = 1000,
   num_warmup = 1000,
@@ -67,8 +66,6 @@ or \code{"fixed_param"}.}
 \item{output_basename}{Basename to use for output files}
 
 \item{sig_figs}{Number of significant digits to use for printing}
-
-\item{num_threads}{Number of threads to use}
 
 \item{num_chains}{(positive integer) The number of Markov chains to run. The
 default is 4.}

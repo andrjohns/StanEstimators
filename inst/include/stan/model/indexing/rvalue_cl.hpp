@@ -2,8 +2,8 @@
 #define STAN_MODEL_INDEXING_RVALUE_CL_HPP
 #ifdef STAN_OPENCL
 
-#include <opencl/rev.hpp>
-#include <opencl/indexing_rev.hpp>
+#include <stan/math/opencl/rev.hpp>
+#include <stan/math/opencl/indexing_rev.hpp>
 #include <stan/model/indexing/index.hpp>
 #include <utility>
 

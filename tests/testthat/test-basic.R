@@ -27,11 +27,6 @@ test_that("stan_sample runs", {
                         num_chains = 1, seed = 1234)
   )
   expect_no_error(
-    samp_gd_par <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
-                        lower = c(-Inf, 0), num_threads = 2,
-                        num_chains = 1, seed = 1234)
-  )
-  expect_no_error(
     samp_gd_dense <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
                         lower = c(-Inf, 0),
                         metric = "dense_e",
@@ -81,10 +76,6 @@ test_that("stan_pathfinder runs", {
   expect_no_error(
     path_gd <- stan_pathfinder(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
                         lower = c(-Inf, 0), seed = 1234)
-  )
-  expect_no_error(
-    path_gd_par <- stan_pathfinder(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
-                        num_threads = 2, num_paths = 1, lower = c(-Inf, 0), seed = 1234)
   )
 })
 

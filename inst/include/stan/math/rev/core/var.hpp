@@ -2,8 +2,8 @@
 #define STAN_MATH_REV_CORE_VAR_HPP
 
 #ifdef STAN_OPENCL
-#include <opencl/rev/vari.hpp>
-#include <opencl/plain_type.hpp>
+#include <stan/math/opencl/rev/vari.hpp>
+#include <stan/math/opencl/plain_type.hpp>
 #endif
 #include <stan/math/rev/core/vari.hpp>
 #include <stan/math/rev/core/grad.hpp>

@@ -280,7 +280,7 @@ parse_output_args <- function(output_args) {
   c("output", parsed_args[parsed_args != ""])
 }
 
-build_stan_call <- function(method, method_args, data_file, init, seed, output_args, num_threads) {
+build_stan_call <- function(method, method_args, data_file, init, seed, output_args) {
   if (method == "diagnose") {
     method_string <- ""
   } else {
@@ -294,7 +294,6 @@ build_stan_call <- function(method, method_args, data_file, init, seed, output_a
     random_string <- ""
   }
   output_string <- parse_output_args(output_args)
-  num_threads_string <- ifelse(!is.null(num_threads), paste0("num_threads=", num_threads), "")
-  args <- unlist(c(method, method_string, data_string, init_string, random_string, output_string, num_threads_string))
+  args <- unlist(c(method, method_string, data_string, init_string, random_string, output_string))
   args[args != ""]
 }
