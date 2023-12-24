@@ -83,7 +83,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Setup Git config
-        env:
+        with:
           GITHUB_TOKEN: ${{ secrets.GH_ACTION }}
         shell: bash
         run: |
@@ -94,7 +94,9 @@ jobs:
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3.6.1
         with:
-          github_token: ${{ secrets.GH_ACTION }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS }}
+          ACTIONS_DEPLOY_KEY: ${{ secrets.GH_ACTIONS }}
+          github_token: ${{ secrets.GH_ACTIONS }}
           publish_branch: gh-pages
           keep_files: true
           publish_dir: .
