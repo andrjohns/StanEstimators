@@ -19,6 +19,7 @@ stan_sample(
   output_basename = NULL,
   sig_figs = NULL,
   num_chains = 4,
+  parallel_chains = 1,
   num_samples = 1000,
   num_warmup = 1000,
   save_warmup = NULL,
@@ -69,6 +70,9 @@ or \code{"fixed_param"}.}
 
 \item{num_chains}{(positive integer) The number of Markov chains to run. The
 default is 4.}
+
+\item{parallel_chains}{(positive integer) The number of chains to run in
+parallel, the default is 1.}
 
 \item{num_samples}{(positive integer) The number of post-warmup iterations
 to run per chain.}

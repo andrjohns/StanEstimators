@@ -12,5 +12,6 @@
 #' @importFrom posterior as_draws_df
 #' @importFrom stats setNames
 #' @importFrom methods new
+#' @importFrom callr r_bg
 #'
 NULL

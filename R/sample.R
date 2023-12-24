@@ -47,6 +47,8 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @param sig_figs Number of significant digits to use for printing
 #' @param num_chains (positive integer) The number of Markov chains to run. The
 #'   default is 4.
+#' @param parallel_chains (positive integer) The number of chains to run in
+#'    parallel, the default is 1.
 #' @param num_samples (positive integer) The number of post-warmup iterations
 #'   to run per chain.
 #' @param num_warmup (positive integer) The number of warmup iterations to run
@@ -91,6 +93,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           output_basename = NULL,
                           sig_figs = NULL,
                           num_chains = 4,
+                          parallel_chains = 1,
                           num_samples = 1000,
                           num_warmup = 1000,
                           save_warmup = NULL,
@@ -135,30 +138,59 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
     num_warmup = num_warmup,
     save_warmup = save_warmup,
     thin = thin,
-    num_chains = num_chains
+    num_chains = 1
   )
 
-  output <- list(
-    file = inputs$output_filepath,
-    diagnostic_file = NULL,
-    refresh = refresh,
-    sig_figs = sig_figs,
-    profile_file = NULL
-  )
-  args <- build_stan_call(method = "sample",
-                          method_args = method_args,
-                          data_file = inputs$data_filepath,
-                          init = inputs$init_filepath,
-                          seed = seed,
-                          output_args = output)
+  chain_calls <- lapply(seq_len(num_chains), function(chain) {
+    output <- list(
+      file = paste0(inputs$output_basename, "_", chain, ".csv"),
+      diagnostic_file = NULL,
+      refresh = refresh,
+      sig_figs = sig_figs,
+      profile_file = NULL
+    )
+    args <- build_stan_call(method = "sample",
+                            method_args = method_args,
+                            data_file = inputs$data_filepath,
+                            init = inputs$init_filepath,
+                            seed = seed,
+                            output_args = output)
 
-  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function)
+    list(args, inputs$ll_function, inputs$grad_function)
+  })
 
-  if (num_chains > 1) {
-    output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))
-  } else {
-    output_files <- paste0(inputs$output_basename, ".csv")
+  parallel_procs <- min(parallel_chains, num_chains)
+  r_bg_procs <- lapply(seq_len(parallel_procs), function(chain) {
+    list(
+      chain_id = chain,
+      proc = callr::r_bg(call_stan, args = chain_calls[[chain]], package = "StanEstimators")
+    )
+  })
+
+  chains_alive <- parallel_procs
+  chains_to_run <- num_chains - parallel_procs
+  while(chains_alive > 0) {
+    for (chain in seq_len(parallel_procs)) {
+      if (r_bg_procs[[chain]]$proc$is_alive()) {
+        r_bg_procs[[chain]]$proc$wait(0.1)
+        r_bg_procs[[chain]]$proc$poll_io(0)
+        lines <- r_bg_procs[[chain]]$proc$read_output_lines()
+        if (length(lines) > 0) {
+          cat(paste0("Chain ", r_bg_procs[[chain]]$chain_id, ": ", lines), sep = "\n")
+        }
+      } else if (chains_to_run > 0) {
+        r_bg_procs[[chain]] <- list(
+          chain_id = num_chains - chains_to_run + 1,
+          proc = callr::r_bg(call_stan, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators")
+        )
+        chains_to_run <- chains_to_run - 1
+      }
+    }
+    chains_alive <- sum(sapply(r_bg_procs, function(proc) { proc$proc$is_alive() }))
   }
+
+  output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))
+
   all_samples <- lapply(output_files, function(filepath) {
     parse_csv(filepath)
   })

@@ -24,7 +24,8 @@ Imports:
   RcppParallel,
   posterior,
   methods,
-  stats
+  stats,
+  callr
 LinkingTo:
   Rcpp,
   RcppEigen,

@@ -34,6 +34,33 @@ test_that("stan_sample runs", {
   )
 })
 
+test_that("stan_sample runs parallel_chains", {
+  expect_no_error(
+    samp_fd <- stan_sample(loglik_fun, inits, additional_args = list(y), lower = c(-Inf, 0),
+                        num_chains = 1, parallel_chains = 2, seed = 1234)
+  )
+  expect_no_error(
+    samp_fd <- stan_sample(loglik_fun, inits, additional_args = list(y), lower = c(-Inf, 0),
+                        num_chains = 4, parallel_chains = 2, seed = 1234)
+  )
+  expect_no_error(
+    samp_gd <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
+                        lower = c(-Inf, 0),
+                        num_chains = 1, parallel_chains = 2, seed = 1234)
+  )
+  expect_no_error(
+    samp_gd <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
+                        lower = c(-Inf, 0),
+                        num_chains = 4, parallel_chains = 2, seed = 1234)
+  )
+  expect_no_error(
+    samp_gd_dense <- stan_sample(loglik_fun, inits, additional_args = list(y), grad_fun = grad,
+                        lower = c(-Inf, 0),
+                        metric = "dense_e",
+                        num_chains = 1, seed = 1234)
+  )
+})
+
 test_that("stan_optimize runs", {
   expect_no_error(
     opt_fd <- stan_optimize(loglik_fun, inits, additional_args = list(y), lower = c(-Inf, 0),
