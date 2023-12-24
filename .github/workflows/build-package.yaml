@@ -83,7 +83,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Setup Git config
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GH_ACTION }}
         shell: bash
         run: |
