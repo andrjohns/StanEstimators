@@ -1,0 +1,105 @@
+name: Built StanEstimators Binaries
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build-rpackage-binaries:
+    runs-on: ${{ matrix.config.os }}
+
+    name: Build StanEstimators ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: macOS-latest, r: 'release' }
+          - { os: macOS-latest, r: 'oldrel' }
+          - { os: macOS-latest, r: '3.6' }
+          - { os: windows-latest, r: 'release' }
+          - { os: windows-latest, r: 'oldrel' }
+          - { os: windows-latest, r: '3.6' }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 2
+          extra-packages: any::pkgbuild
+
+      - name: Build binary packages
+        run: |
+          dir.create("build/${{ matrix.config.os }}_${{ matrix.config.r }}",
+                      recursive = TRUE)
+          pkgbuild::build(
+            "./",
+            dest_path = "build/${{ matrix.config.os }}_${{ matrix.config.r }}",
+            binary = TRUE)
+        shell: Rscript {0}
+
+      - name: Build source package
+        if: matrix.config.os == 'macos-latest' && matrix.config.r == 'release'
+        run: |
+          pkgbuild::build("./", dest_path = "build", binary = FALSE)
+        shell: Rscript {0}
+
+      - name: Stash builds sources
+        uses: actions/upload-artifact@master
+        with:
+          name: StanEstimators-${{ matrix.config.os }}-${{ matrix.config.r }}
+          path: ./build
+
+  update-package-repo:
+    name: Commit and push built packages
+    needs: build-rpackage-binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        with:
+          path: binaries
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: binaries
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 2
+          extra-packages: any::remotes
+
+      - name: Install drat
+        run: |
+          remotes::install_github("eddelbuettel/drat")
+        shell: Rscript {0}
+
+      - name: Update R packages repo
+        run: |
+          new_pkgs <- list.files("binaries", recursive = T, full.names = T,
+                                  pattern = ".zip|.tar.gz|.tgz")
+          drat::insertPackages(new_pkgs, repodir=".")
+        shell: Rscript {0}
+
+      - name: Setup Git config
+        shell: bash
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git checkout main
+
+      - name: GitHub Pages action
+        uses: peaceiris/actions-gh-pages@v3.6.1
+        with:
+          publish_branch: gh-pages
+          keep_files: true
+          publish_dir: .
