@@ -47,7 +47,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Stash builds sources
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: StanEstimators-${{ matrix.config.os }}-${{ matrix.config.r }}
           path: ./build
