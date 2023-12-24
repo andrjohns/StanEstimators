@@ -38,7 +38,6 @@ jobs:
           dir.create("build/${{ matrix.config.os }}_${{ matrix.config.r }}",
                       recursive = TRUE)
           pkgbuild::build(
-            "./",
             dest_path = "build/${{ matrix.config.os }}_${{ matrix.config.r }}",
             binary = TRUE)
         shell: Rscript {0}
