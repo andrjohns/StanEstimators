@@ -27,6 +27,23 @@ As Stan's algorithms are gradient-based, function gradients can be automatically
 calculated using finite-differencing or the user can provide a function for
 analytical calculation.
 
+## Installation
+
+You can install pre-built binaries using:
+
+```{r, eval=FALSE}
+# we recommend running this is a fresh R session or restarting your current session
+install.packages("StanEstimators", 
+                 repos = c("https://andrjohns.github.io/StanEstimators/", getOption("repos")))
+```
+
+Or you can build from source using:
+
+```{r, eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("andrjohns/StanEstimators")
+```
+
 ## Usage
 
 Consider the goal of estimating the mean and standard deviation of a normal
