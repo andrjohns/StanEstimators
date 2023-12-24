@@ -96,7 +96,6 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GH_ACTIONS }}
           ACTIONS_DEPLOY_KEY: ${{ secrets.GH_ACTIONS }}
-          github_token: ${{ secrets.GH_ACTIONS }}
           publish_branch: gh-pages
           keep_files: true
           publish_dir: .
