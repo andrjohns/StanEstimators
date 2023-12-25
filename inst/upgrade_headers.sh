@@ -22,5 +22,8 @@ gsed -i -e 's/std::cout/Rcpp::Rcout/g' include/cmdstan/command.hpp
 gsed -i -e 's/std::cerr/Rcpp::Rcerr/g' include/cmdstan/command.hpp
 gsed -i -e 's/std::cerr/Rcpp::Rcerr/g' include/cmdstan/command_helper.hpp
 
+gsed -i -e 's/\#include <regex>/\#include <boost\/regex.hpp>/g' include/stan/io/json/json_data_handler.hpp
+gsed -i -e 's/std::regex/boost::regex/g' include/stan/io/json/json_data_handler.hpp
+
 rm cmdstan-$CMDSTAN_VER.tar.gz
 rm -rf cmdstan-$CMDSTAN_VER
