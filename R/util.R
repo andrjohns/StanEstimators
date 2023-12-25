@@ -297,3 +297,27 @@ build_stan_call <- function(method, method_args, data_file, init, seed, output_a
   args <- unlist(c(method, method_string, data_string, init_string, random_string, output_string))
   args[args != ""]
 }
+
+call_stan <- function(args_list, ll_fun, grad_fun, quiet) {
+  finished_metadata <- FALSE
+  proc <- callr::r_bg(call_stan_impl, args = list(args_list, ll_fun, grad_fun),
+                      supervise = TRUE,
+                      package = "StanEstimators")
+  while (proc$is_alive()) {
+    proc$wait(0.1)
+    proc$poll_io(0)
+    if (!quiet) {
+      lines <- proc$read_output_lines()
+      if (length(lines) > 0) {
+        for (line in lines) {
+          if (finished_metadata && line != "") {
+            cat(line, "\n")
+          }
+          if (grepl("num_threads", line)) {
+            finished_metadata <- TRUE
+          }
+        }
+      }
+    }
+  }
+}

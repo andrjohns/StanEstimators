@@ -42,6 +42,7 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @param upper Upper bound constraint(s) for parameters
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
+#' @param quiet (logical) Whether to suppress Stan's output
 #' @param output_dir Directory to store outputs
 #' @param output_basename Basename to use for output files
 #' @param sig_figs Number of significant digits to use for printing
@@ -89,6 +90,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           grad_fun = NULL, lower = -Inf, upper = Inf,
                           seed = NULL,
                           refresh = NULL,
+                          quiet = FALSE,
                           output_dir = NULL,
                           output_basename = NULL,
                           sig_figs = NULL,
@@ -163,26 +165,37 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
   r_bg_procs <- lapply(seq_len(parallel_procs), function(chain) {
     list(
       chain_id = chain,
-      proc = callr::r_bg(call_stan, args = chain_calls[[chain]], package = "StanEstimators")
+      proc = callr::r_bg(call_stan_impl, args = chain_calls[[chain]], package = "StanEstimators", supervise = TRUE)
     )
   })
 
   chains_alive <- parallel_procs
   chains_to_run <- num_chains - parallel_procs
+  finished_metadata <- rep(FALSE, parallel_procs)
   while(chains_alive > 0) {
     for (chain in seq_len(parallel_procs)) {
       if (r_bg_procs[[chain]]$proc$is_alive()) {
         r_bg_procs[[chain]]$proc$wait(0.1)
         r_bg_procs[[chain]]$proc$poll_io(0)
-        lines <- r_bg_procs[[chain]]$proc$read_output_lines()
-        if (length(lines) > 0) {
-          cat(paste0("Chain ", r_bg_procs[[chain]]$chain_id, ": ", lines), sep = "\n")
+        if (!quiet) {
+          lines <- r_bg_procs[[chain]]$proc$read_output_lines()
+          if (length(lines) > 0) {
+            for (line in lines) {
+              if (finished_metadata[chain] && line != "") {
+                cat(paste0("Chain ", r_bg_procs[[chain]]$chain_id, ": ", line, "\n"))
+              }
+              if (grepl("num_threads", line)) {
+                finished_metadata[chain] <- TRUE
+              }
+            }
+          }
         }
       } else if (chains_to_run > 0) {
         r_bg_procs[[chain]] <- list(
           chain_id = num_chains - chains_to_run + 1,
-          proc = callr::r_bg(call_stan, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators")
+          proc = callr::r_bg(call_stan_impl, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators", supervise = TRUE)
         )
+        finished_metadata[chain] <- FALSE
         chains_to_run <- chains_to_run - 1
       }
     }

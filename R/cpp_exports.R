@@ -1,4 +1,4 @@
-call_stan <- function(options_vector, ll_fun, grad_fun) {
+call_stan_impl <- function(options_vector, ll_fun, grad_fun) {
   sinkfile <- tempfile()
   sink(file = file(sinkfile, open = "wt"), type = "message")
   status <- .Call(`call_stan_`, options_vector, ll_fun, grad_fun)

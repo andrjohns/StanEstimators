@@ -13,6 +13,7 @@ stan_diagnose(
   upper = Inf,
   seed = NULL,
   refresh = NULL,
+  quiet = FALSE,
   output_dir = NULL,
   output_basename = NULL,
   sig_figs = NULL
@@ -34,6 +35,8 @@ stan_diagnose(
 \item{seed}{Random seed}
 
 \item{refresh}{Number of iterations for printing}
+
+\item{quiet}{(logical) Whether to suppress Stan's output}
 
 \item{output_dir}{Directory to store outputs}
 
