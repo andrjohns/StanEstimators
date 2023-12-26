@@ -211,9 +211,10 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
   metadata <- all_samples[[1]]$metadata
   adaptation <- lapply(all_samples, function(chain) { chain$adaptation })
   timing <- lapply(all_samples, function(chain) { chain$timing })
-  par_cols <- grep("pars", draw_names)
-  draws <- lapply(all_samples, function(chain) {
-    setNames(data.frame(chain$samples), chain$header)
+  draws <- lapply(seq_len(num_chains), function(chain) {
+    dr_df <- setNames(data.frame(all_samples[[chain]]$samples), draw_names)
+    dr_df$.chain <- chain
+    dr_df
   })
   diagnostic_vars <- c("accept_stat__", "stepsize__", "treedepth__", "n_leapfrog__", "divergent__", "energy__")
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
