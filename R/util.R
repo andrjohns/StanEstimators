@@ -321,3 +321,10 @@ call_stan <- function(args_list, ll_fun, grad_fun, quiet) {
     }
   }
 }
+
+format_bool <- function(input) {
+  if (!is.null(input)) {
+    input <- as.integer(input)
+  }
+  input
+}

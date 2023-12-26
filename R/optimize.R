@@ -76,7 +76,6 @@ stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "
                           history_size = NULL) {
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
                             output_dir, output_basename)
-
   method_args <- list(
     algorithm = algorithm,
     algorithm_args = list(
@@ -88,9 +87,9 @@ stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "
       tol_param = tol_param,
       history_size = history_size
     ),
-    jacobian = jacobian,
+    jacobian = format_bool(jacobian),
     iter = iter,
-    save_iterations = save_iterations
+    save_iterations = format_bool(save_iterations)
   )
 
   output <- list(

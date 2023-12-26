@@ -96,7 +96,7 @@ stan_laplace <- function(fn, par_inits, additional_args = list(),
   write_inits(mode_vals, mode_file)
   method_args <- list(
     mode = mode_file,
-    jacobian = jacobian,
+    jacobian = format_bool(jacobian),
     draws = draws
   )
 

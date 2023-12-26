@@ -127,7 +127,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
       stepsize_jitter = stepsize_jitter
     ),
     adapt = list(
-      engaged = adapt_engaged,
+      engaged = format_bool(adapt_engaged),
       gamma = adapt_gamma,
       delta = adapt_delta,
       kappa = adapt_kappa,
@@ -138,7 +138,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
     ),
     num_samples = num_samples,
     num_warmup = num_warmup,
-    save_warmup = save_warmup,
+    save_warmup = format_bool(save_warmup),
     thin = thin,
     num_chains = 1
   )

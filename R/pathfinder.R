@@ -85,7 +85,7 @@ stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = 
     history_size = history_size,
     num_psis_draws = num_psis_draws,
     num_paths = num_paths,
-    save_single_paths = save_single_paths,
+    save_single_paths = format_bool(save_single_paths),
     max_lbfgs_iters = max_lbfgs_iters,
     num_draws = num_draws,
     num_elbo_draws = num_elbo_draws

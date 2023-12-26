@@ -82,10 +82,10 @@ stan_variational <- function(fn, par_inits, additional_args = list(), algorithm 
     grad_samples = grad_samples,
     elbo_samples = elbo_samples,
     eta = eta,
-    adapt = list( engaged = adapt_engaged, iter = adapt_iter),
-    tol_rel_obj = NULL,
-    eval_elbo = NULL,
-    output_samples = NULL
+    adapt = list( engaged = format_bool(adapt_engaged), iter = adapt_iter),
+    tol_rel_obj = tol_rel_obj,
+    eval_elbo = eval_elbo,
+    output_samples = output_samples
     )
 
   output <- list(
