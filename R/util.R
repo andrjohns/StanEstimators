@@ -320,6 +320,12 @@ call_stan <- function(args_list, ll_fun, grad_fun, quiet) {
       }
     }
   }
+  errs <- proc$read_error_lines()
+  if (length(errs) > 0) {
+    stop("Stan call failed with error: \n", paste0(errs, collapse = "\n"),
+          call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 format_bool <- function(input) {
