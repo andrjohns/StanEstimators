@@ -1,8 +1,8 @@
 set.seed(1234)
 y <- rnorm(500, 10, 2)
 
-loglik_fun <- function(v) {
-  sum(dnorm(y, v[1], v[2], log = TRUE))
+loglik_fun <- function(v, x) {
+  sum(dnorm(x, v[1], v[2], log = TRUE))
 }
 
 inits <- c(0, 5)
