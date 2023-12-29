@@ -1,11 +1,10 @@
-#include <estimator/estimator_ext_header.hpp>
-#include <estimator/estimator.hpp>
 #include <Rcpp.h>
 #include <cmdstan/command.hpp>
 
+void store_functions(SEXP ll_fun, SEXP grad_fun);
+
 RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
-  internal::ll_fun = Rcpp::Function(ll_fun);
-  internal::grad_fun = Rcpp::Function(grad_fun);
+  store_functions(ll_fun, grad_fun);
   std::vector<std::string> options = Rcpp::as<std::vector<std::string>>(options_vector);
   int argc = 1 + options.size();
   char** argv = new char*[argc];

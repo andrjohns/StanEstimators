@@ -9,6 +9,10 @@ namespace internal {
   Rcpp::Function grad_fun("ls");
 }
 
+void store_functions(SEXP ll_fun, SEXP grad_fun) {
+  internal::ll_fun = Rcpp::Function(ll_fun);
+  internal::grad_fun = Rcpp::Function(grad_fun);
+}
 
 template <typename F, typename T>
 Eigen::VectorXd fdiff(const F& f, const T& x) {
