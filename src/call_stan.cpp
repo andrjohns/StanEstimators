@@ -4,6 +4,7 @@
 void store_functions(SEXP ll_fun, SEXP grad_fun);
 
 RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
+  BEGIN_RCPP
   store_functions(ll_fun, grad_fun);
   std::vector<std::string> options = Rcpp::as<std::vector<std::string>>(options_vector);
   int argc = 1 + options.size();
@@ -26,18 +27,6 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
     }
   }
   const char** argv2 = const_cast<const char**>(argv);
-  try {
-    int err_code = cmdstan::command(argc, argv2);
-
-    if (err_code == 0)
-      return Rcpp::wrap(1);
-    else
-      return Rcpp::wrap(0);
-  } catch (const std::exception& e) {
-    Rcpp::Rcerr << e.what() << std::endl;
-    return Rcpp::wrap(0);
-  } catch (...) {
-    Rcpp::Rcerr << "Unknown exception thrown!" << std::endl;
-    return Rcpp::wrap(0);
-  }
+  return Rcpp::wrap(cmdstan::command(argc, argv2));
+  END_RCPP
 }

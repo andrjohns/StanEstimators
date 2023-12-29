@@ -49,15 +49,12 @@ Rcpp::List csv_to_r(const stan::io::stan_csv& csv) {
 }
 
 RcppExport SEXP parse_csv_(SEXP filename_) {
+  BEGIN_RCPP
   std::string filename = Rcpp::as<std::string>(filename_);
-  try {
-    std::ifstream ifstream;
-    ifstream.open(filename);
-    stan::io::stan_csv csv_parsed = stan::io::stan_csv_reader::parse(ifstream, nullptr);
-    ifstream.close();
-    return Rcpp::wrap(csv_to_r(csv_parsed));
-  } catch (const std::exception &e) {
-    Rcpp::Rcerr << e.what() << std::endl;
-    return Rcpp::List::create(0);
-  }
+  std::ifstream ifstream;
+  ifstream.open(filename);
+  stan::io::stan_csv csv_parsed = stan::io::stan_csv_reader::parse(ifstream, nullptr);
+  ifstream.close();
+  return Rcpp::wrap(csv_to_r(csv_parsed));
+  END_RCPP
 }
