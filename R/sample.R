@@ -190,6 +190,10 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
             }
           }
         }
+        errs <- r_bg_procs[[chain]]$proc$read_error_lines()
+        if (length(errs) > 0) {
+          stop(paste0(errs, collapse = "\n"), call. = FALSE)
+        }
       } else if (chains_to_run > 0) {
         r_bg_procs[[chain]] <- list(
           chain_id = num_chains - chains_to_run + 1,
