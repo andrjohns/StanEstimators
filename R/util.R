@@ -38,6 +38,12 @@ write_file <- function(what, input_list) {
   do.call(write_fun, input_list[args])
 }
 
+with_env <- function(f, e=parent.frame()) {
+  stopifnot(is.function(f))
+  environment(f) <- e
+  f
+}
+
 prepare_function <- function(fn, inits, extra_args_list, grad = FALSE) {
   fn_wrapper <- function(v) { do.call(fn, c(list(v), extra_args_list)) }
   fn_type <- ifelse(isTRUE(grad), "Gradient", "Log-Likelihood")
@@ -59,10 +65,14 @@ prepare_function <- function(fn, inits, extra_args_list, grad = FALSE) {
 }
 
 prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, upper,
-                            output_dir, output_basename) {
+                            globals, packages, output_dir, output_basename) {
   fn1 <- prepare_function(fn, par_inits, extra_args_list, grad = FALSE)
+  gp <- future::getGlobalsAndPackages(fn, globals = globals)
   if (!is.null(grad_fun)) {
     gr1 <- prepare_function(grad_fun, par_inits, extra_args_list, grad = TRUE)
+    gr_gp <- future::getGlobalsAndPackages(grad_fun, globals = globals)
+    gp$globals <- c(gp$globals, gr_gp$globals)
+    gp$packages <- c(gp$packages, gr_gp$packages)
   } else {
     gr1 <- fn1
   }
@@ -96,6 +106,8 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
   structured <- list(
     ll_function = fn1,
     grad_function = gr1,
+    globals = gp$globals,
+    packages = c(gp$packages, packages),
     inits = par_inits,
     finite_diff = as.integer(is.null(grad_fun)),
     Npars = length(par_inits),
@@ -298,9 +310,13 @@ build_stan_call <- function(method, method_args, data_file, init, seed, output_a
   args[args != ""]
 }
 
-call_stan <- function(args_list, ll_fun, grad_fun, quiet) {
+call_stan <- function(args_list, input_list, quiet) {
   finished_metadata <- FALSE
-  proc <- callr::r_bg(call_stan_impl, args = list(args_list, ll_fun, grad_fun),
+  r_bg_args <- list(
+    args_list,
+    input_list
+  )
+  proc <- callr::r_bg(call_stan_impl, args = r_bg_args,
                       supervise = TRUE,
                       package = "StanEstimators")
   while (proc$is_alive()) {

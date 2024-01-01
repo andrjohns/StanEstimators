@@ -40,6 +40,12 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
+#' @param globals (optional) a logical, a character vector, or a named list
+#'    to control how globals are handled.
+#'    For details, see section 'Globals used by future expressions'
+#'    in the help for [future::future()].
+#' @param packages (optional) a character vector specifying packages
+#'    to be attached in the \R environment evaluating the function.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -88,6 +94,7 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 stan_sample <- function(fn, par_inits, additional_args = list(),
                           algorithm = "hmc", engine = "nuts",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
+                          globals = TRUE, packages = NULL,
                           seed = NULL,
                           refresh = NULL,
                           quiet = FALSE,
@@ -115,7 +122,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           stepsize = NULL,
                           stepsize_jitter = NULL) {
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
-                            output_dir, output_basename)
+                            globals, packages, output_dir, output_basename)
   method_args <- list(
     algorithm = algorithm,
     algorithm_args = list(
@@ -158,7 +165,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                             seed = seed,
                             output_args = output)
 
-    list(args, inputs$ll_function, inputs$grad_function)
+    list(args, inputs)
   })
 
   parallel_procs <- min(parallel_chains, num_chains)
@@ -172,6 +179,8 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
   chains_alive <- parallel_procs
   chains_to_run <- num_chains - parallel_procs
   finished_metadata <- rep(FALSE, parallel_procs)
+
+  # TODO: Clean this up, code-smell
   while(chains_alive > 0) {
     for (chain in seq_len(parallel_procs)) {
       if (r_bg_procs[[chain]]$proc$is_alive()) {
@@ -190,17 +199,22 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
             }
           }
         }
+      } else if (chains_to_run > 0) {
         errs <- r_bg_procs[[chain]]$proc$read_error_lines()
         if (length(errs) > 0) {
           stop(paste0(errs, collapse = "\n"), call. = FALSE)
         }
-      } else if (chains_to_run > 0) {
         r_bg_procs[[chain]] <- list(
           chain_id = num_chains - chains_to_run + 1,
           proc = callr::r_bg(call_stan_impl, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators", supervise = TRUE)
         )
         finished_metadata[chain] <- FALSE
         chains_to_run <- chains_to_run - 1
+      } else {
+        errs <- r_bg_procs[[chain]]$proc$read_error_lines()
+        if (length(errs) > 0) {
+          stop(paste0(errs, collapse = "\n"), call. = FALSE)
+        }
       }
     }
     chains_alive <- sum(sapply(r_bg_procs, function(proc) { proc$proc$is_alive() }))

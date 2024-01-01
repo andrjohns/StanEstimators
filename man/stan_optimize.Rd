@@ -12,6 +12,8 @@ stan_optimize(
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
+  globals = TRUE,
+  packages = NULL,
   seed = NULL,
   refresh = NULL,
   quiet = FALSE,
@@ -45,6 +47,14 @@ stan_optimize(
 \item{lower}{Lower bound constraint(s) for parameters}
 
 \item{upper}{Upper bound constraint(s) for parameters}
+
+\item{globals}{(optional) a logical, a character vector, or a named list
+to control how globals are handled.
+For details, see section 'Globals used by future expressions'
+in the help for \code{\link[future:future]{future::future()}}.}
+
+\item{packages}{(optional) a character vector specifying packages
+to be attached in the \R environment evaluating the function.}
 
 \item{seed}{Random seed}
 

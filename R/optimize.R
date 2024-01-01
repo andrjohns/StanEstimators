@@ -34,6 +34,12 @@ setMethod("summary", "StanOptimize", function(object, ...) {
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
+#' @param globals (optional) a logical, a character vector, or a named list
+#'    to control how globals are handled.
+#'    For details, see section 'Globals used by future expressions'
+#'    in the help for [future::future()].
+#' @param packages (optional) a character vector specifying packages
+#'    to be attached in the \R environment evaluating the function.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -58,6 +64,7 @@ setMethod("summary", "StanOptimize", function(object, ...) {
 #' @export
 stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "lbfgs",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
+                          globals = TRUE, packages = NULL,
                           seed = NULL,
                           refresh = NULL,
                           quiet = FALSE,
@@ -75,7 +82,7 @@ stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "
                           tol_param = NULL,
                           history_size = NULL) {
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
-                            output_dir, output_basename)
+                            globals, packages, output_dir, output_basename)
   method_args <- list(
     algorithm = algorithm,
     algorithm_args = list(
@@ -105,7 +112,7 @@ stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "
                           init = inputs$init_filepath,
                           seed = seed,
                           output_args = output)
-  call_stan(args, ll_fun = inputs$ll_function, grad_fun = inputs$grad_function, quiet)
+  call_stan(args, inputs, quiet)
 
   parsed <- parse_csv(inputs$output_filepath)
 

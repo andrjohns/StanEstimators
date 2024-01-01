@@ -25,7 +25,8 @@ Imports:
   posterior,
   methods,
   stats,
-  callr
+  callr,
+  future
 LinkingTo:
   Rcpp,
   RcppEigen,
