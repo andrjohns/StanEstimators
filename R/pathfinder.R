@@ -38,6 +38,8 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #'    in the help for [future::future()].
 #' @param packages (optional) a character vector specifying packages
 #'    to be attached in the \R environment evaluating the function.
+#' @param eval_standalone (logical) Whether to evaluate the function in a
+#'    separate R session. Defaults to \code{FALSE}.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -67,6 +69,7 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = NULL,
                           lower = -Inf, upper = Inf,
                           globals = TRUE, packages = NULL,
+                          eval_standalone = FALSE,
                           seed = NULL,
                           refresh = NULL,
                           quiet = FALSE,
@@ -81,7 +84,7 @@ stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = 
                           max_lbfgs_iters = NULL, num_draws = NULL,
                           num_elbo_draws = NULL) {
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
-                            globals, packages, output_dir, output_basename)
+                            globals, packages, eval_standalone, output_dir, output_basename)
   method_args <- list(
     init_alpha = init_alpha,
     tol_obj = tol_obj,

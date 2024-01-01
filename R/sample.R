@@ -46,6 +46,9 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #'    in the help for [future::future()].
 #' @param packages (optional) a character vector specifying packages
 #'    to be attached in the \R environment evaluating the function.
+#' @param eval_standalone (logical) Whether to evaluate the function in a
+#'    separate R session. Defaults to \code{TRUE}. Must be `TRUE` if
+#'    `parallel_chains > 1`.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -95,6 +98,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           algorithm = "hmc", engine = "nuts",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
                           globals = TRUE, packages = NULL,
+                          eval_standalone = TRUE,
                           seed = NULL,
                           refresh = NULL,
                           quiet = FALSE,
@@ -121,8 +125,12 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                           metric_file = NULL,
                           stepsize = NULL,
                           stepsize_jitter = NULL) {
+  if (!isTRUE(eval_standalone) && parallel_chains > 1) {
+    stop("Cannot run parallel chains when evaluating in current R session!",
+         call. = FALSE)
+  }
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
-                            globals, packages, output_dir, output_basename)
+                            globals, packages, eval_standalone, output_dir, output_basename)
   method_args <- list(
     algorithm = algorithm,
     algorithm_args = list(
@@ -147,12 +155,82 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
     num_warmup = num_warmup,
     save_warmup = format_bool(save_warmup),
     thin = thin,
-    num_chains = 1
+    num_chains = ifelse(isTRUE(eval_standalone), 1, num_chains)
   )
 
-  chain_calls <- lapply(seq_len(num_chains), function(chain) {
+  if (isTRUE(eval_standalone)) {
+    chain_calls <- lapply(seq_len(num_chains), function(chain) {
+      output <- list(
+        file = paste0(inputs$output_basename, "_", chain, ".csv"),
+        diagnostic_file = NULL,
+        refresh = refresh,
+        sig_figs = sig_figs,
+        profile_file = NULL
+      )
+      args <- build_stan_call(method = "sample",
+                              method_args = method_args,
+                              data_file = inputs$data_filepath,
+                              init = inputs$init_filepath,
+                              seed = seed,
+                              output_args = output)
+
+      list(args, inputs)
+    })
+
+    parallel_procs <- min(parallel_chains, num_chains)
+    r_bg_procs <- lapply(seq_len(parallel_procs), function(chain) {
+      list(
+        chain_id = chain,
+        proc = callr::r_bg(call_stan_impl, args = chain_calls[[chain]], package = "StanEstimators", supervise = TRUE)
+      )
+    })
+
+    chains_alive <- parallel_procs
+    chains_to_run <- num_chains - parallel_procs
+    finished_metadata <- rep(FALSE, parallel_procs)
+
+    # TODO: Clean this up, code-smell
+    while(chains_alive > 0) {
+      for (chain in seq_len(parallel_procs)) {
+        if (r_bg_procs[[chain]]$proc$is_alive()) {
+          r_bg_procs[[chain]]$proc$wait(0.1)
+          r_bg_procs[[chain]]$proc$poll_io(0)
+          if (!quiet) {
+            lines <- r_bg_procs[[chain]]$proc$read_output_lines()
+            if (length(lines) > 0) {
+              for (line in lines) {
+                if (finished_metadata[chain] && line != "") {
+                  cat(paste0("Chain ", r_bg_procs[[chain]]$chain_id, ": ", line, "\n"))
+                }
+                if (grepl("num_threads", line)) {
+                  finished_metadata[chain] <- TRUE
+                }
+              }
+            }
+          }
+        } else if (chains_to_run > 0) {
+          errs <- r_bg_procs[[chain]]$proc$read_error_lines()
+          if (length(errs) > 0) {
+            stop(paste0(errs, collapse = "\n"), call. = FALSE)
+          }
+          r_bg_procs[[chain]] <- list(
+            chain_id = num_chains - chains_to_run + 1,
+            proc = callr::r_bg(call_stan_impl, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators", supervise = TRUE)
+          )
+          finished_metadata[chain] <- FALSE
+          chains_to_run <- chains_to_run - 1
+        } else {
+          errs <- r_bg_procs[[chain]]$proc$read_error_lines()
+          if (length(errs) > 0) {
+            stop(paste0(errs, collapse = "\n"), call. = FALSE)
+          }
+        }
+      }
+      chains_alive <- sum(sapply(r_bg_procs, function(proc) { proc$proc$is_alive() }))
+    }
+  } else {
     output <- list(
-      file = paste0(inputs$output_basename, "_", chain, ".csv"),
+      file = paste0(inputs$output_basename, ".csv"),
       diagnostic_file = NULL,
       refresh = refresh,
       sig_figs = sig_figs,
@@ -164,63 +242,14 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                             init = inputs$init_filepath,
                             seed = seed,
                             output_args = output)
-
-    list(args, inputs)
-  })
-
-  parallel_procs <- min(parallel_chains, num_chains)
-  r_bg_procs <- lapply(seq_len(parallel_procs), function(chain) {
-    list(
-      chain_id = chain,
-      proc = callr::r_bg(call_stan_impl, args = chain_calls[[chain]], package = "StanEstimators", supervise = TRUE)
-    )
-  })
-
-  chains_alive <- parallel_procs
-  chains_to_run <- num_chains - parallel_procs
-  finished_metadata <- rep(FALSE, parallel_procs)
-
-  # TODO: Clean this up, code-smell
-  while(chains_alive > 0) {
-    for (chain in seq_len(parallel_procs)) {
-      if (r_bg_procs[[chain]]$proc$is_alive()) {
-        r_bg_procs[[chain]]$proc$wait(0.1)
-        r_bg_procs[[chain]]$proc$poll_io(0)
-        if (!quiet) {
-          lines <- r_bg_procs[[chain]]$proc$read_output_lines()
-          if (length(lines) > 0) {
-            for (line in lines) {
-              if (finished_metadata[chain] && line != "") {
-                cat(paste0("Chain ", r_bg_procs[[chain]]$chain_id, ": ", line, "\n"))
-              }
-              if (grepl("num_threads", line)) {
-                finished_metadata[chain] <- TRUE
-              }
-            }
-          }
-        }
-      } else if (chains_to_run > 0) {
-        errs <- r_bg_procs[[chain]]$proc$read_error_lines()
-        if (length(errs) > 0) {
-          stop(paste0(errs, collapse = "\n"), call. = FALSE)
-        }
-        r_bg_procs[[chain]] <- list(
-          chain_id = num_chains - chains_to_run + 1,
-          proc = callr::r_bg(call_stan_impl, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators", supervise = TRUE)
-        )
-        finished_metadata[chain] <- FALSE
-        chains_to_run <- chains_to_run - 1
-      } else {
-        errs <- r_bg_procs[[chain]]$proc$read_error_lines()
-        if (length(errs) > 0) {
-          stop(paste0(errs, collapse = "\n"), call. = FALSE)
-        }
-      }
-    }
-    chains_alive <- sum(sapply(r_bg_procs, function(proc) { proc$proc$is_alive() }))
+    call_stan_impl(args, inputs)
   }
 
-  output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))
+  if (!isTRUE(eval_standalone) && num_chains == 1) {
+    output_files <- paste0(inputs$output_basename, ".csv")
+  } else {
+    output_files <- paste0(inputs$output_basename, paste0("_", 1:num_chains, ".csv"))
+  }
 
   all_samples <- lapply(output_files, function(filepath) {
     parse_csv(filepath)

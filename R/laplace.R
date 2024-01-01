@@ -39,6 +39,8 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 #'    in the help for [future::future()].
 #' @param packages (optional) a character vector specifying packages
 #'    to be attached in the \R environment evaluating the function.
+#' @param eval_standalone (logical) Whether to evaluate the function in a
+#'    separate R session. Defaults to \code{FALSE}.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -58,6 +60,7 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 stan_laplace <- function(fn, par_inits, additional_args = list(),
                              grad_fun = NULL, lower = -Inf, upper = Inf,
                           globals = TRUE, packages = NULL,
+                          eval_standalone = FALSE,
                               seed = NULL,
                               refresh = NULL,
                               quiet = FALSE,
@@ -69,7 +72,7 @@ stan_laplace <- function(fn, par_inits, additional_args = list(),
                               draws = NULL,
                               opt_args = NULL) {
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
-                            globals, packages, output_dir, output_basename)
+                            globals, packages, eval_standalone, output_dir, output_basename)
   mode_file <- paste0(inputs$output_basename, "_mode.json")
   if (!is.null(mode)) {
     if (inherits(mode, "StanOptimize")) {

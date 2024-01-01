@@ -65,7 +65,7 @@ prepare_function <- function(fn, inits, extra_args_list, grad = FALSE) {
 }
 
 prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, upper,
-                            globals, packages, output_dir, output_basename) {
+                            globals, packages, eval_standalone, output_dir, output_basename) {
   fn1 <- prepare_function(fn, par_inits, extra_args_list, grad = FALSE)
   gp <- future::getGlobalsAndPackages(fn, globals = globals)
   if (!is.null(grad_fun)) {
@@ -108,6 +108,7 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
     grad_function = gr1,
     globals = gp$globals,
     packages = c(gp$packages, packages),
+    eval_standalone = eval_standalone,
     inits = par_inits,
     finite_diff = as.integer(is.null(grad_fun)),
     Npars = length(par_inits),
@@ -311,6 +312,10 @@ build_stan_call <- function(method, method_args, data_file, init, seed, output_a
 }
 
 call_stan <- function(args_list, input_list, quiet) {
+  if (!isTRUE(input_list$eval_standalone)) {
+    call_stan_impl(args_list, input_list)
+    return(invisible(NULL))
+  }
   finished_metadata <- FALSE
   r_bg_args <- list(
     args_list,

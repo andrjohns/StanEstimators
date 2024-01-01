@@ -13,6 +13,7 @@ stan_laplace(
   upper = Inf,
   globals = TRUE,
   packages = NULL,
+  eval_standalone = FALSE,
   seed = NULL,
   refresh = NULL,
   quiet = FALSE,
@@ -45,6 +46,9 @@ in the help for \code{\link[future:future]{future::future()}}.}
 
 \item{packages}{(optional) a character vector specifying packages
 to be attached in the \R environment evaluating the function.}
+
+\item{eval_standalone}{(logical) Whether to evaluate the function in a
+separate R session. Defaults to \code{FALSE}.}
 
 \item{seed}{Random seed}
 

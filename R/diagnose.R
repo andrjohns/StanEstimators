@@ -14,6 +14,8 @@
 #'    in the help for [future::future()].
 #' @param packages (optional) a character vector specifying packages
 #'    to be attached in the \R environment evaluating the function.
+#' @param eval_standalone (logical) Whether to evaluate the function in a
+#'    separate R session. Defaults to \code{FALSE}.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -25,6 +27,7 @@
 stan_diagnose <- function(fn, par_inits, additional_args = list(),
                              grad_fun = NULL, lower = -Inf, upper = Inf,
                               globals = TRUE, packages = NULL,
+                              eval_standalone = FALSE,
                               seed = NULL,
                               refresh = NULL,
                               quiet = FALSE,
@@ -32,7 +35,7 @@ stan_diagnose <- function(fn, par_inits, additional_args = list(),
                               output_basename = NULL,
                               sig_figs = NULL) {
   inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
-                            globals, packages, output_dir, output_basename)
+                            globals, packages, eval_standalone, output_dir, output_basename)
   output <- list(
     file = inputs$output_filepath,
     diagnostic_file = NULL,
