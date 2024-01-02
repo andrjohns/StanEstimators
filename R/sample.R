@@ -208,6 +208,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
           }
         } else {
           errs <- r_bg_procs[[chain]]$proc$read_error_lines()
+          errs <- errs[errs != ""]
           if (length(errs) > 0) {
             stop(paste0(errs, collapse = "\n"), call. = FALSE)
           }
@@ -223,13 +224,6 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
       }
       chains_alive <- sum(sapply(r_bg_procs, function(proc) { proc$proc$is_alive() }))
     }
-    err_check <- lapply(r_bg_procs, function(proc) {
-      errs <- r_bg_procs[[chain]]$proc$read_error_lines()
-      if (length(errs) > 0) {
-        stop(paste0(errs, collapse = "\n"), call. = FALSE)
-      }
-      invisible(NULL)
-    })
   } else {
     output <- list(
       file = paste0(inputs$output_basename, ".csv"),
