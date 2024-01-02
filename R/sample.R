@@ -189,7 +189,6 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
 
     chains_alive <- parallel_procs
     chains_to_run <- num_chains - parallel_procs
-    finished_metadata <- rep(FALSE, parallel_procs)
 
     # TODO: Clean this up, code-smell
     while(chains_alive > 0) {
@@ -201,11 +200,8 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
             lines <- r_bg_procs[[chain]]$proc$read_output_lines()
             if (length(lines) > 0) {
               for (line in lines) {
-                if (finished_metadata[chain] && line != "") {
+                if (line != "") {
                   cat(paste0("Chain ", r_bg_procs[[chain]]$chain_id, ": ", line, "\n"))
-                }
-                if (grepl("num_threads", line)) {
-                  finished_metadata[chain] <- TRUE
                 }
               }
             }
@@ -221,7 +217,6 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
               chain_id = num_chains - chains_to_run + 1,
               proc = callr::r_bg(call_stan_impl, args = chain_calls[[num_chains - chains_to_run + 1]], package = "StanEstimators", supervise = TRUE)
             )
-            finished_metadata[chain] <- FALSE
             chains_to_run <- chains_to_run - 1
           }
         }

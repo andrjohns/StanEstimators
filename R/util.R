@@ -324,7 +324,6 @@ call_stan <- function(args_list, input_list, quiet) {
     call_stan_impl(args_list, input_list)
     return(invisible(NULL))
   }
-  finished_metadata <- FALSE
   r_bg_args <- list(
     args_list,
     input_list
@@ -339,11 +338,8 @@ call_stan <- function(args_list, input_list, quiet) {
       lines <- proc$read_output_lines()
       if (length(lines) > 0) {
         for (line in lines) {
-          if (finished_metadata && line != "") {
+          if (line != "") {
             cat(line, "\n")
-          }
-          if (grepl("num_threads", line)) {
-            finished_metadata <- TRUE
           }
         }
       }

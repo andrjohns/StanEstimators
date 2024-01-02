@@ -158,7 +158,7 @@ int command(int argc, const char *argv[]) {
   unsigned int num_chains = get_num_chains(parser);
   check_file_config(parser);
 
-  parser.print(info);
+  //parser.print(info);
   write_parallel_info(info);
   write_opencl_device(info);
   info();

@@ -20,6 +20,7 @@ cmdstan-$CMDSTAN_VER/bin/mac-stanc estimator/estimator.stan --O1 --allow-undefin
 
 gsed -i -e 's/std::cout/Rcpp::Rcout/g' include/cmdstan/command.hpp
 gsed -i -e 's/std::cerr/Rcpp::Rcerr/g' include/cmdstan/command.hpp
+gsed -i -e 's/parser.print(info)/\/\/parser.print(info)/g' include/cmdstan/command.hpp
 gsed -i -e 's/std::cerr/Rcpp::Rcerr/g' include/cmdstan/command_helper.hpp
 
 gsed -i -e 's/\#include <regex>/\#include <boost\/regex.hpp>/g' include/stan/io/json/json_data_handler.hpp
