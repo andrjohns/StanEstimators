@@ -1,3 +1,4 @@
+#include <emscripten_compat.hpp>
 #include <stan/io/stan_csv_reader.hpp>
 #include <Rcpp.h>
 #include <RcppEigen.h>

@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <emscripten_compat.hpp>
 #include <cmdstan/command.hpp>
 
 void store_functions(SEXP ll_fun, SEXP grad_fun);
