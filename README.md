@@ -5,7 +5,11 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/StanEstimators)](https://CRAN.R-project.org/package=StanEstimators)
 [![R-CMD-check](https://github.com/andrjohns/StanEstimators/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/andrjohns/StanEstimators/actions/workflows/R-CMD-check.yaml)
+[![StanEstimators status
+badge](https://andrjohns.r-universe.dev/badges/StanEstimators)](https://andrjohns.r-universe.dev/StanEstimators)
 <!-- badges: end -->
 
 The `StanEstimators` package provides an estimation back-end for R
@@ -22,8 +26,7 @@ You can install pre-built binaries using:
 
 ``` r
 # we recommend running this is a fresh R session or restarting your current session
-install.packages("StanEstimators", 
-                 repos = c("https://andrjohns.github.io/StanEstimators/", getOption("repos")))
+install.packages('StanEstimators', repos = c('https://andrjohns.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
 Or you can build from source using:
@@ -104,14 +107,14 @@ iterations
 ``` r
 unlist(fit@timing)
 #>   warmup sampling 
-#>    0.885    0.883
+#>    0.527    0.490
 summary(fit)
 #> # A tibble: 3 × 10
 #>   variable    mean  median     sd    mad      q5     q95  rhat ess_bulk ess_tail
 #>   <chr>      <dbl>   <dbl>  <dbl>  <dbl>   <dbl>   <dbl> <dbl>    <dbl>    <dbl>
-#> 1 lp__     -1.07e3 -1.07e3 0.924  0.719  -1.07e3 -1.07e3 1.00      516.     745.
-#> 2 pars[1]   1.00e1  1.00e1 0.0910 0.0942  9.87e0  1.02e1 1.00      978.     731.
-#> 3 pars[2]   2.07e0  2.07e0 0.0653 0.0666  1.96e0  2.18e0 0.999     695.     578.
+#> 1 lp__     -1.08e3 -1.08e3 1.03   0.749  -1.08e3 -1.08e3  1.00     507.     672.
+#> 2 pars[1]   1.01e1  1.01e1 0.0940 0.0948  9.97e0  1.03e1  1.00     895.     671.
+#> 3 pars[2]   2.11e0  2.10e0 0.0686 0.0670  2.00e0  2.22e0  1.00     860.     696.
 ```
 
 Estimation time can be improved further by providing a gradient
@@ -131,14 +134,14 @@ Which shows that the estimation time was dramatically improved, now
 ``` r
 unlist(fit_grad@timing)
 #>   warmup sampling 
-#>    0.126    0.150
+#>    0.111    0.087
 summary(fit_grad)
 #> # A tibble: 3 × 10
 #>   variable    mean  median     sd    mad      q5     q95  rhat ess_bulk ess_tail
 #>   <chr>      <dbl>   <dbl>  <dbl>  <dbl>   <dbl>   <dbl> <dbl>    <dbl>    <dbl>
-#> 1 lp__     -1.07e3 -1.07e3 1.17   0.741  -1.07e3 -1.07e3  1.00     522.     552.
-#> 2 pars[1]   1.00e1  1.00e1 0.101  0.0984  9.86e0  1.02e1  1.00     664.     440.
-#> 3 pars[2]   2.07e0  2.07e0 0.0674 0.0678  1.96e0  2.18e0  1.00     745.     679.
+#> 1 lp__     -1.08e3 -1.08e3 1.02   0.741  -1.08e3 -1.08e3  1.00     572.     712.
+#> 2 pars[1]   1.01e1  1.01e1 0.0928 0.0943  9.97e0  1.03e1  1.00     950.     623.
+#> 3 pars[2]   2.10e0  2.10e0 0.0691 0.0696  1.99e0  2.22e0  1.00     725.     613.
 ```
 
 ### Optimization
@@ -156,10 +159,10 @@ opt_grad <- stan_optimize(loglik_fun, inits, additional_args = list(y),
 ``` r
 summary(opt_fd)
 #>       lp__ pars[1] pars[2]
-#> 1 -1071.47 10.0179 2.06269
+#> 1 -1079.84 10.1221 2.09743
 summary(opt_grad)
 #>       lp__ pars[1] pars[2]
-#> 1 -1071.47 10.0179 2.06269
+#> 1 -1079.84 10.1221 2.09743
 ```
 
 ### Laplace Approximation
@@ -188,28 +191,28 @@ summary(lapl_num)
 #> # A tibble: 4 × 10
 #>   variable     mean    median     sd    mad       q5        q95  rhat ess_bulk
 #>   <chr>       <dbl>     <dbl>  <dbl>  <dbl>    <dbl>      <dbl> <dbl>    <dbl>
-#> 1 log_p__  -1072.   -1072.    1.56   1.13   -1076.   -1071.     1.00     1048.
+#> 1 log_p__  -1082.   -1082.    2.39   2.18   -1087.   -1080.     0.999     989.
 #> 2 log_q__     -1.04    -0.692 1.04   0.716     -3.21    -0.0582 0.999    1047.
-#> 3 pars[1]     10.0     10.0   0.0896 0.0855     9.85    10.1    1.00      931.
-#> 4 pars[2]      2.00     2.00  0.0636 0.0645     1.90     2.11   1.00     1051.
+#> 3 pars[1]     10.0     10.0   0.0899 0.0867     9.85    10.1    1.00      933.
+#> 4 pars[2]      2.00     2.00  0.0626 0.0635     1.90     2.11   1.00     1051.
 #> # ℹ 1 more variable: ess_tail <dbl>
 summary(lapl_opt)
 #> # A tibble: 4 × 10
 #>   variable     mean    median     sd    mad       q5        q95  rhat ess_bulk
 #>   <chr>       <dbl>     <dbl>  <dbl>  <dbl>    <dbl>      <dbl> <dbl>    <dbl>
-#> 1 log_p__  -1072.   -1071.    1.06   0.712  -1074.   -1071.     0.999    1042.
+#> 1 log_p__  -1080.   -1080.    1.06   0.712  -1082.   -1079.     0.999    1044.
 #> 2 log_q__     -1.04    -0.692 1.04   0.716     -3.21    -0.0582 0.999    1047.
-#> 3 pars[1]     10.0     10.0   0.0924 0.0882     9.86    10.2    1.00      932.
-#> 4 pars[2]      2.06     2.06  0.0676 0.0685     1.96     2.18   1.00     1051.
+#> 3 pars[1]     10.1     10.1   0.0940 0.0897     9.96    10.3    1.00      932.
+#> 4 pars[2]      2.10     2.10  0.0688 0.0697     1.99     2.21   1.00     1051.
 #> # ℹ 1 more variable: ess_tail <dbl>
 summary(lapl_est)
 #> # A tibble: 4 × 10
 #>   variable     mean    median     sd    mad       q5        q95  rhat ess_bulk
 #>   <chr>       <dbl>     <dbl>  <dbl>  <dbl>    <dbl>      <dbl> <dbl>    <dbl>
-#> 1 log_p__  -1072.   -1071.    1.06   0.712  -1074.   -1071.     0.999    1042.
+#> 1 log_p__  -1080.   -1080.    1.06   0.712  -1082.   -1079.     0.999    1044.
 #> 2 log_q__     -1.04    -0.692 1.04   0.716     -3.21    -0.0582 0.999    1047.
-#> 3 pars[1]     10.0     10.0   0.0924 0.0882     9.86    10.2    1.00      932.
-#> 4 pars[2]      2.06     2.06  0.0676 0.0685     1.96     2.18   1.00     1051.
+#> 3 pars[1]     10.1     10.1   0.0940 0.0897     9.96    10.3    1.00      932.
+#> 4 pars[2]      2.10     2.10  0.0688 0.0697     1.99     2.21   1.00     1051.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -231,20 +234,20 @@ summary(var_fd)
 #>   variable     mean    median     sd    mad       q5        q95   rhat ess_bulk
 #>   <chr>       <dbl>     <dbl>  <dbl>  <dbl>    <dbl>      <dbl>  <dbl>    <dbl>
 #> 1 lp__         0        0     0      0          0        0      NA          NA 
-#> 2 log_p__  -1073.   -1073.    1.83   1.66   -1077.   -1071.      0.999     917.
-#> 3 log_g__     -1.01    -0.713 0.994  0.740     -3.06    -0.0434  1.00      968.
-#> 4 pars[1]     10.0     10.0   0.0860 0.0901     9.86    10.1     1.00     1064.
-#> 5 pars[2]      2.19     2.19  0.0647 0.0657     2.10     2.30    1.00      882.
+#> 2 log_p__  -1081.   -1080.    1.33   0.986  -1083.   -1079.      0.999     997.
+#> 3 log_g__     -1.03    -0.714 1.03   0.731     -3.29    -0.0486  1.00      959.
+#> 4 pars[1]     10.2     10.2   0.0869 0.0898    10.1     10.4     1.00     1012.
+#> 5 pars[2]      2.09     2.09  0.0650 0.0639     1.99     2.20    1.00      850.
 #> # ℹ 1 more variable: ess_tail <dbl>
 summary(var_grad)
 #> # A tibble: 5 × 10
 #>   variable     mean    median     sd    mad       q5        q95   rhat ess_bulk
 #>   <chr>       <dbl>     <dbl>  <dbl>  <dbl>    <dbl>      <dbl>  <dbl>    <dbl>
 #> 1 lp__         0        0     0      0          0        0      NA          NA 
-#> 2 log_p__  -1072.   -1072.    1.33   1.00   -1075.   -1071.      0.999     999.
+#> 2 log_p__  -1081.   -1080.    1.33   0.986  -1083.   -1079.      0.999     997.
 #> 3 log_g__     -1.03    -0.714 1.03   0.731     -3.29    -0.0486  1.00      959.
-#> 4 pars[1]     10.1     10.1   0.0855 0.0882     9.97    10.3     1.00     1012.
-#> 5 pars[2]      2.05     2.05  0.0640 0.0628     1.95     2.16    1.00      850.
+#> 4 pars[1]     10.2     10.2   0.0869 0.0898    10.1     10.4     1.00     1012.
+#> 5 pars[2]      2.09     2.09  0.0650 0.0639     1.99     2.20    1.00      850.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -265,16 +268,16 @@ summary(path_fd)
 #> # A tibble: 4 × 10
 #>   variable    mean  median     sd    mad      q5     q95  rhat ess_bulk ess_tail
 #>   <chr>      <dbl>   <dbl>  <dbl>  <dbl>   <dbl>   <dbl> <dbl>    <dbl>    <dbl>
-#> 1 lp_appr…  3.04e0  3.39e0 1.02   0.701   1.04e0  4.01e0 1.00      950.     912.
-#> 2 lp__     -1.07e3 -1.07e3 0.966  0.667  -1.07e3 -1.07e3 0.999     951.     965.
-#> 3 pars[1]   1.00e1  1.00e1 0.0901 0.0846  9.87e0  1.02e1 1.00     1014.     917.
-#> 4 pars[2]   2.07e0  2.07e0 0.0640 0.0639  1.96e0  2.17e0 1.00      968.     991.
+#> 1 lp_appr…  2.96e0  3.27e0 0.998  0.716   1.03e0  3.90e0 1.00      949.     909.
+#> 2 lp__     -1.08e3 -1.08e3 1.04   0.726  -1.08e3 -1.08e3 1.00      946.     820.
+#> 3 pars[1]   1.01e1  1.01e1 0.0955 0.0920  9.96e0  1.03e1 0.999    1004.     800.
+#> 4 pars[2]   2.10e0  2.11e0 0.0668 0.0695  1.99e0  2.21e0 1.00      998.     907.
 summary(path_grad)
 #> # A tibble: 4 × 10
 #>   variable    mean  median     sd    mad      q5     q95  rhat ess_bulk ess_tail
 #>   <chr>      <dbl>   <dbl>  <dbl>  <dbl>   <dbl>   <dbl> <dbl>    <dbl>    <dbl>
-#> 1 lp_appr…  3.04e0  3.39e0 1.02   0.701   1.04e0  4.01e0 1.00      950.     912.
-#> 2 lp__     -1.07e3 -1.07e3 0.966  0.667  -1.07e3 -1.07e3 0.999     951.     965.
-#> 3 pars[1]   1.00e1  1.00e1 0.0901 0.0846  9.87e0  1.02e1 1.00     1014.     917.
-#> 4 pars[2]   2.07e0  2.07e0 0.0640 0.0639  1.96e0  2.17e0 1.00      968.     991.
+#> 1 lp_appr…  2.96e0  3.27e0 0.998  0.716   1.03e0  3.90e0 1.00      949.     909.
+#> 2 lp__     -1.08e3 -1.08e3 1.04   0.726  -1.08e3 -1.08e3 1.00      946.     820.
+#> 3 pars[1]   1.01e1  1.01e1 0.0955 0.0920  9.96e0  1.03e1 0.999    1004.     800.
+#> 4 pars[2]   2.10e0  2.11e0 0.0668 0.0695  1.99e0  2.21e0 1.00      998.     907.
 ```

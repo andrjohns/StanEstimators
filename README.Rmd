@@ -16,7 +16,9 @@ knitr::opts_chunk$set(
 # StanEstimators
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/StanEstimators)](https://CRAN.R-project.org/package=StanEstimators)
 [![R-CMD-check](https://github.com/andrjohns/StanEstimators/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/andrjohns/StanEstimators/actions/workflows/R-CMD-check.yaml)
+[![StanEstimators status badge](https://andrjohns.r-universe.dev/badges/StanEstimators)](https://andrjohns.r-universe.dev/StanEstimators)
 <!-- badges: end -->
 
 The `StanEstimators` package provides an estimation back-end for R functions,
@@ -33,8 +35,7 @@ You can install pre-built binaries using:
 
 ```{r, eval=FALSE}
 # we recommend running this is a fresh R session or restarting your current session
-install.packages("StanEstimators", 
-                 repos = c("https://andrjohns.github.io/StanEstimators/", getOption("repos")))
+install.packages('StanEstimators', repos = c('https://andrjohns.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
 Or you can build from source using:
