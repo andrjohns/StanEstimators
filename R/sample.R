@@ -210,7 +210,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
           errs <- r_bg_procs[[chain]]$proc$read_error_lines()
           errs <- errs[errs != ""]
           if (length(errs) > 0) {
-            stop(paste0(errs, collapse = "\n"), call. = FALSE)
+            message(paste0(errs, collapse = " "))
           }
 
           if (chains_to_run > 0) {

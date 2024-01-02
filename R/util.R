@@ -348,7 +348,7 @@ call_stan <- function(args_list, input_list, quiet) {
   errs <- proc$read_error_lines()
   errs <- errs[errs != ""]
   if (length(errs) > 0) {
-    stop(paste0(errs, collapse = "\n"), call. = FALSE)
+    message(paste0(errs, collapse = " "))
   }
   invisible(NULL)
 }
