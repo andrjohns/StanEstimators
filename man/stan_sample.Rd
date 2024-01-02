@@ -13,9 +13,9 @@ stan_sample(
   grad_fun = NULL,
   lower = -Inf,
   upper = Inf,
+  eval_standalone = (parallel_chains > 1),
   globals = TRUE,
   packages = NULL,
-  eval_standalone = TRUE,
   seed = NULL,
   refresh = NULL,
   quiet = FALSE,
@@ -62,17 +62,19 @@ or \code{"fixed_param"}.}
 
 \item{upper}{Upper bound constraint(s) for parameters}
 
+\item{eval_standalone}{(logical) Whether to evaluate the function in a
+separate R session. Defaults to \code{(parallel_chains > 1)}.
+Must be \code{TRUE} if \code{parallel_chains > 1}.}
+
 \item{globals}{(optional) a logical, a character vector, or a named list
-to control how globals are handled.
+to control how globals are handled when evaluating functions in a
+separate R session. Ignored if \code{eval_standalone} = \code{FALSE}.
 For details, see section 'Globals used by future expressions'
 in the help for \code{\link[future:future]{future::future()}}.}
 
 \item{packages}{(optional) a character vector specifying packages
-to be attached in the \R environment evaluating the function.}
-
-\item{eval_standalone}{(logical) Whether to evaluate the function in a
-separate R session. Defaults to \code{TRUE}. Must be \code{TRUE} if
-\code{parallel_chains > 1}.}
+to be attached in the \R environment evaluating the function.
+Ignored if \code{eval_standalone} = \code{FALSE}.}
 
 \item{seed}{Random seed}
 

@@ -67,12 +67,20 @@ prepare_function <- function(fn, inits, extra_args_list, grad = FALSE) {
 prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, upper,
                             globals, packages, eval_standalone, output_dir, output_basename) {
   fn1 <- prepare_function(fn, par_inits, extra_args_list, grad = FALSE)
-  gp <- future::getGlobalsAndPackages(fn, globals = globals)
+  fun_globals <- NULL
+  fun_packages <- NULL
+  if (isTRUE(eval_standalone)) {
+    gp <- future::getGlobalsAndPackages(fn, globals = globals)
+    fun_globals <- gp$globals
+    fun_packages <- c(gp$packages, packages)
+  }
   if (!is.null(grad_fun)) {
     gr1 <- prepare_function(grad_fun, par_inits, extra_args_list, grad = TRUE)
-    gr_gp <- future::getGlobalsAndPackages(grad_fun, globals = globals)
-    gp$globals <- c(gp$globals, gr_gp$globals)
-    gp$packages <- c(gp$packages, gr_gp$packages)
+    if (isTRUE(eval_standalone)) {
+      gr_gp <- future::getGlobalsAndPackages(grad_fun, globals = globals)
+      fun_globals <- c(fun_globals, gr_gp$globals)
+      fun_packages <- c(fun_packages, gr_gp$packages)
+    }
   } else {
     gr1 <- fn1
   }
@@ -106,8 +114,8 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
   structured <- list(
     ll_function = fn1,
     grad_function = gr1,
-    globals = gp$globals,
-    packages = c(gp$packages, packages),
+    globals = fun_globals,
+    packages = fun_packages,
     eval_standalone = eval_standalone,
     inits = par_inits,
     finite_diff = as.integer(is.null(grad_fun)),

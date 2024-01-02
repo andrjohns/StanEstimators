@@ -34,14 +34,16 @@ setMethod("summary", "StanVariational", function(object, ...) {
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
+#' @param eval_standalone (logical) Whether to evaluate the function in a
+#'    separate R session. Defaults to \code{FALSE}.
 #' @param globals (optional) a logical, a character vector, or a named list
-#'    to control how globals are handled.
+#'    to control how globals are handled when evaluating functions in a
+#'    separate R session. Ignored if `eval_standalone` = `FALSE`.
 #'    For details, see section 'Globals used by future expressions'
 #'    in the help for [future::future()].
 #' @param packages (optional) a character vector specifying packages
 #'    to be attached in the \R environment evaluating the function.
-#' @param eval_standalone (logical) Whether to evaluate the function in a
-#'    separate R session. Defaults to \code{FALSE}.
+#'    Ignored if `eval_standalone` = `FALSE`.
 #' @param seed Random seed
 #' @param refresh Number of iterations for printing
 #' @param quiet (logical) Whether to suppress Stan's output
@@ -67,8 +69,8 @@ setMethod("summary", "StanVariational", function(object, ...) {
 #' @export
 stan_variational <- function(fn, par_inits, additional_args = list(), algorithm = "meanfield",
                              grad_fun = NULL, lower = -Inf, upper = Inf,
-                              globals = TRUE, packages = NULL,
                               eval_standalone = FALSE,
+                              globals = TRUE, packages = NULL,
                               seed = NULL,
                               refresh = NULL,
                               quiet = FALSE,
