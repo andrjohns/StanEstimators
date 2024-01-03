@@ -1,7 +1,6 @@
 setClass("StanVariational",
   slots = c(
     metadata = "list",
-    timing = "list",
     estimates = "data.frame",
     draws = "draws_df"
   )
@@ -120,7 +119,6 @@ stan_variational <- function(fn, par_inits, additional_args = list(), algorithm 
   estimates <- setNames(data.frame(parsed$samples), parsed$header)
   methods::new("StanVariational",
     metadata = parsed$metadata,
-    timing = parsed$timing,
     estimates = estimates[1,],
     draws = posterior::as_draws_df(estimates[-1,])
   )

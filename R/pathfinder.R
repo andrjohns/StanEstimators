@@ -2,7 +2,6 @@ setOldClass("draws_df")
 setClass("StanPathfinder",
   slots = c(
     metadata = "list",
-    timing = "list",
     draws = "draws_df"
   )
 )
@@ -124,7 +123,6 @@ stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = 
 
   methods::new("StanPathfinder",
     metadata = parsed$metadata,
-    timing = parsed$timing,
     draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header))
   )
 }

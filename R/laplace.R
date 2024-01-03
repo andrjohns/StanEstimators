@@ -2,7 +2,6 @@ setOldClass("draws_df")
 setClass("StanLaplace",
   slots = c(
     metadata = "list",
-    timing = "list",
     estimates = "data.frame",
     draws = "draws_df"
   )
@@ -133,7 +132,6 @@ stan_laplace <- function(fn, par_inits, additional_args = list(),
 
   methods::new("StanLaplace",
     metadata = parsed$metadata,
-    timing = parsed$timing,
     estimates = estimates[1,],
     draws = posterior::as_draws_df(estimates[-1,])
   )

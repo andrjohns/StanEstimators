@@ -1,7 +1,6 @@
 setClass("StanOptimize",
   slots = c(
     metadata = "list",
-    timing = "list",
     estimates = "data.frame",
     inputs = "list"
   )
@@ -123,7 +122,6 @@ stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "
 
   methods::new("StanOptimize",
     metadata = parsed$metadata,
-    timing = parsed$timing,
     estimates = setNames(data.frame(parsed$samples), parsed$header),
     inputs = inputs
   )

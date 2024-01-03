@@ -11,5 +11,7 @@ call_stan_impl <- function(options_vector, input_list) {
 }
 
 parse_csv <- function(filename) {
-  .Call(`parse_csv_`, filename)
+  parsed <- .Call(`parse_csv_`, filename)
+  parsed$metadata <- parsed$metadata[unique(names(parsed$metadata))]
+  parsed
 }

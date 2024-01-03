@@ -1,60 +1,120 @@
-#include <stan/io/stan_csv_reader.hpp>
 #include <Rcpp.h>
+#include <stan/math/prim/fun/Eigen.hpp>
+#define STAN_MATH_PRIM_HPP
+#include <stan/io/stan_csv_reader.hpp>
 #include <RcppEigen.h>
+#include <fstream>
+#include <iostream>
 
-Rcpp::List csv_to_r(const stan::io::stan_csv_metadata& metadata) {
-  return Rcpp::List::create(
-    Rcpp::Named("stan_version_major") = metadata.stan_version_major,
-    Rcpp::Named("stan_version_minor") = metadata.stan_version_minor,
-    Rcpp::Named("stan_version_patch") = metadata.stan_version_patch,
-    Rcpp::Named("model") = metadata.model,
-    Rcpp::Named("data") = metadata.data,
-    Rcpp::Named("init") = metadata.init,
-    Rcpp::Named("chain_id") = metadata.chain_id,
-    Rcpp::Named("seed") = metadata.seed,
-    Rcpp::Named("random_seed") = metadata.random_seed,
-    Rcpp::Named("num_samples") = metadata.num_samples,
-    Rcpp::Named("num_warmup") = metadata.num_warmup,
-    Rcpp::Named("save_warmup") = metadata.save_warmup,
-    Rcpp::Named("thin") = metadata.thin,
-    Rcpp::Named("append_samples") = metadata.append_samples,
-    Rcpp::Named("algorithm") = metadata.algorithm,
-    Rcpp::Named("engine") = metadata.engine,
-    Rcpp::Named("max_depth") = metadata.max_depth
-  );
+/**
+ * Opens input stream for file.
+ * Throws exception if stream cannot be opened.
+ *
+ * Copied from cmdstan/command_helper.hpp
+ *
+ * @param fname name of file which exists and has read perms.
+ * @return input stream
+ */
+std::ifstream safe_open(const std::string fname) {
+  std::ifstream stream(fname.c_str());
+  if (fname != "" && (stream.rdstate() & std::ifstream::failbit)) {
+    std::stringstream msg;
+    msg << "Can't open specified file, \"" << fname << "\"" << std::endl;
+    throw std::invalid_argument(msg.str());
+  }
+  return stream;
 }
 
-Rcpp::List csv_to_r(const stan::io::stan_csv_adaptation& adaptation) {
-  return Rcpp::List::create(
-    Rcpp::Named("step_size") = adaptation.step_size,
-    Rcpp::Named("metric") = adaptation.metric
-  );
-}
+Rcpp::List parse_metadata(std::istream& in) {
+  std::stringstream ss;
+  std::string line;
 
-Rcpp::List csv_to_r(const stan::io::stan_csv_timing& timing) {
-  return Rcpp::List::create(
-    Rcpp::Named("warmup") = timing.warmup,
-    Rcpp::Named("sampling") = timing.sampling
-  );
-}
+  if (in.peek() != '#') {
+    return {};
+  }
+  while (in.peek() == '#') {
+    std::getline(in, line);
+    ss << line << '\n';
+  }
+  ss.seekg(std::ios_base::beg);
 
-Rcpp::List csv_to_r(const stan::io::stan_csv& csv) {
-  return Rcpp::List::create(
-    Rcpp::Named("metadata") = csv_to_r(csv.metadata),
-    Rcpp::Named("header") = csv.header,
-    Rcpp::Named("adaptation") = csv_to_r(csv.adaptation),
-    Rcpp::Named("samples") = csv.samples,
-    Rcpp::Named("timing") = csv_to_r(csv.timing)
-  );
+  char comment;
+  std::string lhs;
+
+  std::string name;
+  std::string value;
+  Rcpp::List metadata;
+
+  while (ss.good()) {
+    ss >> comment;
+    std::getline(ss, lhs);
+
+    size_t equal = lhs.find("=");
+    if (equal != std::string::npos) {
+      name = lhs.substr(0, equal);
+      boost::trim(name);
+      value = lhs.substr(equal + 1, lhs.size());
+      boost::trim(value);
+      boost::replace_first(value, " (Default)", "");
+    } else {
+      if (lhs.compare(" data") == 0) {
+        ss >> comment;
+        std::getline(ss, lhs);
+
+        size_t equal = lhs.find("=");
+        if (equal != std::string::npos) {
+          name = lhs.substr(0, equal);
+          boost::trim(name);
+          value = lhs.substr(equal + 2, lhs.size());
+          boost::replace_first(value, " (Default)", "");
+        }
+
+        continue;
+      }
+    }
+    metadata.push_back(value, name);
+  }
+
+  return metadata;
 }
 
 RcppExport SEXP parse_csv_(SEXP filename_) {
   BEGIN_RCPP
-  std::string filename = Rcpp::as<std::string>(filename_);
-  std::ifstream ifstream;
-  ifstream.open(filename);
-  stan::io::stan_csv csv_parsed = stan::io::stan_csv_reader::parse(ifstream, nullptr);
+  Rcpp::List rtn;
+
+  std::ifstream ifstream = safe_open(Rcpp::as<std::string>(filename_));
+  rtn.push_back(parse_metadata(ifstream), "metadata");
+
+  std::vector<std::string> header;
+  stan::io::stan_csv_reader::read_header(ifstream, header, nullptr);
+  rtn.push_back(header, "header");
+
+  bool read_adaptation = std::forward<Rcpp::List>(rtn[0]).containsElementNamed("engaged");
+  if (read_adaptation) {
+    stan::io::stan_csv_adaptation adaptation;
+    stan::io::stan_csv_reader::read_adaptation(ifstream, adaptation, nullptr);
+    rtn.push_back(Rcpp::List::create(
+      Rcpp::Named("step_size") = adaptation.step_size,
+      Rcpp::Named("metric") = adaptation.metric
+    ), "adaptation");
+  }
+  Eigen::MatrixXd samples;
+  stan::io::stan_csv_timing timing;
+  stan::io::stan_csv_reader::read_samples(ifstream, samples, timing, nullptr);
+  rtn.push_back(samples, "samples");
+  Rcpp::colnames(std::forward<Rcpp::NumericMatrix>(rtn["samples"])) = Rcpp::wrap(header);
+
+  // If there is no timing information, then both elements remain at their default values of 0.
+  bool rtn_timing = timing.warmup != 0 || timing.sampling != 0;
+  if (rtn_timing) {
+    rtn.push_back(Rcpp::List::create(
+      Rcpp::Named("warmup") = timing.warmup,
+      Rcpp::Named("sampling") = timing.sampling
+    ), "timing");
+  }
+
   ifstream.close();
-  return Rcpp::wrap(csv_to_r(csv_parsed));
+
+  return rtn;
   END_RCPP
 }
