@@ -70,6 +70,15 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
   fun_globals <- NULL
   fun_packages <- NULL
   if (isTRUE(eval_standalone)) {
+    callr_future_installed <- sapply(c("callr", "future"), function(pkg) {
+      requireNamespace(pkg, quietly = TRUE)
+    })
+
+    if (!all(callr_future_installed)) {
+      stop("To use `eval_standalone = TRUE` or `parallel_chains > 1`, ",
+          "you must install the `callr` and `future` packages.",
+          call. = FALSE)
+    }
     gp <- future::getGlobalsAndPackages(fn, globals = globals)
     fun_globals <- gp$globals
     fun_packages <- c(gp$packages, packages)
