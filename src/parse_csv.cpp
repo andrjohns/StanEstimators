@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 #include <stan/math/prim/fun/Eigen.hpp>
-#define STAN_MATH_PRIM_HPP
+// Define STAN_MATH_PRIM_HPP to avoid including unnecessary Stan headers
+#define STAN_MATH_PRIM_HPP 1
 #include <stan/io/stan_csv_reader.hpp>
 #include <RcppEigen.h>
 #include <fstream>
