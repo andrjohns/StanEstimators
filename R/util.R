@@ -301,7 +301,7 @@ parse_output_args <- function(output_args) {
   c("output", parsed_args[parsed_args != ""])
 }
 
-build_stan_call <- function(method, method_args, data_file, init, seed, output_args) {
+build_stan_call <- function(method, method_args, data_file, init, seed, output_args, id = NULL) {
   if (method == "diagnose") {
     method_string <- ""
   } else {
@@ -314,8 +314,13 @@ build_stan_call <- function(method, method_args, data_file, init, seed, output_a
   } else {
     random_string <- ""
   }
+  if (!is.null(id)) {
+    id_string <- paste0("id=", id)
+  } else {
+    id_string <- ""
+  }
   output_string <- parse_output_args(output_args)
-  args <- unlist(c(method, method_string, data_string, init_string, random_string, output_string))
+  args <- unlist(c(method, method_string, id_string, data_string, init_string, random_string, output_string))
   args[args != ""]
 }
 

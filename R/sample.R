@@ -174,8 +174,8 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
                               data_file = inputs$data_filepath,
                               init = inputs$init_filepath,
                               seed = seed,
-                              output_args = output)
-
+                              output_args = output,
+                              id = chain)
       list(args, inputs)
     })
 
