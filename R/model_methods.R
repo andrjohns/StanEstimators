@@ -30,6 +30,22 @@ setGeneric(
   function(stan_object, unconstrained_variables, jacobian = TRUE) standardGeneric("grad_log_prob")
 )
 
+#' Calculate the log probability, its gradient, and its hessian matrix of the
+#' model given a vector of unconstrained variables.
+#'
+#' @docType methods
+#' @rdname hessian-methods
+#'
+#' @param stan_object A \code{StanBase} object.
+#' @param unconstrained_variables Vector of unconstrained variables.
+#' @param jacobian Whether to include the Jacobian adjustment.
+#'
+#' @export
+setGeneric(
+  "hessian",
+  function(stan_object, unconstrained_variables, jacobian = TRUE) standardGeneric("hessian")
+)
+
 #' Unconstrain a vector of variables.
 #'
 #' @docType methods
@@ -72,6 +88,15 @@ setMethod("log_prob", "StanBase",
 setMethod("grad_log_prob", "StanBase",
   function(stan_object, unconstrained_variables, jacobian) {
     grad_log_prob_impl(stan_object@model_methods$model_pointer,
+                        unconstrained_variables, jacobian)
+  }
+)
+
+#' @rdname hessian-methods
+#' @aliases hessian,StanBase,StanBase-method
+setMethod("hessian", "StanBase",
+  function(stan_object, unconstrained_variables, jacobian) {
+    hessian_impl(stan_object@model_methods$model_pointer,
                         unconstrained_variables, jacobian)
   }
 )

@@ -4,6 +4,7 @@
 #include <stan/model/model_base.hpp>
 #include <stan/model/log_prob_propto.hpp>
 #include <stan/model/log_prob_grad.hpp>
+#include <stan/math/rev/functor/finite_diff_hessian_auto.hpp>
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <sstream>
@@ -62,6 +63,32 @@ RcppExport SEXP grad_log_prob_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_) 
   Rcpp::NumericVector grad_rtn = Rcpp::wrap(gradients);
   grad_rtn.attr("log_prob") = lp;
   return grad_rtn;
+  END_RCPP
+}
+
+RcppExport SEXP hessian_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_) {
+  BEGIN_RCPP
+  Rcpp::XPtr<stan::model::model_base> ptr(ext_model_ptr);
+  Eigen::Map<Eigen::VectorXd> upars = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(upars_);
+
+  auto hessian_functor = [&](auto&& x) {
+    if (Rcpp::as<bool>(jacobian_)) {
+      return ptr->log_prob<true, true>(x, 0);
+    } else {
+      return ptr->log_prob<true, false>(x, 0);
+    }
+  };
+
+  double log_prob;
+  Eigen::VectorXd grad;
+  Eigen::MatrixXd hessian;
+
+  stan::math::internal::finite_diff_hessian_auto(hessian_functor, upars, log_prob, grad, hessian);
+
+  return Rcpp::List::create(
+    Rcpp::Named("log_prob") = log_prob,
+    Rcpp::Named("grad_log_prob") = grad,
+    Rcpp::Named("hessian") = hessian);
   END_RCPP
 }
 

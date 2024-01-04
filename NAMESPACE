@@ -2,6 +2,7 @@
 
 export(constrain_variables)
 export(grad_log_prob)
+export(hessian)
 export(log_prob)
 export(stan_diagnose)
 export(stan_laplace)

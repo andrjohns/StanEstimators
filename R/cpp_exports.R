@@ -36,6 +36,10 @@ grad_log_prob_impl <- function(model_ptr, upars, jacobian = TRUE) {
   .Call(`grad_log_prob_`, model_ptr, upars, jacobian)
 }
 
+hessian_impl <- function(model_ptr, upars, jacobian = TRUE) {
+  .Call(`hessian_`, model_ptr, upars, jacobian)
+}
+
 unconstrain_variables_impl <- function(model_ptr, cons_json_string) {
   .Call(`unconstrain_variables_`, model_ptr, cons_json_string)
 }
