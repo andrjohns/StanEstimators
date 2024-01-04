@@ -1,7 +1,14 @@
 #include <string>
 #include <locale>
 #include <codecvt>
-#include <stan/math.hpp>
+#include <stan/math/prim/fun/Eigen.hpp>
+#include <stan/math/prim/fun/inv_logit.hpp>
+#include <stan/math/prim/fun/finite_diff_stepsize.hpp>
+#include <stan/math/prim/fun/lub_free.hpp>
+#include <stan/math/prim/fun/lub_constrain.hpp>
+#include <stan/math/prim/functor/apply_scalar_ternary.hpp>
+#include <stan/math/prim/functor/finite_diff_gradient_auto.hpp>
+#include <stan/math/rev/core.hpp>
 #include <RcppEigen.h>
 
 namespace internal {
@@ -56,25 +63,25 @@ Eigen::VectorXd constrain_grads(const T& v, const TLower& lower_bounds, const TU
   );
 }
 
-template <typename T, typename TLower, typename TUpper,
-          stan::require_st_arithmetic<T>* = nullptr>
-double r_function(const T& v, int finite_diff, int no_bounds,
+double r_function(const Eigen::VectorXd& v,
+                  int finite_diff, int no_bounds,
                   std::vector<int> bounds_types,
-                  const TLower& lower_bounds, const TUpper& upper_bounds,
+                  const Eigen::Map<Eigen::VectorXd>& lower_bounds,
+                  const Eigen::Map<Eigen::VectorXd>& upper_bounds,
                   std::ostream* pstream__) {
   return Rcpp::as<double>(internal::ll_fun(v));
 }
 
-template <typename T, typename TLower, typename TUpper,
-          stan::require_st_var<T>* = nullptr>
-stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
+stan::math::var r_function(const Eigen::Matrix<stan::math::var, -1, 1>& v,
+                  int finite_diff, int no_bounds,
                   std::vector<int> bounds_types,
-                  const TLower& lower_bounds, const TUpper& upper_bounds,
+                  const Eigen::Map<Eigen::VectorXd>& lower_bounds,
+                  const Eigen::Map<Eigen::VectorXd>& upper_bounds,
                   std::ostream* pstream__) {
   using stan::math::finite_diff_gradient_auto;
   using stan::math::make_callback_var;
 
-  stan::arena_t<stan::plain_type_t<T>> arena_v = v;
+  stan::arena_t<Eigen::Matrix<stan::math::var, -1, 1>> arena_v = v;
   if (finite_diff == 1) {
     double ret;
     Eigen::VectorXd grad;
@@ -106,10 +113,3 @@ stan::math::var r_function(const T& v, int finite_diff, int no_bounds,
     });
   }
 }
-
-/**
- * This macro is set by R headers included above and no longer needed
-*/
-#ifdef USING_R
-#undef USING_R
-#endif
