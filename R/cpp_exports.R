@@ -15,3 +15,10 @@ parse_csv <- function(filename) {
   parsed$metadata <- parsed$metadata[unique(names(parsed$metadata))]
   parsed
 }
+
+#' stan_versions
+#' @return A named list with the Stan and Stan Math library versions
+#' @export
+stan_versions <- function() {
+  .Call(`stan_versions_`)
+}

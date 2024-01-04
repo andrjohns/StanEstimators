@@ -13,6 +13,7 @@ extern "C"  {
 
 SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun);
 SEXP parse_csv_(SEXP filename_);
+SEXP stan_versions_();
 
 #ifdef __cplusplus
 }
@@ -24,6 +25,7 @@ SEXP parse_csv_(SEXP filename_);
 static const R_CallMethodDef CallEntries[] = {
   CALLDEF(call_stan_, 3),
   CALLDEF(parse_csv_, 1),
+  CALLDEF(stan_versions_, 0),
   {NULL, NULL, 0}
 };
 
