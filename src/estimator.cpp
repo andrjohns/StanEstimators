@@ -1,3 +1,4 @@
+#include <headers_to_ignore.hpp>
 #include <stan/math/prim/fun/Eigen.hpp>
 #include <stan/math/rev/core/var.hpp>
 

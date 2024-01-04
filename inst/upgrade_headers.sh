@@ -13,8 +13,6 @@ cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/stan/math.hpp include/stan/math.hp
 rm -rf include/stan/math/opencl
 gsed -i -e 's/#include <stan\/math\/opencl\/rev.hpp>//g' include/stan/math/rev.hpp
 
-cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/lib/sundials_*/include include/sundials
-
 chmod +x cmdstan-$CMDSTAN_VER/bin/mac-stanc
 cmdstan-$CMDSTAN_VER/bin/mac-stanc estimator/estimator.stan --O1 --allow-undefined
 
