@@ -22,3 +22,24 @@ parse_csv <- function(filename) {
 stan_versions <- function() {
   .Call(`stan_versions_`)
 }
+
+make_model_pointer <- function(data_json_string, seed) {
+  seed <- ifelse(is.null(seed), 0, seed)
+  .Call(`make_model_pointer_`, data_json_string, seed)
+}
+
+log_prob_impl <- function(model_ptr, upars, jacobian = TRUE) {
+  .Call(`log_prob_`, model_ptr, upars, jacobian)
+}
+
+grad_log_prob_impl <- function(model_ptr, upars, jacobian = TRUE) {
+  .Call(`grad_log_prob_`, model_ptr, upars, jacobian)
+}
+
+unconstrain_variables_impl <- function(model_ptr, cons_json_string) {
+  .Call(`unconstrain_variables_`, model_ptr, cons_json_string)
+}
+
+constrain_variables_impl <- function(model_ptr, upars) {
+  .Call(`constrain_variables_`, model_ptr, upars)
+}

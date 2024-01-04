@@ -1,7 +1,8 @@
 setOldClass("draws_df")
-setClass("StanPathfinder",
+setClass(
+  "StanPathfinder",
+  contains = "StanBase",
   slots = c(
-    metadata = "list",
     draws = "draws_df"
   )
 )
@@ -123,6 +124,12 @@ stan_pathfinder <- function(fn, par_inits, additional_args = list(), grad_fun = 
 
   methods::new("StanPathfinder",
     metadata = parsed$metadata,
-    draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header))
+    draws = posterior::as_draws_df(setNames(data.frame(parsed$samples), parsed$header)),
+    lower_bounds = inputs$lower,
+    upper_bounds = inputs$upper,
+    model_methods = list(
+      data_json_string = inputs$data_string,
+      model_pointer = make_model_pointer(inputs$data_string, seed)
+    )
   )
 }

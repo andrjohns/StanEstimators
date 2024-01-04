@@ -1,14 +1,12 @@
 setOldClass("draws_df")
-setClass("StanMCMC",
+setClass(
+  "StanMCMC",
+  contains = "StanBase",
   slots = c(
-    metadata = "list",
     adaptation = "list",
     timing = "list",
     diagnostics = "draws_df",
-    draws = "draws_df",
-    log_prob = "function",
-    lower_bounds = "numeric",
-    upper_bounds = "numeric"
+    draws = "draws_df"
   )
 )
 
@@ -269,8 +267,11 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
     timing = timing,
     diagnostics = posterior::subset_draws(draws, variable = diagnostic_vars),
     draws = posterior::subset_draws(draws, variable = par_vars),
-    log_prob = inputs$ll_function,
-    lower_bounds = lower,
-    upper_bounds = upper
+    lower_bounds = inputs$lower,
+    upper_bounds = inputs$upper,
+    model_methods = list(
+      data_json_string = inputs$data_string,
+      model_pointer = make_model_pointer(inputs$data_string, seed)
+    )
   )
 }

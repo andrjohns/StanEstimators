@@ -1,8 +1,8 @@
-setClass("StanOptimize",
+setClass(
+  "StanOptimize",
+  contains = "StanBase",
   slots = c(
-    metadata = "list",
-    estimates = "data.frame",
-    inputs = "list"
+    estimates = "data.frame"
   )
 )
 
@@ -123,6 +123,11 @@ stan_optimize <- function(fn, par_inits, additional_args = list(), algorithm = "
   methods::new("StanOptimize",
     metadata = parsed$metadata,
     estimates = setNames(data.frame(parsed$samples), parsed$header),
-    inputs = inputs
+    lower_bounds = inputs$lower,
+    upper_bounds = inputs$upper,
+    model_methods = list(
+      data_json_string = inputs$data_string,
+      model_pointer = make_model_pointer(inputs$data_string, seed)
+    )
   )
 }

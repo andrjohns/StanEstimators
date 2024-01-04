@@ -11,20 +11,20 @@ write_data <- function(Npars, finite_diff, lower_bounds, upper_bounds, bounds_ty
     '}'
   )
   writeLines(dat_string, con = data_filepath)
-  invisible(NULL)
+  dat_string
+}
+
+inits_to_json <- function(inits) {
+  paste0('{ "pars" : [', paste0(inits, collapse = ','), ']}')
 }
 
 write_inits <- function(inits, init_filepath) {
-  dat_string <- paste(
-    '{',
-    '"pars" : [', paste0(inits, collapse = ','), ']',
-    '}'
-  )
+  dat_string <- inits_to_json(inits)
   writeLines(dat_string, con = init_filepath)
-  invisible(NULL)
+  dat_string
 }
 
-write_file <- function(what, input_list) {
+prepare_and_write_json <- function(what, input_list) {
   if (what == "data") {
     args <- c("Npars", "finite_diff", "lower_bounds", "upper_bounds", "bounds_types", "data_filepath")
     write_fun <- write_data
@@ -137,8 +137,10 @@ prepare_inputs <- function(fn, par_inits, extra_args_list, grad_fun, lower, uppe
     output_filepath = paste0(output_basename, ".csv"),
     output_basename = output_basename
   )
-  write_file("inits", structured)
-  write_file("data", structured)
+  init_json_string <- prepare_and_write_json("inits", structured)
+  data_json_string <- prepare_and_write_json("data", structured)
+  structured$data_string <- data_json_string
+  structured$init_string <- init_json_string
   structured
 }
 

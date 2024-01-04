@@ -1,6 +1,7 @@
-setClass("StanVariational",
+setClass(
+  "StanVariational",
+  contains = "StanBase",
   slots = c(
-    metadata = "list",
     estimates = "data.frame",
     draws = "draws_df"
   )
@@ -120,6 +121,12 @@ stan_variational <- function(fn, par_inits, additional_args = list(), algorithm 
   methods::new("StanVariational",
     metadata = parsed$metadata,
     estimates = estimates[1,],
-    draws = posterior::as_draws_df(estimates[-1,])
+    draws = posterior::as_draws_df(estimates[-1,]),
+    lower_bounds = inputs$lower,
+    upper_bounds = inputs$upper,
+    model_methods = list(
+      data_json_string = inputs$data_string,
+      model_pointer = make_model_pointer(inputs$data_string, seed)
+    )
   )
 }
