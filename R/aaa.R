@@ -1,3 +1,4 @@
+setOldClass("draws_df")
 setClass(
   "StanBase",
   slots = c(
@@ -6,3 +7,49 @@ setClass(
     upper_bounds = "numeric",
     model_methods = "list"
   ))
+
+setClass(
+  "StanLaplace",
+  contains = "StanBase",
+  slots = c(
+    estimates = "data.frame",
+    draws = "draws_df"
+  )
+)
+
+setClass(
+  "StanOptimize",
+  contains = "StanBase",
+  slots = c(
+    estimates = "data.frame"
+  )
+)
+
+setClass(
+  "StanPathfinder",
+  contains = "StanBase",
+  slots = c(
+    draws = "draws_df"
+  )
+)
+
+setClass(
+  "StanMCMC",
+  contains = "StanBase",
+  slots = c(
+    adaptation = "list",
+    timing = "list",
+    diagnostics = "draws_df",
+    draws = "draws_df"
+  )
+)
+
+setClass(
+  "StanVariational",
+  contains = "StanBase",
+  slots = c(
+    estimates = "data.frame",
+    draws = "draws_df"
+  )
+)
+

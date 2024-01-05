@@ -52,3 +52,14 @@ test_that("variable constraining works correctly", {
     c(0, 5)
   )
 })
+
+test_that("unconstraining draws works correctly", {
+  samp_fd <- stan_sample(loglik_fun, inits, additional_args = list(y), lower = c(-Inf, 0),
+                      num_chains = 2, seed = 1234)
+  draws <- samp_fd@draws
+  unconstrained_draws <- (draws)
+  unconstrained_draws$`pars[2]` <- log(draws$`pars[2]`)
+
+  expect_equal(unconstrain_draws(samp_fd), unconstrained_draws)
+  expect_equal(unconstrain_draws(samp_fd, draws), unconstrained_draws)
+})

@@ -40,8 +40,23 @@ hessian_impl <- function(model_ptr, upars, jacobian = TRUE) {
   .Call(`hessian_`, model_ptr, upars, jacobian)
 }
 
-unconstrain_variables_impl <- function(model_ptr, cons_json_string) {
-  .Call(`unconstrain_variables_`, model_ptr, cons_json_string)
+unconstrain_variables_impl <- function(model_ptr, variables) {
+  .Call(`unconstrain_variables_`, model_ptr, variables)
+}
+
+unconstrain_draws_impl <- function(model_ptr, draws, match_format = TRUE) {
+  draws_matrix <- posterior::as_draws_matrix(draws)
+  par_cols <- grep("^par", colnames(draws_matrix))
+  if (length(par_cols) == 0) {
+    stop("No parameter columns found in draws object", call. = FALSE)
+  }
+  unconstrained_variables <- .Call(`unconstrain_draws_`, model_ptr, draws_matrix[, par_cols])
+  draws_matrix[, par_cols] <- unconstrained_variables
+  if (match_format) {
+    match_draws_format(draws, draws_matrix)
+  } else {
+    draws_matrix
+  }
 }
 
 constrain_variables_impl <- function(model_ptr, upars) {

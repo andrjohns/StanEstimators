@@ -60,6 +60,21 @@ setGeneric(
   function(stan_object, variables) standardGeneric("unconstrain_variables")
 )
 
+#' Unconstrain all parameter draws.
+#'
+#' @docType methods
+#' @rdname unconstrain_draws-methods
+#'
+#' @param stan_object A \code{StanBase} object.
+#' @param draws (optional) A `posterior::draws_*` object to be unconstrained
+#'  (instead of the draws in the \code{StanBase} object).
+#'
+#' @export
+setGeneric(
+  "unconstrain_draws",
+  function(stan_object, draws = NULL) standardGeneric("unconstrain_draws")
+)
+
 #' Constrain a vector of variables.
 #'
 #' @docType methods
@@ -106,7 +121,31 @@ setMethod("hessian", "StanBase",
 setMethod("unconstrain_variables", "StanBase",
   function(stan_object, variables) {
     unconstrain_variables_impl(stan_object@model_methods$model_pointer,
-                                inits_to_json(variables))
+                               variables)
+  }
+)
+
+#' @rdname unconstrain_draws-methods
+#' @aliases unconstrain_draws,StanBase,StanBase-method
+setMethod("unconstrain_draws", "StanBase",
+  function(stan_object, draws) {
+    if (is.null(draws)) {
+      draws <- stan_object@draws
+    }
+    unconstrain_draws_impl(stan_object@model_methods$model_pointer, draws)
+  }
+)
+
+#' @rdname unconstrain_draws-methods
+#' @aliases unconstrain_draws,StanOptimize,StanOptimize-method
+setMethod("unconstrain_draws", "StanOptimize",
+  function(stan_object, draws) {
+    if (is.null(draws)) {
+      variables <- stan_object@estimates
+      unconstrain_draws_impl(stan_object@model_methods$model_pointer, stan_object@estimates, match_format = FALSE)
+    } else {
+      unconstrain_draws_impl(stan_object@model_methods$model_pointer, draws)
+    }
   }
 )
 

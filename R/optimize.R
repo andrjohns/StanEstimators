@@ -1,11 +1,3 @@
-setClass(
-  "StanOptimize",
-  contains = "StanBase",
-  slots = c(
-    estimates = "data.frame"
-  )
-)
-
 #' Summary method for objects of class \code{StanOptimize}.
 #'
 #' @docType methods

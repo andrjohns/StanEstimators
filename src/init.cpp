@@ -19,6 +19,7 @@ SEXP log_prob_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_);
 SEXP grad_log_prob_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_);
 SEXP hessian_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_);
 SEXP unconstrain_variables_(SEXP ext_model_ptr, SEXP cons_json_string_);
+SEXP unconstrain_draws_(SEXP ext_model_ptr, SEXP draws_matrix_);
 SEXP constrain_variables_(SEXP ext_model_ptr, SEXP upars_);
 
 #ifdef __cplusplus
@@ -37,6 +38,7 @@ static const R_CallMethodDef CallEntries[] = {
   CALLDEF(grad_log_prob_, 3),
   CALLDEF(hessian_, 3),
   CALLDEF(unconstrain_variables_, 2),
+  CALLDEF(unconstrain_draws_, 2),
   CALLDEF(constrain_variables_, 2),
   {NULL, NULL, 0}
 };

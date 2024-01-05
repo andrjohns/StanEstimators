@@ -375,3 +375,19 @@ format_bool <- function(input) {
   }
   input
 }
+
+to_draws_format <- function(draws, draws_format) {
+  valid_formats <- c("draws_array", "draws_df", "draws_list",
+                      "draws_matrix", "draws_rvars")
+  if (!(draws_format %in% valid_formats)) {
+    stop("Invalid draws_format! Valid formats are: ",
+          paste0(valid_formats, collapse = ", "),
+         call. = FALSE)
+  }
+  get(paste0("as_", draws_format), loadNamespace("posterior"))(draws)
+}
+
+match_draws_format <- function(reference_draws, draws) {
+  reference_format <- class(reference_draws)[1]
+  to_draws_format(draws, reference_format)
+}

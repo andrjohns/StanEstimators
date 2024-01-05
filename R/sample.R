@@ -1,15 +1,3 @@
-setOldClass("draws_df")
-setClass(
-  "StanMCMC",
-  contains = "StanBase",
-  slots = c(
-    adaptation = "list",
-    timing = "list",
-    diagnostics = "draws_df",
-    draws = "draws_df"
-  )
-)
-
 #' Summary method for objects of class \code{StanMCMC}.
 #'
 #' @docType methods

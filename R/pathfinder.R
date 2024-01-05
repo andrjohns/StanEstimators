@@ -1,12 +1,3 @@
-setOldClass("draws_df")
-setClass(
-  "StanPathfinder",
-  contains = "StanBase",
-  slots = c(
-    draws = "draws_df"
-  )
-)
-
 #' Summary method for objects of class \code{StanPathfinder}.
 #'
 #' @docType methods

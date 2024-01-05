@@ -92,14 +92,27 @@ RcppExport SEXP hessian_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_) {
   END_RCPP
 }
 
-RcppExport SEXP unconstrain_variables_(SEXP ext_model_ptr, SEXP cons_json_string_) {
+RcppExport SEXP unconstrain_variables_(SEXP ext_model_ptr, SEXP variables_) {
   BEGIN_RCPP
   Rcpp::XPtr<stan::model::model_base> ptr(ext_model_ptr);
-  std::string cons_json_string = Rcpp::as<std::string>(cons_json_string_);
-  Eigen::VectorXd upars_unconstrained;
-  ptr->transform_inits(*var_context_from_string(cons_json_string),
-                       upars_unconstrained, &Rcpp::Rcout);
-  return Rcpp::wrap(upars_unconstrained);
+  Eigen::Map<Eigen::VectorXd> variables = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(variables_);
+  Eigen::VectorXd unconstrained_variables;
+  ptr->unconstrain_array(variables, unconstrained_variables, &Rcpp::Rcout);
+  return Rcpp::wrap(unconstrained_variables);
+  END_RCPP
+}
+
+RcppExport SEXP unconstrain_draws_(SEXP ext_model_ptr, SEXP draws_matrix_) {
+  BEGIN_RCPP
+  Rcpp::XPtr<stan::model::model_base> ptr(ext_model_ptr);
+  Eigen::Map<Eigen::MatrixXd> variables = Rcpp::as<Eigen::Map<Eigen::MatrixXd>>(draws_matrix_);
+  Eigen::MatrixXd unconstrained_draws(variables.cols(), variables.rows());
+  for (int i = 0; i < variables.rows(); i++) {
+    Eigen::VectorXd unconstrained_variables;
+    ptr->unconstrain_array(variables.transpose().col(i), unconstrained_variables, &Rcpp::Rcout);
+    unconstrained_draws.col(i) = unconstrained_variables;
+  }
+  return Rcpp::wrap(unconstrained_draws.transpose());
   END_RCPP
 }
 

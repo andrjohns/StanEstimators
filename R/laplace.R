@@ -1,13 +1,3 @@
-setOldClass("draws_df")
-setClass(
-  "StanLaplace",
-  contains = "StanBase",
-  slots = c(
-    estimates = "data.frame",
-    draws = "draws_df"
-  )
-)
-
 #' Summary method for objects of class \code{StanLaplace}.
 #'
 #' @docType methods
