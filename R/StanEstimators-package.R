@@ -9,7 +9,7 @@
 #'
 #' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom Rcpp RcppLdFlags
-#' @importFrom posterior as_draws_df
+#' @importFrom posterior as_draws_df subset_draws
 #' @importFrom stats setNames
 #' @importFrom methods new
 #'

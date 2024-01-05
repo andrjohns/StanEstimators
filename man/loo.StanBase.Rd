@@ -5,7 +5,7 @@
 \alias{loo}
 \title{Calculate approximate leave-one-out cross-validation (LOO-CV) for a model.}
 \usage{
-\method{loo}{StanBase}(x, pointwise_ll_fun, additional_args = list(), ...)
+\method{loo}{StanBase}(x, pointwise_ll_fun, additional_args = list(), moment_match = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{StanBase} object.}
@@ -15,6 +15,10 @@ given a vector of parameter values.}
 
 \item{additional_args}{List of additional arguments to be passed to
 \code{pointwise_ll_fun}.}
+
+\item{moment_match}{(logical) Whether to use a
+\link[loo:loo_moment_match]{moment-matching} correction for problematic
+observations.}
 
 \item{...}{Additional arguments to be passed to \code{loo::loo()}.}
 }
