@@ -157,3 +157,28 @@ setMethod("constrain_variables", "StanBase",
                               unconstrained_variables)
   }
 )
+
+
+#' Calculate approximate leave-one-out cross-validation (LOO-CV) for a model.
+#'
+#' @aliases loo
+#'
+#' @param x A \code{StanBase} object.
+#' @param pointwise_ll_fun Function that calculates the pointwise log-likelihood
+#'   given a vector of parameter values.
+#' @param additional_args List of additional arguments to be passed to
+#'  \code{pointwise_ll_fun}.
+#' @param ... Additional arguments to be passed to \code{loo::loo()}.
+#'
+#' @importFrom loo loo relative_eff loo.matrix
+#' @export loo
+#' @export
+loo.StanBase <- function(x, pointwise_ll_fun, additional_args = list(), ...) {
+  par_cols <- grep("^par", colnames(x@draws))
+  log_lik_draws <- t(apply(x@draws, 1, function(curr_draw) {
+    pointwise_ll_fun(curr_draw[par_cols])
+  }))
+  reff <- loo::relative_eff(exp(log_lik_draws),
+                            chain_id = x@draws$.chain)
+  loo::loo.matrix(log_lik_draws, r_eff = reff, ...)
+}

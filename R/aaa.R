@@ -1,4 +1,12 @@
 setOldClass("draws_df")
+
+#' StanBase base class
+#'
+#' @name StanBase-class
+#' @aliases StanBase
+#' @docType class
+NULL
+
 setClass(
   "StanBase",
   slots = c(

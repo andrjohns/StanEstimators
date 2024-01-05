@@ -5,6 +5,10 @@ loglik_fun <- function(v, x) {
   sum(dnorm(x, v[1], v[2], log = TRUE))
 }
 
+pointwise_ll <- function(v) {
+  dnorm(y, v[1], v[2], log = TRUE)
+}
+
 inits <- c(0, 5)
 
 grad <- function(v, x) {
