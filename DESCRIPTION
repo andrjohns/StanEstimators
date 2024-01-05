@@ -5,6 +5,10 @@ Authors@R: c(
   person(given = c("Andrew", "R."), family = "Johnson", role = c("aut", "cre"),
           email = "andrew.johnson@arjohnsonau.com",
           comment = c(ORCID = "0000-0001-7000-8065")),
+  person(given = "Jonah", family = "Gabry", role = "ctb",
+           email = "jsg2201@columbia.edu"),
+  person(given = "Rok", family = "Češnovar", role = "ctb",
+        email = "rok.cesnovar@fri.uni-lj.si"),
   person("Stan Development Team", role="cph",
           comment = "CmdStan sources and headers")
   )
