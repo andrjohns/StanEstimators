@@ -183,8 +183,9 @@ loo.StanBase <- function(x, pointwise_ll_fun, additional_args = list(),
     do.call(pointwise_ll_fun, c(list(curr_draw[par_cols]), additional_args))
   }))
   reff <- loo::relative_eff(exp(log_lik_draws), chain_id = x@draws$.chain)
-  suppressWarnings(loo_res <- loo::loo.matrix(log_lik_draws, r_eff = reff, ...))
+
   if (moment_match) {
+    suppressWarnings(loo_res <- loo::loo.matrix(log_lik_draws, r_eff = reff, ...))
     log_lik_i <- function(x, i, parameter_name = "log_lik", ...) {
       log_lik_draws[, i]
     }
@@ -206,6 +207,6 @@ loo.StanBase <- function(x, pointwise_ll_fun, additional_args = list(),
       ...
     )
   } else {
-    loo_res
+    loo::loo.matrix(log_lik_draws, r_eff = reff, ...)
   }
 }

@@ -36,7 +36,10 @@ LinkingTo:
   RcppParallel,
   rapidjsonr
 Suggests:
-  testthat (>= 3.0.0),
-  callr,
-  future
+    testthat (>= 3.0.0),
+    callr,
+    future,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr
