@@ -47,8 +47,8 @@ While Stan is powerful, it can have a high barrier to entry for new users - as t
 As an example, we will use the popular 'Eight Schools' example from the Stan documentation. This example is used to demonstrate the use of hierarchical models in Stan. The model is defined as:
 
 $$
-y_j &\sim N(\theta_j, \sigma_j), \quad j=1,\ldots,8 \\
-\theta_j &\sim \N(\mu, \tau), \quad j=1,\ldots,8
+y_j \sim N(\theta_j, \sigma_j), \quad j=1,\ldots,8 \\
+\theta_j \sim N(\mu, \tau), \quad j=1,\ldots,8
 $$
 
 With data:
