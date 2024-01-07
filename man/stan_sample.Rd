@@ -6,7 +6,8 @@
 \usage{
 stan_sample(
   fn,
-  par_inits,
+  par_inits = NULL,
+  n_pars = NULL,
   additional_args = list(),
   algorithm = "hmc",
   engine = "nuts",
@@ -47,7 +48,11 @@ stan_sample(
 \arguments{
 \item{fn}{Function to estimate parameters for}
 
-\item{par_inits}{Initial values}
+\item{par_inits}{Initial values for parameters
+(must be specified if \code{n_pars} is NULL)}
+
+\item{n_pars}{Number of parameters to estimate
+(must be specified if \code{par_inits} is NULL)}
 
 \item{additional_args}{List of additional arguments to pass to the function}
 

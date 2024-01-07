@@ -18,7 +18,10 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' Estimate parameters using Stan's sampling algorithms
 #'
 #' @param fn Function to estimate parameters for
-#' @param par_inits Initial values
+#' @param par_inits Initial values for parameters
+#'  (must be specified if `n_pars` is NULL)
+#' @param n_pars Number of parameters to estimate
+#'  (must be specified if `par_inits` is NULL)
 #' @param additional_args List of additional arguments to pass to the function
 #' @param algorithm (string) The sampling algorithm. One of `"hmc"`
 #'    or `"fixed_param"`.
@@ -82,7 +85,7 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #'    fixed step size and regions of high curvature.
 #' @return \code{StanMCMC} object
 #' @export
-stan_sample <- function(fn, par_inits, additional_args = list(),
+stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = list(),
                           algorithm = "hmc", engine = "nuts",
                           grad_fun = NULL, lower = -Inf, upper = Inf,
                           eval_standalone = (parallel_chains > 1),
@@ -117,7 +120,7 @@ stan_sample <- function(fn, par_inits, additional_args = list(),
     stop("Cannot run parallel chains when evaluating in current R session!",
          call. = FALSE)
   }
-  inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
+  inputs <- prepare_inputs(fn, par_inits, n_pars, additional_args, grad_fun, lower, upper,
                             globals, packages, eval_standalone, output_dir, output_basename)
   method_args <- list(
     algorithm = algorithm,

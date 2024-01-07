@@ -102,21 +102,16 @@ Because we are estimating a standard deviation in our model ($\tau$), we need to
 lower <- c(-Inf, 0, rep(-Inf, 8))
 ```
 
-#### Initial Values
-
-We also need to specify initial values for the parameters. These are passed as a vector to the `init` argument, with the corresponding elements of the vector matching the order of the parameters in the function. This is currently required for determining the total number of parameters to estimate, and will be removed in a future version of `StanEstimators`. For now we will just specify all initial values as 1:
-
-```{r}
-init <- rep(1, 10)
-```
 
 #### Running the Model
 
 We can now pass these arguments to the `stan_sample` function to estimate our model. We will use the default number of warmup iterations (1000) and sampling iterations (1000).
 
+Note that we need to specify the number of parameters in the model (10) using the `n_pars` argument. This is because the function does not know how many parameters are in the model, and so cannot automatically determine this.
+
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
 fit <- stan_sample(eight_schools_lpdf,
-                   par_inits = init,
+                   n_pars = 10,
                    additional_args = list(y = y, sigma = sigma),
                    lower = lower,
                    num_chains = 1)

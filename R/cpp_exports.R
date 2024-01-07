@@ -62,3 +62,11 @@ unconstrain_draws_impl <- function(model_ptr, draws, match_format = TRUE) {
 constrain_variables_impl <- function(model_ptr, upars) {
   .Call(`constrain_variables_`, model_ptr, upars)
 }
+
+lub_constrain <- function(x, lb, ub) {
+  .Call(`lub_constrain_`, x, lb, ub)
+}
+
+lub_free <- function(x, lb, ub) {
+  .Call(`lub_free_`, x, lb, ub)
+}

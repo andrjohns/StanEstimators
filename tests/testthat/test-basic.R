@@ -22,7 +22,7 @@ grad <- function(v, x) {
 
 test_that("stan_sample runs", {
   expect_no_error(
-    samp_fd <- stan_sample(loglik_fun, inits, additional_args = list(y), lower = c(-Inf, 0),
+    samp_fd <- stan_sample(loglik_fun, n_pars = 2, additional_args = list(y), lower = c(-Inf, 0),
                         num_chains = 1, seed = 1234)
   )
   expect_no_error(

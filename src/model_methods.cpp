@@ -4,6 +4,8 @@
 #include <stan/model/log_prob_propto.hpp>
 #include <stan/model/log_prob_grad.hpp>
 #include <stan/math/rev/functor/finite_diff_hessian_auto.hpp>
+#include <stan/math/prim/fun/lub_constrain.hpp>
+#include <stan/math/prim/fun/lub_free.hpp>
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <sstream>
@@ -125,5 +127,25 @@ RcppExport SEXP constrain_variables_(SEXP ext_model_ptr, SEXP upars_) {
   boost::ecuyer1988 dummy_rng(0);
   ptr->write_array(dummy_rng, upars, params_i, pars_constrained, false, false);
   return Rcpp::wrap(pars_constrained);
+  END_RCPP
+}
+
+RcppExport SEXP lub_constrain_(SEXP y_, SEXP lb_, SEXP ub_) {
+  using VectorMap = Eigen::Map<Eigen::VectorXd>;
+  BEGIN_RCPP
+  VectorMap y = Rcpp::as<VectorMap>(y_);
+  VectorMap lb = Rcpp::as<VectorMap>(lb_);
+  VectorMap ub = Rcpp::as<VectorMap>(ub_);
+  return Rcpp::wrap(stan::math::lub_constrain(y, lb, ub));
+  END_RCPP
+}
+
+RcppExport SEXP lub_free_(SEXP y_, SEXP lb_, SEXP ub_) {
+  using VectorMap = Eigen::Map<Eigen::VectorXd>;
+  BEGIN_RCPP
+  VectorMap y = Rcpp::as<VectorMap>(y_);
+  VectorMap lb = Rcpp::as<VectorMap>(lb_);
+  VectorMap ub = Rcpp::as<VectorMap>(ub_);
+  return Rcpp::wrap(stan::math::lub_free(y, lb, ub));
   END_RCPP
 }

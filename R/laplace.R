@@ -18,7 +18,10 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 #' Estimate parameters using Stan's laplace algorithm
 #'
 #' @param fn Function to estimate parameters for
-#' @param par_inits Initial values
+#' @param par_inits Initial values for parameters
+#'  (must be specified if `n_pars` is NULL)
+#' @param n_pars Number of parameters to estimate
+#'  (must be specified if `par_inits` is NULL)
 #' @param additional_args List of additional arguments to pass to the function
 #' @param grad_fun Function calculating gradients w.r.t. each parameter
 #' @param lower Lower bound constraint(s) for parameters
@@ -49,7 +52,7 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 #'  `stan_optimize()` if `mode=NULL`.
 #' @return \code{StanLaplace} object
 #' @export
-stan_laplace <- function(fn, par_inits, additional_args = list(),
+stan_laplace <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = list(),
                              grad_fun = NULL, lower = -Inf, upper = Inf,
                           eval_standalone = FALSE,
                           globals = TRUE, packages = NULL,
@@ -63,7 +66,7 @@ stan_laplace <- function(fn, par_inits, additional_args = list(),
                               jacobian = NULL,
                               draws = NULL,
                               opt_args = NULL) {
-  inputs <- prepare_inputs(fn, par_inits, additional_args, grad_fun, lower, upper,
+  inputs <- prepare_inputs(fn, par_inits, n_pars, additional_args, grad_fun, lower, upper,
                             globals, packages, eval_standalone, output_dir, output_basename)
   mode_file <- paste0(inputs$output_basename, "_mode.json")
   if (!is.null(mode)) {
