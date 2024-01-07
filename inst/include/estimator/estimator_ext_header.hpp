@@ -2,6 +2,7 @@
 #include <locale>
 #include <codecvt>
 #include <stan/math/prim/fun/Eigen.hpp>
+#include <stan/math/prim/fun/log1p_exp.hpp>
 #include <stan/math/prim/fun/inv_logit.hpp>
 #include <stan/math/prim/fun/finite_diff_stepsize.hpp>
 #include <stan/math/prim/fun/lub_free.hpp>
@@ -113,3 +114,7 @@ stan::math::var r_function(const Eigen::Matrix<stan::math::var, -1, 1>& v,
     });
   }
 }
+
+#ifdef USING_R
+#undef USING_R
+#endif

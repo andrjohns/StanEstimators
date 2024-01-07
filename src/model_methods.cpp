@@ -1,5 +1,4 @@
 #include <headers_to_ignore.hpp>
-#include <estimator/estimator_ext_header.hpp>
 #include <stan/io/json/json_data.hpp>
 #include <stan/model/model_base.hpp>
 #include <stan/model/log_prob_propto.hpp>

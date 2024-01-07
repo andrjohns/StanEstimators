@@ -112,18 +112,19 @@ init <- rep(1, 10)
 
 #### Running the Model
 
-We can now pass these arguments to the `stan_sample` function to estimate our model. We will use the default number of chains (4) and the default number of warmup iterations (1000) and sampling iterations (1000).
+We can now pass these arguments to the `stan_sample` function to estimate our model. We will use the default number of warmup iterations (1000) and sampling iterations (1000).
 
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
 fit <- stan_sample(eight_schools_lpdf,
                    par_inits = init,
                    additional_args = list(y = y, sigma = sigma),
-                   lower = lower)
+                   lower = lower,
+                   num_chains = 1)
 ```
 
 ### Inspecting the Results
 
-The estimates are stored in the `fit` object using the [`posterior::draws` format](https://cran.r-project.org/web/packages/posterior/vignettes/posterior.html). We can inspect the estimates using the `summary` function (which calls `posterior::summarise_draws`):
+The estimates are stored in the `fit` object using the [`posterior::draws` format](https://CRAN.R-project.org/package=posterior/vignettes/posterior.html). We can inspect the estimates using the `summary` function (which calls `posterior::summarise_draws`):
 
 ```{r}
 summary(fit)
