@@ -251,12 +251,14 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
   diagnostic_vars <- c("accept_stat__", "stepsize__", "treedepth__", "n_leapfrog__", "divergent__", "energy__")
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
+  diagnostics <- posterior::subset_draws(draws, variable = diagnostic_vars)
+  check_hmc_diagnostics(diagnostics, as.numeric(metadata$max_depth))
 
   methods::new("StanMCMC",
     metadata = metadata,
     adaptation = adaptation,
     timing = timing,
-    diagnostics = posterior::subset_draws(draws, variable = diagnostic_vars),
+    diagnostics = diagnostics,
     draws = posterior::subset_draws(draws, variable = par_vars),
     lower_bounds = inputs$lower,
     upper_bounds = inputs$upper,

@@ -421,3 +421,49 @@ match_draws_format <- function(reference_draws, draws) {
   reference_format <- class(reference_draws)[1]
   to_draws_format(draws, reference_format)
 }
+
+check_hmc_diagnostics <- function(draws_df, max_treedepth) {
+  num_draws <- nrow(draws_df)
+  n_divergent <- sum(draws_df$divergent__)
+  perc_divergent <- round(100 * n_divergent / num_draws, 2)
+
+  if (n_divergent > 0) {
+    message(
+      n_divergent, " of ", num_draws, " (", perc_divergent, "%)",
+      " iterations ended with a divergence.\n",
+      "These divergent transitions indicate that HMC is not fully able to ",
+      "explore the posterior distribution.\n",
+      "Try increasing adapt_delta closer to 1.\n",
+      "If this doesn't remove all divergences, try to reparameterize the model.")
+  }
+
+  max_treedepths <- sum(draws_df$treedepth__ > max_treedepth)
+  perc_treedepth <- round(100 * max_treedepths / num_draws, 2)
+
+  if (max_treedepths > 0) {
+    message(
+      max_treedepths, " of ", num_draws, " (", perc_treedepth, "%)",
+      " transitions hit the maximum treedepth limit of ", max_treedepth,
+      ", or 2^", max_treedepth, " leapfrog steps.\n",
+      "Trajectories that are prematurely terminated due to this limit will ",
+      "result in slow exploration.\n",
+      "For optimal performance, increase this limit."
+      )
+  }
+
+  ebfmi_thresholds_by_chain <- sapply(split(draws_df$energy__, f = draws_df$.chain), function(x) {
+    ((sum(diff(x)^2) / length(x)) / stats::var(x)) < 0.3
+  })
+
+  num_below_threshold <- sum(ebfmi_thresholds_by_chain)
+
+  if (num_below_threshold > 0) {
+    message(
+      num_below_threshold, " of ", length(ebfmi_thresholds_by_chain),
+      " chains had an E-BFMI below the nominal threshold of 0.3 which ",
+      "suggests that HMC may have trouble exploring the target distribution.\n",
+      "If possible, try to reparameterize the model."
+    )
+  }
+  invisible(NULL)
+}
