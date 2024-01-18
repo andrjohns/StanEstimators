@@ -2,6 +2,7 @@
 #include <RcppEigen.h>
 // Only the Eigen headers are needed, no need to include all Math headers
 #define STAN_MATH_PRIM_HPP 1
+#include <cstdint>
 #include <stan/io/stan_csv_reader.hpp>
 #include <fstream>
 #include <iostream>
