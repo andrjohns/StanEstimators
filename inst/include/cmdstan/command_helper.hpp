@@ -2,24 +2,12 @@
 #define CMDSTAN_HELPER_HPP
 
 #include <cmdstan/arguments/argument_parser.hpp>
-#include <cmdstan/arguments/argument_parser.hpp>
 #include <cmdstan/arguments/arg_sample.hpp>
-#include <cmdstan/write_chain.hpp>
-#include <cmdstan/write_datetime.hpp>
-#include <cmdstan/write_model_compile_info.hpp>
-#include <cmdstan/write_model.hpp>
-#include <cmdstan/write_opencl_device.hpp>
-#include <cmdstan/write_parallel_info.hpp>
-#include <cmdstan/write_profiling.hpp>
-#include <cmdstan/write_stan.hpp>
-#include <cmdstan/write_stan_flags.hpp>
-#include <stan/callbacks/stream_writer.hpp>
 #include <stan/callbacks/unique_stream_writer.hpp>
 #include <stan/callbacks/json_writer.hpp>
 #include <stan/callbacks/writer.hpp>
 #include <stan/io/dump.hpp>
 #include <stan/io/empty_var_context.hpp>
-#include <stan/io/ends_with.hpp>
 #include <stan/io/json/json_data.hpp>
 #include <stan/io/stan_csv_reader.hpp>
 #include <stan/math/prim/fun/Eigen.hpp>
@@ -90,7 +78,12 @@ inline constexpr auto get_arg(List &&arg_list, const char *arg1,
  */
 template <typename caster, typename Arg>
 inline constexpr auto get_arg_val(Arg &&argument, const char *arg_name) {
-  return dynamic_cast<std::decay_t<caster> *>(argument.arg(arg_name))->value();
+  auto *arg = argument.arg(arg_name);
+  if (arg) {
+    return dynamic_cast<std::decay_t<caster> *>(arg)->value();
+  } else {
+    throw std::invalid_argument(std::string("Unable to find: ") + arg_name);
+  }
 }
 
 /**
@@ -114,6 +107,55 @@ inline constexpr auto get_arg_val(List &&arg_list, Args &&... args) {
   }
 }
 
+#if defined(WIN32) || defined(_WIN32) \
+    || defined(__WIN32) && !defined(__CYGWIN__)
+constexpr char PATH_SEPARATOR = '\\';
+#else
+constexpr char PATH_SEPARATOR = '/';
+#endif
+
+/**
+ * Distinguish between dot char '.' used as suffix sep
+ * and relative filepaths '.' and '..'
+ */
+bool valid_dot_suffix(char prev, char current, char next) {
+  if (current != '.') {
+    return false;
+  }
+  if (prev == '\0' || next == '\0') {
+    return false;
+  }
+  if (prev == '.' || next == '.') {
+    return false;
+  }
+  if (prev == PATH_SEPARATOR || next == PATH_SEPARATOR) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Find start of filename suffix, if any.
+ * Start search from end of string, quit at first path separator.
+ *
+ * @return index of suffix separator '.' , or std::string::npos if not found.
+ */
+size_t find_dot_suffix(const std::string &input) {
+  if (input.empty()) {
+    return std::string::npos;
+  }
+  for (size_t i = input.size() - 1; i != 0; --i) {
+    if (input[i] == PATH_SEPARATOR)
+      return std::string::npos;
+    char prev = i < input.size() - 1 ? input[i + 1] : '\0';
+    char next = i > 0 ? input[i - 1] : '\0';
+    if (valid_dot_suffix(next, input[i], prev)) {
+      return i;
+    }
+  }
+  return std::string::npos;
+}
+
 /**
  * Get suffix
  *
@@ -123,15 +165,21 @@ inline constexpr auto get_arg_val(List &&arg_list, Args &&... args) {
 std::string get_suffix(const std::string &name) {
   if (name.empty())
     return "";
-  size_t file_marker_pos = name.find_last_of(".");
-  if (file_marker_pos > name.size())
+  std::string filename = name;
+  size_t idx = name.find_last_of(PATH_SEPARATOR);
+  if (idx < name.size())
+    filename = name.substr(idx);
+  idx = find_dot_suffix(filename);
+  if (idx > filename.size())
     return std::string();
   else
-    return name.substr(file_marker_pos, name.size());
+    return filename.substr(idx);
 }
 
 /**
- * Split name on last ".", if any.
+ * Split name on last "." with at least one following char.
+ * If suffix is good, return pair base, suffix including initial '.'.
+ * Else return pair base, empty string.
  *
  * @param filename - name to split
  * @return pair of strings {base, suffix}
@@ -142,13 +190,32 @@ std::pair<std::string, std::string> get_basename_suffix(
   std::string suffix;
   if (!name.empty()) {
     suffix = get_suffix(name);
-    if (suffix.size() > 0) {
+    if (suffix.size() > 1) {
       base = name.substr(0, name.size() - suffix.size());
     } else {
       base = name;
+      suffix = "";
     }
   }
   return {base, suffix};
+}
+
+/**
+ * Check that output filename isn't a directory name
+ * or relative dir path.
+ * Throws exception if output filename is invalid.
+ *
+ * @param fname candidate output filename
+ */
+void validate_output_filename(const std::string &fname) {
+  std::string sep = std::string(1, cmdstan::PATH_SEPARATOR);
+  if (fname[fname.size() - 1] == PATH_SEPARATOR
+      || boost::algorithm::ends_with(fname, "..")
+      || boost::algorithm::ends_with(fname, sep + ".")) {
+    std::stringstream msg;
+    msg << "Ill-formed output filename " << fname << std::endl;
+    throw std::invalid_argument(msg.str());
+  }
 }
 
 /**
@@ -158,7 +225,7 @@ std::pair<std::string, std::string> get_basename_suffix(
  * @param fname name of file which exists and has read perms.
  * @return input stream
  */
-std::ifstream safe_open(const std::string fname) {
+std::ifstream safe_open(const std::string &fname) {
   std::ifstream stream(fname.c_str());
   if (fname != "" && (stream.rdstate() & std::ifstream::failbit)) {
     std::stringstream msg;
@@ -192,16 +259,30 @@ inline shared_context_ptr get_var_context(const std::string &file) {
   return std::make_shared<stan::io::dump>(var_context);
 }
 
+/**
+ * Construct output file names given template filename,
+ * adding tags and numbers as needed for per-chain outputs.
+ * Output file types are either CSV or JSON.
+ * Template filenames may already contain suffix ".csv" or "json".
+ *
+ * @param filename output or diagnostic filename, user-specified or default.
+ * @param tag distinguishing tag
+ * @param type suffix string corresponding to types CSV, JSON
+ * @param num_chains number of names to return
+ * @param id numbering offset
+ */
 std::vector<std::string> make_filenames(const std::string &filename,
                                         const std::string &tag,
                                         const std::string &type,
                                         unsigned int num_chains,
                                         unsigned int id) {
-  std::vector<std::string> names(num_chains);
-  auto base_sfx = get_basename_suffix(filename);
-  if (base_sfx.second.empty()) {
+  std::pair<std::string, std::string> base_sfx;
+  base_sfx = get_basename_suffix(filename);
+  if (type != ".csv" || base_sfx.second.empty()) {
     base_sfx.second = type;
   }
+
+  std::vector<std::string> names(num_chains);
   auto name_iterator = [num_chains, id](auto i) {
     if (num_chains == 1) {
       return std::string("");
@@ -384,7 +465,7 @@ void parse_stan_csv(const std::string &fname,
   // compute offset, size of parameters block
   col_offset = 0;
   for (auto col_name : fitted_params.header) {
-    if (boost::ends_with(col_name, "__")) {
+    if (boost::algorithm::ends_with(col_name, "__")) {
       col_offset++;
     } else {
       break;
@@ -727,6 +808,10 @@ unsigned int get_num_chains(argument_parser &parser) {
 void check_file_config(argument_parser &parser) {
   std::string sample_file
       = get_arg_val<string_argument>(parser, "output", "file");
+  validate_output_filename(sample_file);
+  std::string diagnostic_file
+      = get_arg_val<string_argument>(parser, "output", "diagnostic_file");
+  validate_output_filename(diagnostic_file);
   auto user_method = parser.arg("method");
   if (user_method->arg("generate_quantities")) {
     std::string input_file = get_arg_val<string_argument>(
@@ -735,13 +820,13 @@ void check_file_config(argument_parser &parser) {
       throw std::invalid_argument(
           std::string("Argument fitted_params file - found empty string, "
                       "expecting filename."));
-      if (input_file.compare(sample_file) == 0) {
-        std::stringstream msg;
-        msg << "Filename conflict, fitted_params file " << input_file
-            << " and output file names are identical, must be different."
-            << std::endl;
-        throw std::invalid_argument(msg.str());
-      }
+    }
+    if (input_file.compare(sample_file) == 0) {
+      std::stringstream msg;
+      msg << "Filename conflict, fitted_params file " << input_file
+          << " and output file names are identical, must be different."
+          << std::endl;
+      throw std::invalid_argument(msg.str());
     }
   } else if (user_method->arg("laplace")) {
     std::string input_file
@@ -750,120 +835,39 @@ void check_file_config(argument_parser &parser) {
       throw std::invalid_argument(
           std::string("Argument mode file - found empty string, "
                       "expecting filename."));
-      if (input_file.compare(sample_file) == 0) {
-        std::stringstream msg;
-        msg << "Filename conflict, parameter modes file " << input_file
-            << " and output file names are identical, must be different."
-            << std::endl;
-        throw std::invalid_argument(msg.str());
-      }
+    }
+    if (input_file.compare(sample_file) == 0) {
+      std::stringstream msg;
+      msg << "Filename conflict, parameter modes file " << input_file
+          << " and output file names are identical, must be different."
+          << std::endl;
+      throw std::invalid_argument(msg.str());
     }
   }
 }
 
-void init_callbacks(
-    argument_parser &parser,
-    std::vector<stan::callbacks::unique_stream_writer<std::ofstream>>
-        &sample_writers,
-    std::vector<stan::callbacks::unique_stream_writer<std::ofstream>>
-        &diag_csv_writers,
-    std::vector<stan::callbacks::json_writer<std::ofstream>>
-        &diag_json_writers) {
-  auto user_method = parser.arg("method");
-  unsigned int num_chains = get_num_chains(parser);
-  unsigned int id = get_arg_val<int_argument>(parser, "id");
-  int sig_figs = get_arg_val<int_argument>(parser, "output", "sig_figs");
-  bool save_single_paths
-      = user_method->arg("pathfinder")
-        && get_arg_val<bool_argument>(parser, "method", "pathfinder",
-                                      "save_single_paths");
-  std::string output_file
-      = get_arg_val<string_argument>(parser, "output", "file");
-  std::string diagnostic_file
-      = get_arg_val<string_argument>(parser, "output", "diagnostic_file");
-  std::vector<std::string> output_filenames;
-  std::vector<std::string> diagnostic_filenames;
-  sample_writers.reserve(num_chains);
-  diag_csv_writers.reserve(num_chains);
-  diag_json_writers.reserve(num_chains);
-
-  // default - no diagnostics
-  for (int i = 0; i < num_chains; ++i) {
-    diag_csv_writers.emplace_back(nullptr, "# ");
-    diag_json_writers.emplace_back(
-        stan::callbacks::json_writer<std::ofstream>());
+template <typename T>
+void init_null_writers(std::vector<T> &writers, size_t num_chains) {
+  writers.reserve(num_chains);
+  for (size_t i = 0; i < num_chains; ++i) {
+    writers.emplace_back(nullptr);
   }
+}
 
-  if (user_method->arg("pathfinder")) {
-    std::string basename = get_basename_suffix(output_file).first;
-    std::string diag_basename = get_basename_suffix(diagnostic_file).first;
-    bool inst_writers = true;
-    bool inst_diags = true;
-    if (num_chains == 1) {
-      output_filenames.emplace_back(basename + ".csv");
-      if (!diag_basename.empty()) {
-        diagnostic_filenames.emplace_back(diag_basename + ".json");
-      } else if (save_single_paths) {
-        diagnostic_filenames.emplace_back(basename + ".json");
-      } else {
-        inst_diags = false;
-      }
-    } else if (save_single_paths) {  // filenames for single-path outputs
-      output_filenames
-          = make_filenames(basename, "_path", ".csv", num_chains, id);
-      diagnostic_filenames
-          = make_filenames(basename, "_path", ".json", num_chains, id);
-    } else {  // multi-path default: don't save single-path outputs
-      inst_writers = false;
-      inst_diags = false;
-      for (int i = 0; i < num_chains; ++i) {
-        sample_writers.emplace_back(nullptr, "# ");
-      }
+template <typename T, typename... Ts>
+void init_filestream_writers(std::vector<T> &writers, unsigned int num_chains,
+                             unsigned int id, std::string &filename,
+                             std::string tag, std::string suffix, int sig_figs,
+                             Ts &&... args) {
+  writers.reserve(num_chains);
+  auto filenames = make_filenames(filename, tag, suffix, num_chains, id);
+
+  for (size_t i = 0; i < num_chains; ++i) {
+    auto ofs = std::make_unique<std::ofstream>(filenames[i]);
+    if (sig_figs > -1) {
+      ofs->precision(sig_figs);
     }
-    // allocate writers
-    if (inst_writers) {
-      for (int i = 0; i < num_chains; ++i) {
-        auto ofs = std::make_unique<std::ofstream>(output_filenames[i]);
-        if (sig_figs > -1) {
-          ofs->precision(sig_figs);
-        }
-        sample_writers.emplace_back(std::move(ofs), "# ");
-      }
-    }
-    if (inst_diags) {
-      diag_json_writers.clear();
-      for (int i = 0; i < num_chains; ++i) {
-        auto ofs_diag
-            = std::make_unique<std::ofstream>(diagnostic_filenames[i]);
-        if (sig_figs > -1) {
-          ofs_diag->precision(sig_figs);
-        }
-        stan::callbacks::json_writer<std::ofstream> jwriter(
-            std::move(ofs_diag));
-        diag_json_writers.emplace_back(std::move(jwriter));
-      }
-    }
-  } else {  // not pathfinder
-    output_filenames
-        = make_filenames(get_arg_val<string_argument>(parser, "output", "file"),
-                         "", ".csv", num_chains, id);
-    for (int i = 0; i < num_chains; ++i) {
-      auto ofs = std::make_unique<std::ofstream>(output_filenames[i]);
-      if (sig_figs > -1)
-        ofs->precision(sig_figs);
-      sample_writers.emplace_back(std::move(ofs), "# ");
-    }
-    if (!diagnostic_file.empty()) {
-      diag_csv_writers.clear();
-      diagnostic_filenames
-          = make_filenames(diagnostic_file, "", ".csv", num_chains, id);
-      for (int i = 0; i < num_chains; ++i) {
-        auto ofs = std::make_unique<std::ofstream>(diagnostic_filenames[i]);
-        if (sig_figs > -1)
-          ofs->precision(sig_figs);
-        diag_csv_writers.emplace_back(std::move(ofs), "# ");
-      }
-    }
+    writers.emplace_back(std::move(ofs), std::forward<Ts>(args)...);
   }
 }
 

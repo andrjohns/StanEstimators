@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include <headers_to_ignore.hpp>
 #include <cmdstan/command.hpp>
 
 void store_functions(SEXP ll_fun, SEXP grad_fun);

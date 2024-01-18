@@ -1,6 +1,6 @@
 Package: StanEstimators
 Title: Estimate Parameters for Arbitrary R Functions using 'Stan'
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
   person(given = c("Andrew", "R."), family = "Johnson", role = c("aut", "cre"),
           email = "andrew.johnson@arjohnsonau.com",
@@ -10,7 +10,9 @@ Authors@R: c(
   person(given = "Rok", family = "Češnovar", role = "ctb",
         email = "rok.cesnovar@fri.uni-lj.si"),
   person("Stan Development Team", role="cph",
-          comment = "CmdStan sources and headers")
+          comment = "CmdStan sources and headers"),
+  person("Lawrence Livermore National Security", role="cph",
+          comment = "SUNDIALS sources and headers")
   )
 Description: Allows for the estimation of parameters for 'R' functions using the
     various algorithms implemented in the 'Stan' probabilistic programming
@@ -36,10 +38,10 @@ LinkingTo:
   RcppParallel,
   rapidjsonr
 Suggests:
-    testthat (>= 3.0.0),
-    callr,
-    future,
-    knitr,
-    rmarkdown
+  testthat (>= 3.0.0),
+  callr,
+  future,
+  knitr,
+  rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr
