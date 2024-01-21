@@ -30,3 +30,5 @@ gsed -i -e 's/std::regex/boost::regex/g' include/stan/io/json/json_data_handler.
 
 rm cmdstan-$CMDSTAN_VER.tar.gz
 rm -rf cmdstan-$CMDSTAN_VER
+
+wget https://github.com/stan-dev/stanc3/releases/download/v$CMDSTAN_VER/stanc.js

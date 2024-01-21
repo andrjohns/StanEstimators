@@ -30,7 +30,8 @@ Imports:
   posterior,
   methods,
   stats,
-  loo
+  loo,
+  QuickJSR
 LinkingTo:
   Rcpp,
   RcppEigen,
