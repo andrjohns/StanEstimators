@@ -1,6 +1,7 @@
 .Rproj.user
 **.o
 **.so
+**.a
 inst/lib
 inst/doc
 .vscode

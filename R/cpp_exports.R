@@ -6,7 +6,7 @@ call_stan_impl <- function(options_vector, input_list) {
     attach_wrap <- base::attach # Satisfy R CMD CHECK
     attach_wrap(input_list$globals, pos = 2L, name = "r_bg_globals")
   }
-  status <- .Call(`call_stan_`, options_vector, input_list$ll_function, input_list$grad_function)
+  status <- .Call(`call_stan_rfunction_`, options_vector, input_list$ll_function, input_list$grad_function)
   invisible(NULL)
 }
 

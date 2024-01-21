@@ -11,7 +11,7 @@ using namespace Rcpp;
 extern "C"  {
 #endif
 
-SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun);
+SEXP call_stan_rfunction_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun);
 SEXP parse_csv_(SEXP filename_);
 SEXP stan_versions_();
 SEXP make_model_pointer_(SEXP data_json_string_, SEXP seed_);
@@ -32,7 +32,7 @@ SEXP lub_free_(SEXP y_, SEXP lb_, SEXP ub_);
 #define CALLDEF(name, n)  {#name, (DL_FUNC) &name, n}
 
 static const R_CallMethodDef CallEntries[] = {
-  CALLDEF(call_stan_, 3),
+  CALLDEF(call_stan_rfunction_, 3),
   CALLDEF(parse_csv_, 1),
   CALLDEF(stan_versions_, 0),
   CALLDEF(make_model_pointer_, 2),

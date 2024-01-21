@@ -2,11 +2,8 @@
 #include <cstdint>
 #include <cmdstan/command.hpp>
 
-void store_functions(SEXP ll_fun, SEXP grad_fun);
-
-RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
+RcppExport SEXP call_stan_(SEXP options_vector) {
   BEGIN_RCPP
-  store_functions(ll_fun, grad_fun);
   std::vector<std::string> options = Rcpp::as<std::vector<std::string>>(options_vector);
   int argc = 1 + options.size();
   char** argv = new char*[argc];

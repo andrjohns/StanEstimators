@@ -4,3 +4,6 @@
 ^README\.Rmd$
 .vscode
 ^\.github$
+^lib$
+.*\.o$
+.*\.a$

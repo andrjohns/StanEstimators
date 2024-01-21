@@ -15,6 +15,7 @@ cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/stan/math.hpp include/stan/math.hp
 mv include/stan/math/opencl/kernel_generator/get_kernel_source_for_evaluating_into.hpp include/stan/math/opencl/kernel_generator/get_kernel_source_for_evaluating.hpp
 gsed -i -e 's/get_kernel_source_for_evaluating_into/get_kernel_source_for_evaluating/g' include/stan/math/opencl/kernel_generator.hpp
 
+cp -r cmdstan-$CMDSTAN_VER/stan/lib/stan_math/lib/sundials_*/src ../src/sundials
 
 chmod +x cmdstan-$CMDSTAN_VER/bin/mac-stanc
 cmdstan-$CMDSTAN_VER/bin/mac-stanc include/estimator/estimator.stan --O1 --allow-undefined
