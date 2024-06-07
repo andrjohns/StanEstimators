@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <stan/io/json/json_data.hpp>
 #include <stan/model/model_base.hpp>
 #include <stan/model/log_prob_propto.hpp>
@@ -124,7 +123,7 @@ RcppExport SEXP constrain_variables_(SEXP ext_model_ptr, SEXP upars_) {
   std::vector<int> params_i;
   std::vector<double> pars_constrained;
   // RNG only used for *_rng calls in generated_quantities, which we don't use
-  boost::ecuyer1988 dummy_rng(0);
+  stan::rng_t dummy_rng(0);
   ptr->write_array(dummy_rng, upars, params_i, pars_constrained, false, false);
   return Rcpp::wrap(pars_constrained);
   END_RCPP

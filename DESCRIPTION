@@ -1,6 +1,6 @@
 Package: StanEstimators
 Title: Estimate Parameters for Arbitrary R Functions using 'Stan'
-Version: 0.1.2
+Version: 0.1.2.9000
 Authors@R: c(
   person(given = c("Andrew", "R."), family = "Johnson", role = c("aut", "cre"),
           email = "andrew.johnson@arjohnsonau.com",
