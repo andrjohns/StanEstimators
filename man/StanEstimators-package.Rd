@@ -8,3 +8,15 @@
 \description{
 ToDO
 }
+\author{
+\strong{Maintainer}: Andrew R. Johnson \email{andrew.johnson@arjohnsonau.com} (\href{https://orcid.org/0000-0001-7000-8065}{ORCID})
+
+Other contributors:
+\itemize{
+  \item Jonah Gabry \email{jsg2201@columbia.edu} [contributor]
+  \item Rok Češnovar \email{rok.cesnovar@fri.uni-lj.si} [contributor]
+  \item Stan Development Team (CmdStan sources and headers) [copyright holder]
+  \item Lawrence Livermore National Security (SUNDIALS sources and headers) [copyright holder]
+}
+
+}

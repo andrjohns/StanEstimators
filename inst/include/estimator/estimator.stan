@@ -12,7 +12,7 @@ data {
 }
 
 parameters {
-  vector<lower=lower_bounds, upper=upper_bounds>[Npars] pars;
+  vector[Npars] pars;
 }
 
 model {

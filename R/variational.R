@@ -110,7 +110,7 @@ stan_variational <- function(fn, par_inits = NULL, n_pars = NULL, additional_arg
 
   call_stan(args, inputs, quiet)
 
-  parsed <- parse_csv(inputs$output_filepath)
+  parsed <- parse_csv(inputs$output_filepath, lower=inputs$lower, upper=inputs$upper)
   estimates <- setNames(data.frame(parsed$samples), parsed$header)
   methods::new("StanVariational",
     metadata = parsed$metadata,

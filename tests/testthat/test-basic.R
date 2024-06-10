@@ -20,6 +20,8 @@ grad <- function(v, x) {
   )
 }
 
+stan_diagnose(loglik_fun, n_pars = 2, additional_args = list(y), lower = c(-Inf, 0), seed = 1234)
+
 test_that("stan_sample runs", {
   expect_no_error(
     samp_fd <- stan_sample(loglik_fun, n_pars = 2, additional_args = list(y), lower = c(-Inf, 0),

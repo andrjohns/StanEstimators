@@ -114,7 +114,7 @@ stan_pathfinder <- function(fn, par_inits = NULL, n_pars = NULL, additional_args
 
   call_stan(args, inputs, quiet)
 
-  parsed <- parse_csv(inputs$output_filepath)
+  parsed <- parse_csv(inputs$output_filepath, lower=inputs$lower, upper=inputs$upper)
 
   methods::new("StanPathfinder",
     metadata = parsed$metadata,

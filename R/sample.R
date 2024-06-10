@@ -237,7 +237,7 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
   }
 
   all_samples <- lapply(output_files, function(filepath) {
-    parse_csv(filepath)
+    parse_csv(filepath, lower=inputs$lower, upper=inputs$upper)
   })
   draw_names <- all_samples[[1]]$header
   metadata <- all_samples[[1]]$metadata

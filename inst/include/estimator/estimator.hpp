@@ -6,18 +6,18 @@ using namespace stan::math;
 stan::math::profile_map profiles__;
 static constexpr std::array<const char*, 13> locations_array__ =
   {" (found before start of program)",
-  " (in 'include/estimator/estimator.stan', line 15, column 2 to column 61)",
-  " (in 'include/estimator/estimator.stan', line 19, column 2 to column 95)",
-  " (in 'include/estimator/estimator.stan', line 6, column 2 to column 12)",
-  " (in 'include/estimator/estimator.stan', line 7, column 2 to column 18)",
-  " (in 'include/estimator/estimator.stan', line 8, column 2 to column 16)",
-  " (in 'include/estimator/estimator.stan', line 9, column 8 to column 13)",
-  " (in 'include/estimator/estimator.stan', line 9, column 2 to column 32)",
-  " (in 'include/estimator/estimator.stan', line 10, column 9 to column 14)",
-  " (in 'include/estimator/estimator.stan', line 10, column 2 to column 29)",
-  " (in 'include/estimator/estimator.stan', line 11, column 9 to column 14)",
-  " (in 'include/estimator/estimator.stan', line 11, column 2 to column 29)",
-  " (in 'include/estimator/estimator.stan', line 15, column 49 to column 54)"};
+  " (in 'inst/include/estimator/estimator.stan', line 15, column 2 to column 21)",
+  " (in 'inst/include/estimator/estimator.stan', line 19, column 2 to column 95)",
+  " (in 'inst/include/estimator/estimator.stan', line 6, column 2 to column 12)",
+  " (in 'inst/include/estimator/estimator.stan', line 7, column 2 to column 18)",
+  " (in 'inst/include/estimator/estimator.stan', line 8, column 2 to column 16)",
+  " (in 'inst/include/estimator/estimator.stan', line 9, column 8 to column 13)",
+  " (in 'inst/include/estimator/estimator.stan', line 9, column 2 to column 32)",
+  " (in 'inst/include/estimator/estimator.stan', line 10, column 9 to column 14)",
+  " (in 'inst/include/estimator/estimator.stan', line 10, column 2 to column 29)",
+  " (in 'inst/include/estimator/estimator.stan', line 11, column 9 to column 14)",
+  " (in 'inst/include/estimator/estimator.stan', line 11, column 2 to column 29)",
+  " (in 'inst/include/estimator/estimator.stan', line 15, column 9 to column 14)"};
 class estimator_model final : public model_base_crtp<estimator_model> {
  private:
   int Npars;
@@ -48,7 +48,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     // suppress unused var warning
     (void) DUMMY_VAR__;
     try {
-      int pos__;
+      int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
       current_statement__ = 3;
       context__.validate_dims("data initialization", "Npars", "int",
@@ -130,7 +130,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
   }
   inline std::vector<std::string> model_compile_info() const noexcept {
     return std::vector<std::string>{"stanc_version = stanc3 v2.35.0",
-             "stancflags = --O1 --allow-undefined"};
+             "stancflags = --allow-undefined"};
   }
   // Base log prob
   template <bool propto__, bool jacobian__, typename VecR, typename VecI,
@@ -156,20 +156,13 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     // suppress unused var warning
     (void) function__;
     try {
-      Eigen::Matrix<local_scalar_t__,-1,1> pars;
+      Eigen::Matrix<local_scalar_t__,-1,1> pars =
+        Eigen::Matrix<local_scalar_t__,-1,1>::Constant(Npars, DUMMY_VAR__);
       current_statement__ = 1;
-      pars = in__.template read_constrain_lub<
-               Eigen::Matrix<local_scalar_t__,-1,1>,
-               jacobian__>(lower_bounds, upper_bounds, lp__, Npars);
-      current_statement__ = 1;
-      stan::math::check_matching_dims("constraint", "pars", pars, "lower",
-        lower_bounds);
-      current_statement__ = 1;
-      stan::math::check_matching_dims("constraint", "pars", pars, "upper",
-        upper_bounds);
+      pars = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars);
       {
         current_statement__ = 2;
-        lp_accum__.add(r_function(pars, finite_diff, no_bounds, bounds_types,
+        lp_accum__.add(r_function<jacobian__>(pars, finite_diff, no_bounds, bounds_types,
                          lower_bounds, upper_bounds, pstream__));
       }
     } catch (const std::exception& e) {
@@ -202,20 +195,13 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     // suppress unused var warning
     (void) function__;
     try {
-      Eigen::Matrix<local_scalar_t__,-1,1> pars;
+      Eigen::Matrix<local_scalar_t__,-1,1> pars =
+        Eigen::Matrix<local_scalar_t__,-1,1>::Constant(Npars, DUMMY_VAR__);
       current_statement__ = 1;
-      pars = in__.template read_constrain_lub<
-               Eigen::Matrix<local_scalar_t__,-1,1>,
-               jacobian__>(lower_bounds, upper_bounds, lp__, Npars);
-      current_statement__ = 1;
-      stan::math::check_matching_dims("constraint", "pars", pars, "lower",
-        lower_bounds);
-      current_statement__ = 1;
-      stan::math::check_matching_dims("constraint", "pars", pars, "upper",
-        upper_bounds);
+      pars = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars);
       {
         current_statement__ = 2;
-        lp_accum__.add(r_function(pars, finite_diff, no_bounds, bounds_types,
+        lp_accum__.add(r_function<jacobian__>(pars, finite_diff, no_bounds, bounds_types,
                          lower_bounds, upper_bounds, pstream__));
       }
     } catch (const std::exception& e) {
@@ -259,17 +245,11 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     // suppress unused var warning
     (void) function__;
     try {
-      Eigen::Matrix<double,-1,1> pars;
+      Eigen::Matrix<double,-1,1> pars =
+        Eigen::Matrix<double,-1,1>::Constant(Npars,
+          std::numeric_limits<double>::quiet_NaN());
       current_statement__ = 1;
-      pars = in__.template read_constrain_lub<
-               Eigen::Matrix<local_scalar_t__,-1,1>,
-               jacobian__>(lower_bounds, upper_bounds, lp__, Npars);
-      current_statement__ = 1;
-      stan::math::check_matching_dims("constraint", "pars", pars, "lower",
-        lower_bounds);
-      current_statement__ = 1;
-      stan::math::check_matching_dims("constraint", "pars", pars, "upper",
-        upper_bounds);
+      pars = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars);
       out__.write(pars);
       if (stan::math::logical_negation(
             (stan::math::primitive_value(emit_transformed_parameters__) ||
@@ -299,12 +279,13 @@ class estimator_model final : public model_base_crtp<estimator_model> {
     // suppress unused var warning
     (void) DUMMY_VAR__;
     try {
-      Eigen::Matrix<local_scalar_t__,-1,1> pars;
+      Eigen::Matrix<local_scalar_t__,-1,1> pars =
+        Eigen::Matrix<local_scalar_t__,-1,1>::Constant(Npars, DUMMY_VAR__);
       current_statement__ = 1;
       stan::model::assign(pars,
         in__.read<Eigen::Matrix<local_scalar_t__,-1,1>>(Npars),
         "assigning variable pars");
-      out__.write_free_lub(lower_bounds, upper_bounds, pars);
+      out__.write(pars);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -325,7 +306,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
       current_statement__ = 1;
       context__.validate_dims("parameter initialization", "pars", "double",
         std::vector<size_t>{static_cast<size_t>(Npars)});
-      int pos__;
+      int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
       Eigen::Matrix<local_scalar_t__,-1,1> pars =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(Npars, DUMMY_VAR__);
@@ -340,7 +321,7 @@ class estimator_model final : public model_base_crtp<estimator_model> {
           pos__ = (pos__ + 1);
         }
       }
-      out__.write_free_lub(lower_bounds, upper_bounds, pars);
+      out__.write(pars);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
