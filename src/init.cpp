@@ -18,9 +18,9 @@ SEXP make_model_pointer_(SEXP data_json_string_, SEXP seed_);
 SEXP log_prob_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_);
 SEXP grad_log_prob_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_);
 SEXP hessian_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_);
-SEXP unconstrain_variables_(SEXP ext_model_ptr, SEXP cons_json_string_);
-SEXP unconstrain_draws_(SEXP ext_model_ptr, SEXP draws_matrix_);
-SEXP constrain_variables_(SEXP ext_model_ptr, SEXP upars_);
+SEXP unconstrain_variables_(SEXP variables_, SEXP lb_, SEXP ub_);
+SEXP unconstrain_draws_(SEXP draws_matrix_, SEXP lb_, SEXP ub_);
+SEXP constrain_variables_(SEXP variables_, SEXP lb_, SEXP ub_);
 SEXP lub_constrain_(SEXP y_, SEXP lb_, SEXP ub_);
 SEXP lub_free_(SEXP y_, SEXP lb_, SEXP ub_);
 
@@ -39,9 +39,9 @@ static const R_CallMethodDef CallEntries[] = {
   CALLDEF(log_prob_, 3),
   CALLDEF(grad_log_prob_, 3),
   CALLDEF(hessian_, 3),
-  CALLDEF(unconstrain_variables_, 2),
-  CALLDEF(unconstrain_draws_, 2),
-  CALLDEF(constrain_variables_, 2),
+  CALLDEF(unconstrain_variables_, 3),
+  CALLDEF(unconstrain_draws_, 3),
+  CALLDEF(constrain_variables_, 3),
   CALLDEF(lub_constrain_, 3),
   CALLDEF(lub_free_, 3),
   {NULL, NULL, 0}

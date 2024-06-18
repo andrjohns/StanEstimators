@@ -41,14 +41,9 @@ double r_function(const T& v,
                   const Eigen::Map<Eigen::VectorXd>& lower_bounds,
                   const Eigen::Map<Eigen::VectorXd>& upper_bounds,
                   std::ostream* pstream__) {
-  if (jacobian__) {
-    double lp = 0;
-    auto v_cons = stan::math::lub_constrain(v, lower_bounds, upper_bounds, lp);
-    return Rcpp::as<double>(internal::ll_fun(v_cons)) + lp;
-  } else {
-    auto v_cons = stan::math::lub_constrain(v, lower_bounds, upper_bounds);
-    return Rcpp::as<double>(internal::ll_fun(v_cons));
-  }
+  double lp = 0;
+  auto v_cons = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
+  return Rcpp::as<double>(internal::ll_fun(v_cons)) + lp;
 }
 
 template <bool jacobian__, typename T, stan::require_st_var<T>* = nullptr>
@@ -64,19 +59,24 @@ stan::math::var r_function(const T& v,
   auto funwrap = [&](const auto& x) {
     return r_function<jacobian__>(x, finite_diff, no_bounds, bounds_types, lower_bounds, upper_bounds, pstream__);
   };
-  stan::arena_t<Eigen::Matrix<stan::math::var, -1, 1>> arena_v = v;
+  stan::math::var lp(0);
+  stan::arena_t<Eigen::Matrix<stan::math::var, -1, 1>> arena_v;
   stan::arena_t<Eigen::VectorXd> arena_grad;
+  double rtn;
   if (finite_diff) {
+    arena_v = v;
     arena_grad = fdiff(funwrap, arena_v.val());
+    rtn = funwrap(v.val());
   } else {
-    Eigen::VectorXd v_cons = stan::math::lub_constrain(arena_v.val(), lower_bounds, upper_bounds);
-    arena_grad = Rcpp::as<Eigen::VectorXd>(internal::grad_fun(v_cons));
+    arena_v = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
+    arena_grad = Rcpp::as<Eigen::VectorXd>(internal::grad_fun(arena_v.val()));
+    rtn = Rcpp::as<double>(internal::ll_fun(arena_v.val()));
   }
   return make_callback_var(
-    funwrap(v.val()),
+    rtn,
     [arena_v, arena_grad](auto& vi) mutable {
       arena_v.adj() += vi.adj() * arena_grad;
-  });
+  }) + lp;
 }
 
 #ifdef USING_R

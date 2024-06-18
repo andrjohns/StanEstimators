@@ -120,8 +120,7 @@ setMethod("hessian", "StanBase",
 #' @aliases unconstrain_variables,StanBase,StanBase-method
 setMethod("unconstrain_variables", "StanBase",
   function(stan_object, variables) {
-    unconstrain_variables_impl(stan_object@model_methods$model_pointer,
-                               variables)
+    unconstrain_variables_impl(variables, stan_object@lower_bounds, stan_object@upper_bounds)
   }
 )
 
@@ -132,7 +131,7 @@ setMethod("unconstrain_draws", "StanBase",
     if (is.null(draws)) {
       draws <- stan_object@draws
     }
-    unconstrain_draws_impl(stan_object@model_methods$model_pointer, draws)
+    unconstrain_draws_impl(draws, stan_object@lower_bounds, stan_object@upper_bounds)
   }
 )
 
@@ -142,9 +141,9 @@ setMethod("unconstrain_draws", "StanOptimize",
   function(stan_object, draws) {
     if (is.null(draws)) {
       variables <- stan_object@estimates
-      unconstrain_draws_impl(stan_object@model_methods$model_pointer, stan_object@estimates, match_format = FALSE)
+      unconstrain_draws_impl(stan_object@estimates, stan_object@lower_bounds, stan_object@upper_bounds, match_format = FALSE)
     } else {
-      unconstrain_draws_impl(stan_object@model_methods$model_pointer, draws)
+      unconstrain_draws_impl(draws, stan_object@lower_bounds, stan_object@upper_bounds)
     }
   }
 )
@@ -153,8 +152,7 @@ setMethod("unconstrain_draws", "StanOptimize",
 #' @aliases constrain_variables,StanBase,StanBase-method
 setMethod("constrain_variables", "StanBase",
   function(stan_object, unconstrained_variables) {
-    constrain_variables_impl(stan_object@model_methods$model_pointer,
-                              unconstrained_variables)
+    constrain_variables_impl(unconstrained_variables, stan_object@lower_bounds, stan_object@upper_bounds)
   }
 )
 

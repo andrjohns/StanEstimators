@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 #include <cstdint>
 #include <cmdstan/command.hpp>
+#include <cmdstan/version.hpp>
 #include <estimator/estimator_ext_header.hpp>
 #include <estimator/estimator.hpp>
 
@@ -241,40 +242,34 @@ RcppExport SEXP hessian_(SEXP ext_model_ptr, SEXP upars_, SEXP jacobian_) {
   END_RCPP
 }
 
-RcppExport SEXP unconstrain_variables_(SEXP ext_model_ptr, SEXP variables_) {
+RcppExport SEXP unconstrain_variables_(SEXP variables_, SEXP lb_, SEXP ub_) {
   BEGIN_RCPP
-  Rcpp::XPtr<stan::model::model_base> ptr(ext_model_ptr);
   Eigen::Map<Eigen::VectorXd> variables = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(variables_);
-  Eigen::VectorXd unconstrained_variables;
-  ptr->unconstrain_array(variables, unconstrained_variables, &Rcpp::Rcout);
-  return Rcpp::wrap(unconstrained_variables);
+  Eigen::Map<Eigen::VectorXd> lb = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(lb_);
+  Eigen::Map<Eigen::VectorXd> ub = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(ub_);
+  return Rcpp::wrap(stan::math::lub_free(variables, lb, ub));
   END_RCPP
 }
 
-RcppExport SEXP unconstrain_draws_(SEXP ext_model_ptr, SEXP draws_matrix_) {
+RcppExport SEXP unconstrain_draws_(SEXP draws_matrix_, SEXP lb_, SEXP ub_) {
   BEGIN_RCPP
-  Rcpp::XPtr<stan::model::model_base> ptr(ext_model_ptr);
   Eigen::Map<Eigen::MatrixXd> variables = Rcpp::as<Eigen::Map<Eigen::MatrixXd>>(draws_matrix_);
-  Eigen::MatrixXd unconstrained_draws(variables.cols(), variables.rows());
-  for (int i = 0; i < variables.rows(); i++) {
-    Eigen::VectorXd unconstrained_variables;
-    ptr->unconstrain_array(variables.transpose().col(i), unconstrained_variables, &Rcpp::Rcout);
-    unconstrained_draws.col(i) = unconstrained_variables;
+  Eigen::Map<Eigen::VectorXd> lb = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(lb_);
+  Eigen::Map<Eigen::VectorXd> ub = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(ub_);
+  Eigen::MatrixXd unconstrained_draws(variables.rows(), variables.cols());
+  for (int i = 0; i < variables.cols(); i++) {
+    unconstrained_draws.col(i) = stan::math::lub_free(variables.col(i), lb[i], ub[i]);
   }
-  return Rcpp::wrap(unconstrained_draws.transpose());
+  return Rcpp::wrap(unconstrained_draws);
   END_RCPP
 }
 
-RcppExport SEXP constrain_variables_(SEXP ext_model_ptr, SEXP upars_) {
+RcppExport SEXP constrain_variables_(SEXP variables_, SEXP lb_, SEXP ub_) {
   BEGIN_RCPP
-  Rcpp::XPtr<stan::model::model_base> ptr(ext_model_ptr);
-  std::vector<double> upars = Rcpp::as<std::vector<double>>(upars_);
-  std::vector<int> params_i;
-  std::vector<double> pars_constrained;
-  // RNG only used for *_rng calls in generated_quantities, which we don't use
-  stan::rng_t dummy_rng(0);
-  ptr->write_array(dummy_rng, upars, params_i, pars_constrained, false, false);
-  return Rcpp::wrap(pars_constrained);
+  Eigen::Map<Eigen::VectorXd> variables = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(variables_);
+  Eigen::Map<Eigen::VectorXd> lb = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(lb_);
+  Eigen::Map<Eigen::VectorXd> ub = Rcpp::as<Eigen::Map<Eigen::VectorXd>>(ub_);
+  return Rcpp::wrap(stan::math::lub_constrain(variables, lb, ub));
   END_RCPP
 }
 
@@ -295,5 +290,30 @@ RcppExport SEXP lub_free_(SEXP y_, SEXP lb_, SEXP ub_) {
   VectorMap lb = Rcpp::as<VectorMap>(lb_);
   VectorMap ub = Rcpp::as<VectorMap>(ub_);
   return Rcpp::wrap(stan::math::lub_free(y, lb, ub));
+  END_RCPP
+}
+
+RcppExport SEXP stan_versions_() {
+  BEGIN_RCPP
+  std::string math_version =
+    stan::math::MAJOR_VERSION + "." +
+    stan::math::MINOR_VERSION + "." +
+    stan::math::PATCH_VERSION;
+
+  std::string stan_version =
+    stan::MAJOR_VERSION + "." +
+    stan::MINOR_VERSION + "." +
+    stan::PATCH_VERSION;
+
+  std::string cmdstan_version =
+    cmdstan::MAJOR_VERSION + "." +
+    cmdstan::MINOR_VERSION + "." +
+    cmdstan::PATCH_VERSION;
+
+  return Rcpp::List::create(
+    Rcpp::Named("Math") = math_version,
+    Rcpp::Named("Stan") = stan_version,
+    Rcpp::Named("CmdStan") = cmdstan_version
+  );
   END_RCPP
 }
