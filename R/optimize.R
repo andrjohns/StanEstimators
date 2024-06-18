@@ -113,7 +113,7 @@ stan_optimize <- function(fn, par_inits = NULL, n_pars = NULL, additional_args =
                           output_args = output)
   call_stan(args, inputs, quiet)
 
-  parsed <- parse_csv(inputs$output_filepath)
+  parsed <- parse_csv(inputs$output_filepath, lower=inputs$lower, upper=inputs$upper)
 
   methods::new("StanOptimize",
     metadata = parsed$metadata,

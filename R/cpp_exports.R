@@ -10,8 +10,8 @@ call_stan_impl <- function(options_vector, input_list) {
   invisible(NULL)
 }
 
-parse_csv <- function(filename) {
-  parsed <- .Call(`parse_csv_`, filename)
+parse_csv <- function(filename, lower = -Inf, upper = Inf) {
+  parsed <- .Call(`parse_csv_`, filename, lower, upper)
   parsed$metadata <- parsed$metadata[unique(names(parsed$metadata))]
   parsed
 }
@@ -40,17 +40,17 @@ hessian_impl <- function(model_ptr, upars, jacobian = TRUE) {
   .Call(`hessian_`, model_ptr, upars, jacobian)
 }
 
-unconstrain_variables_impl <- function(model_ptr, variables) {
-  .Call(`unconstrain_variables_`, model_ptr, variables)
+unconstrain_variables_impl <- function(variables, lb, ub) {
+  .Call(`unconstrain_variables_`, variables, lb, ub)
 }
 
-unconstrain_draws_impl <- function(model_ptr, draws, match_format = TRUE) {
+unconstrain_draws_impl <- function(draws, lb, ub, match_format = TRUE) {
   draws_matrix <- posterior::as_draws_matrix(draws)
   par_cols <- grep("^par", colnames(draws_matrix))
   if (length(par_cols) == 0) {
     stop("No parameter columns found in draws object", call. = FALSE)
   }
-  unconstrained_variables <- .Call(`unconstrain_draws_`, model_ptr, draws_matrix[, par_cols])
+  unconstrained_variables <- .Call(`unconstrain_draws_`, draws_matrix[, par_cols], lb, ub)
   draws_matrix[, par_cols] <- unconstrained_variables
   if (match_format) {
     match_draws_format(draws, draws_matrix)
@@ -59,8 +59,8 @@ unconstrain_draws_impl <- function(model_ptr, draws, match_format = TRUE) {
   }
 }
 
-constrain_variables_impl <- function(model_ptr, upars) {
-  .Call(`constrain_variables_`, model_ptr, upars)
+constrain_variables_impl <- function(upars, lb, ub) {
+  .Call(`constrain_variables_`, upars, lb, ub)
 }
 
 lub_constrain <- function(x, lb, ub) {

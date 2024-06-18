@@ -13,4 +13,4 @@
 #' @importFrom stats setNames runif
 #' @importFrom methods new
 #'
-NULL
+"_PACKAGE"
