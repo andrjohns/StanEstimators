@@ -1,0 +1,6 @@
+if [ "$WEBR_ROOT" != "" ]; then
+  wget https://rcppcore.r-universe.dev/bin/emscripten/contrib/4.5/RcppParallel_5.1.10.9000.tgz -O $TMPDIR/RcppParallel_5.1.10.9000.tgz
+  tar -xzf $TMPDIR/RcppParallel_5.1.10.9000.tgz -C $TMPDIR
+  echo "TBB_INC=$TMPDIR/RcppParallel/include" >> $GITHUB_ENV
+  echo "TBB_LIB=$TMPDIR/RcppParallel/lib" >> $GITHUB_ENV
+fi
