@@ -1,4 +1,4 @@
-CMDSTAN_VER="2.35.0"
+CMDSTAN_VER="2.37.0"
 
 wget https://github.com/stan-dev/cmdstan/releases/download/v$CMDSTAN_VER/cmdstan-$CMDSTAN_VER.tar.gz
 tar -xf cmdstan-$CMDSTAN_VER.tar.gz

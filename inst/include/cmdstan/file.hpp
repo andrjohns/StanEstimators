@@ -105,6 +105,13 @@ std::pair<std::string, std::string> get_basename_suffix(
   return {base, suffix};
 }
 
+std::vector<std::string> split_on_comma(const std::string &input) {
+  std::vector<std::string> result;
+  boost::algorithm::split(result, input, boost::is_any_of(","),
+                          boost::token_compress_on);
+  return result;
+}
+
 /**
  * Check if two file paths are the same file.
  * @note This function only handles very basic access patterns.
@@ -117,6 +124,27 @@ std::pair<std::string, std::string> get_basename_suffix(
  */
 bool check_approx_same_file(const std::string &path1,
                             const std::string &path2) {
+  // if path1 has a comma in it, check all of them
+  // if any match, return true
+  if (path1.find(',') != std::string::npos) {
+    for (const auto &name : split_on_comma(path1)) {
+      if (check_approx_same_file(name, path2)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // same for path2
+  if (path2.find(',') != std::string::npos) {
+    for (const auto &name : split_on_comma(path2)) {
+      if (check_approx_same_file(path1, name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   const auto path1_size = path1.size();
   const auto path2_size = path2.size();
   if (path1.empty() || path2.empty()) {
@@ -163,6 +191,14 @@ bool check_approx_same_file(const std::string &path1,
  * @param fname candidate output filename
  */
 void validate_output_filename(const std::string &fname) {
+  // if a , is present, check all values
+  if (fname.find(',') != std::string::npos) {
+    for (const auto &name : split_on_comma(fname)) {
+      validate_output_filename(name);
+    }
+    return;
+  }
+
   std::string sep = std::string(1, cmdstan::file::PATH_SEPARATOR);
   if (!fname.empty()
       && (fname[fname.size() - 1] == PATH_SEPARATOR
@@ -191,23 +227,55 @@ std::vector<std::string> make_filenames(const std::string &filename,
                                         const std::string &type,
                                         unsigned int num_chains,
                                         unsigned int id) {
-  std::pair<std::string, std::string> base_sfx;
-  base_sfx = get_basename_suffix(filename);
-  if (type != ".csv" || base_sfx.second.empty()) {
-    base_sfx.second = type;
+  std::vector<std::string> names(num_chains);
+
+  // if a ',' is present, we assume the user fully specified the names
+  if (filename.find(',') != std::string::npos) {
+    std::vector<std::string> filenames = split_on_comma(filename);
+    if (filenames.size() != num_chains) {
+      std::stringstream msg;
+      msg << "Number of filenames does not match number of chains: got "
+             "comma-separated list '"
+          << filename << "' of length " << filenames.size() << " but expected "
+          << num_chains << " names" << std::endl;
+      throw std::invalid_argument(msg.str());
+    }
+
+    std::transform(filenames.cbegin(), filenames.cend(), names.begin(),
+                   [&tag, &type](const std::string &name) {
+                     auto [base_name, sfx] = get_basename_suffix(name);
+                     if ((!type.empty() && type != ".csv") || sfx.empty()) {
+                       sfx = type;
+                     }
+                     // TODO: in most cases tag is empty, it would be nice if it
+                     // was never used for maximum user control
+                     return base_name + tag + sfx;
+                   });
+  } else {
+    // otherwise, this is a template which gets edited like output.csv ->
+    // output_1.csv
+    auto [base_name, sfx] = get_basename_suffix(filename);
+
+    // first condition here is legacy -- we used to be very lax
+    // about file names, but with things like json outputs
+    // we need to be stricter to avoid collisions, so we only
+    // allow laxity on the suffix for intended-to-be csv files
+    if ((!type.empty() && type != ".csv") || sfx.empty()) {
+      sfx = type;
+    }
+
+    auto name_iterator = [num_chains, id](auto i) {
+      if (num_chains == 1) {
+        return std::string("");
+      } else {
+        return std::string("_" + std::to_string(i + id));
+      }
+    };
+    for (int i = 0; i < num_chains; ++i) {
+      names[i] = base_name + tag + name_iterator(i) + sfx;
+    }
   }
 
-  std::vector<std::string> names(num_chains);
-  auto name_iterator = [num_chains, id](auto i) {
-    if (num_chains == 1) {
-      return std::string("");
-    } else {
-      return std::string("_" + std::to_string(i + id));
-    }
-  };
-  for (int i = 0; i < num_chains; ++i) {
-    names[i] = base_sfx.first + tag + name_iterator(i) + base_sfx.second;
-  }
   return names;
 }
 
@@ -222,7 +290,7 @@ std::ifstream safe_open(const std::string &fname) {
   std::ifstream stream(fname.c_str());
   if (fname != "" && (stream.rdstate() & std::ifstream::failbit)) {
     std::stringstream msg;
-    msg << "Can't open specified file, \"" << fname << "\"" << std::endl;
+    msg << "Cannot open specified file, \"" << fname << "\"" << std::endl;
     throw std::invalid_argument(msg.str());
   }
   return stream;
@@ -238,7 +306,7 @@ std::ifstream safe_open(const std::string &fname) {
 std::unique_ptr<std::ofstream> safe_create(const std::string &fname,
                                            int sig_figs) {
   auto ofs = std::make_unique<std::ofstream>(fname.c_str());
-  ofs->exceptions(std::ofstream::badbit);
+  ofs->exceptions(std::ofstream::badbit | std::ofstream::failbit);
   if (sig_figs > -1) {
     ofs->precision(sig_figs);
   }

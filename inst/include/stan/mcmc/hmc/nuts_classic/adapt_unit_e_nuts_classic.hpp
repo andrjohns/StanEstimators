@@ -32,7 +32,7 @@ class adapt_unit_e_nuts_classic : public unit_e_nuts_classic<Model, BaseRNG>,
     return s;
   }
 
-  void disengage_adaptation() {
+  void disengage_adaptation() noexcept {
     base_adapter::disengage_adaptation();
     this->stepsize_adaptation_.complete_adaptation(this->nom_epsilon_);
   }

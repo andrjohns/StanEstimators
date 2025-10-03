@@ -6,13 +6,13 @@ namespace mcmc {
 
 class base_adapter {
  public:
-  base_adapter() : adapt_flag_(false) {}
+  base_adapter() noexcept : adapt_flag_(false) {}
 
-  virtual void engage_adaptation() { adapt_flag_ = true; }
+  virtual void engage_adaptation() noexcept { adapt_flag_ = true; }
 
-  virtual void disengage_adaptation() { adapt_flag_ = false; }
+  virtual void disengage_adaptation() noexcept { adapt_flag_ = false; }
 
-  bool adapting() { return adapt_flag_; }
+  bool adapting() const noexcept { return adapt_flag_; }
 
  protected:
   bool adapt_flag_;

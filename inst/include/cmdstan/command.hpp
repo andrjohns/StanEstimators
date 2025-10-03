@@ -277,8 +277,14 @@ int command(int argc, const char *argv[]) {
       = get_vec_var_context(init, num_chains, id);
 
   if (get_arg_val<bool_argument>(parser, "output", "save_cmdstan_config")) {
+    auto base_file = output_file;
+    // when there are commas, take first file
+    auto comma_pos = base_file.find(',');
+    if (comma_pos != std::string::npos) {
+      base_file = base_file.substr(0, comma_pos);
+    }
     auto config_filename
-        = file::get_basename_suffix(output_file).first + "_config.json";
+        = file::get_basename_suffix(base_file).first + "_config.json";
     auto ofs_args = file::safe_create(config_filename, sig_figs);
     stan::callbacks::json_writer<std::ostream> json_args(std::move(ofs_args));
     write_config(json_args, parser, model);
@@ -333,8 +339,7 @@ int command(int argc, const char *argv[]) {
     }
 
     if (num_chains == 1) {
-      return_code = stan::services::pathfinder::pathfinder_lbfgs_single<
-          false, stan::model::model_base>(
+      return_code = stan::services::pathfinder::pathfinder_lbfgs_single(
           model, *(init_contexts[0]), random_seed, id, init_radius,
           history_size, init_alpha, tol_obj, tol_rel_obj, tol_grad,
           tol_rel_grad, tol_param, max_lbfgs_iters, num_elbo_draws, num_draws,
@@ -347,8 +352,7 @@ int command(int argc, const char *argv[]) {
       stan::callbacks::unique_stream_writer<std::ofstream> pathfinder_writer(
           std::move(ofs), "# ");
       write_config(pathfinder_writer, parser, model);
-      return_code = stan::services::pathfinder::pathfinder_lbfgs_multi<
-          stan::model::model_base>(
+      return_code = stan::services::pathfinder::pathfinder_lbfgs_multi(
           model, init_contexts, random_seed, id, init_radius, history_size,
           init_alpha, tol_obj, tol_rel_obj, tol_grad, tol_rel_grad, tol_param,
           max_lbfgs_iters, num_elbo_draws, num_draws, num_psis_draws,
@@ -366,12 +370,17 @@ int command(int argc, const char *argv[]) {
           "Missing fitted_params argument, cannot run generate_quantities "
           "without fitted sample.");
     }
-    auto file_info = file::get_basename_suffix(fname);
-    if (file_info.second != ".csv") {
-      throw std::invalid_argument("Fitted params file must be a CSV file.");
-    }
+
     std::vector<std::string> fname_vec
-        = file::make_filenames(file_info.first, "", ".csv", num_chains, id);
+        = file::make_filenames(fname, "", ".csv", num_chains, id);
+
+    for (auto &f : fname_vec) {
+      auto file_info = file::get_basename_suffix(f);
+      if (file_info.second != ".csv") {
+        throw std::invalid_argument("Fitted params file must be a CSV file.");
+      }
+    }
+
     std::vector<std::string> param_names = get_constrained_param_names(model);
     std::vector<Eigen::MatrixXd> fitted_params_vec;
     fitted_params_vec.reserve(num_chains);
@@ -446,8 +455,7 @@ int command(int argc, const char *argv[]) {
       }
     }
     try {
-      services_log_prob_grad(model, jacobian, params_r_ind, sig_figs,
-                             sample_writers[0].get_stream());
+      services_log_prob_grad(model, jacobian, params_r_ind, sample_writers[0]);
       return_code = return_codes::OK;
     } catch (const std::exception &e) {
       msg << "Error during log_prob calculation:" << std::endl;
@@ -563,23 +571,17 @@ int command(int argc, const char *argv[]) {
     list_argument *algo = dynamic_cast<list_argument *>(
         parser.arg("method")->arg("sample")->arg("algorithm"));
     std::string algo_name = algo->value();
-    bool use_fixed_param
-        = model.num_params_r() == 0 || algo_name == "fixed_param";
 
     bool adapt_engaged = get_arg_val<bool_argument>(parser, "method", "sample",
                                                     "adapt", "engaged");
-    if (!use_fixed_param && adapt_engaged == true && num_warmup == 0) {
+    if (algo_name != "fixed_param" && adapt_engaged == true
+        && num_warmup == 0) {
       msg << "The number of warmup samples (num_warmup) must be greater than "
           << "zero if adaptation is enabled." << std::endl;
       throw std::invalid_argument(msg.str());
     }
 
-    if (use_fixed_param) {
-      if (algo_name != "fixed_param") {
-        info(
-            "Model contains no parameters, running fixed_param sampler, "
-            "no updates to Markov chain");
-      }
+    if (algo_name == "fixed_param") {
       return_code = stan::services::sample::fixed_param(
           model, num_chains, init_contexts, random_seed, id, init_radius,
           num_samples, num_thin, refresh, interrupt, logger, init_writers,

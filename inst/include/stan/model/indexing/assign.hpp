@@ -44,8 +44,7 @@ namespace model {
  */
 
 template <typename Tuple1, typename Tuple2,
-          require_all_t<internal::is_tuple<Tuple1>,
-                        internal::is_tuple<Tuple2>>* = nullptr>
+          math::require_all_tuple_t<Tuple1, Tuple2>* = nullptr>
 inline void assign(Tuple1&& x, Tuple2&& y, const char* name);
 
 /**
@@ -60,7 +59,8 @@ inline void assign(Tuple1&& x, Tuple2&& y, const char* name);
 template <
     typename T, typename U,
     require_t<std::is_assignable<std::decay_t<T>&, std::decay_t<U>>>* = nullptr,
-    require_all_not_t<internal::is_tuple<T>, internal::is_tuple<U>>* = nullptr>
+    require_all_not_std_vector_t<T, U>* = nullptr,
+    math::require_all_not_tuple_t<T, U>* = nullptr>
 inline void assign(T&& x, U&& y, const char* name) {
   internal::assign_impl(x, std::forward<U>(y), name);
 }
@@ -777,15 +777,25 @@ inline void assign(Mat1&& x, Mat2&& y, const char* name, const Idx& row_idx,
  * @param[in] y rvalue variable
  * @param[in] name name of lvalue variable
  */
-template <typename T, typename U, require_all_std_vector_t<T, U>* = nullptr,
-          require_not_t<
-              std::is_assignable<std::decay_t<T>&, std::decay_t<U>>>* = nullptr>
+template <typename T, typename U, require_all_std_vector_t<T, U>* = nullptr>
 inline void assign(T&& x, U&& y, const char* name) {
   if (unlikely(x.size() != 0)) {
     stan::math::check_size_match("assign array size", name, x.size(),
                                  "right hand side", y.size());
   }
-  if (std::is_rvalue_reference<U&&>::value) {
+
+  if constexpr (std::is_assignable_v<std::decay_t<T>&, std::decay_t<U>>) {
+    if (is_stan_scalar_v<value_type_t<T>> || x.size() == 0) {
+      x = std::forward<U>(y);
+      return;
+    }
+  }
+
+  // If we've made it this far, we need x to have elements to assign to,
+  // and we know this is either a no-op or x has size 0, which we treat as
+  // a wildcard that can take any size.
+  x.resize(y.size());
+  if constexpr (std::is_rvalue_reference_v<U&&>) {
     for (size_t i = 0; i < y.size(); ++i) {
       assign(x[i], std::move(y[i]), name);
     }
@@ -913,9 +923,8 @@ inline constexpr auto make_tuple_seq(std::integer_sequence<T, I...>) {
  * @param y A tuple with elements to be assigned from
  * @param name The name of the tuple to assign to
  */
-template <
-    typename Tuple1, typename Tuple2,
-    require_all_t<internal::is_tuple<Tuple1>, internal::is_tuple<Tuple2>>*>
+template <typename Tuple1, typename Tuple2,
+          math::require_all_tuple_t<Tuple1, Tuple2>*>
 inline void assign(Tuple1&& x, Tuple2&& y, const char* name) {
   constexpr auto t1_size = std::tuple_size<std::decay_t<Tuple1>>::value;
   stan::math::for_each(

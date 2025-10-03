@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include <cstdint>
+#include <tbb/global_control.h>
 #include <cmdstan/command.hpp>
 #include <cmdstan/version.hpp>
 #include <estimator/estimator_ext_header.hpp>
@@ -114,7 +115,7 @@ RcppExport SEXP parse_csv_(SEXP filename_, SEXP lower_, SEXP upper_) {
   rtn.push_back(parse_metadata(ifstream), "metadata");
 
   std::vector<std::string> header;
-  stan::io::stan_csv_reader::read_header(ifstream, header, nullptr);
+  stan::io::stan_csv_reader::read_header(ifstream, header, true);
   // Get index of first element of header that starts with "pars"
   auto it = std::find_if(header.cbegin(), header.cend(), [](const std::string& s) {
     return s.find("pars") == 0;
@@ -129,7 +130,7 @@ RcppExport SEXP parse_csv_(SEXP filename_, SEXP lower_, SEXP upper_) {
   bool read_adaptation = std::forward<Rcpp::List>(rtn[0]).containsElementNamed("engaged");
   if (read_adaptation) {
     stan::io::stan_csv_adaptation adaptation;
-    stan::io::stan_csv_reader::read_adaptation(ifstream, adaptation, nullptr);
+    stan::io::stan_csv_reader::read_adaptation(ifstream, adaptation);
     rtn.push_back(Rcpp::List::create(
       Rcpp::Named("step_size") = adaptation.step_size,
       Rcpp::Named("metric") = adaptation.metric
@@ -137,7 +138,7 @@ RcppExport SEXP parse_csv_(SEXP filename_, SEXP lower_, SEXP upper_) {
   }
   Eigen::MatrixXd samples;
   stan::io::stan_csv_timing timing;
-  stan::io::stan_csv_reader::read_samples(ifstream, samples, timing, nullptr);
+  stan::io::stan_csv_reader::read_samples(ifstream, samples, timing);
   Eigen::RowVectorXd lower = Rcpp::as<Eigen::RowVectorXd>(lower_);
   Eigen::RowVectorXd upper = Rcpp::as<Eigen::RowVectorXd>(upper_);
 
