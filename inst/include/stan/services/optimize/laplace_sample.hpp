@@ -54,12 +54,10 @@ void laplace_sample(const Model& model, const Eigen::VectorXd& theta_hat,
 
   // create log density functor for vars and vals
   std::stringstream log_density_msgs;
-  auto log_density_fun
-      = [&](const Eigen::Matrix<stan::math::var, -1, 1>& theta) {
-          return model.template log_prob<true, jacobian, stan::math::var>(
-              const_cast<Eigen::Matrix<stan::math::var, -1, 1>&>(theta),
-              &log_density_msgs);
-        };
+  auto log_density_fun = [&](auto&& theta) {
+    return model.template log_prob<true, jacobian, stan::math::var>(
+        theta, &log_density_msgs);
+  };
 
   // calculate inverse negative Hessian's Cholesky factor
   if (refresh > 0) {
@@ -121,7 +119,10 @@ void laplace_sample(const Model& model, const Eigen::VectorXd& theta_hat,
 
     double log_p;
     if (calculate_lp) {
-      log_p = log_density_fun(unc_draw).val();
+      // clean up created vars after scope exit
+      stan::math::nested_rev_autodiff stack;
+      auto theta = unc_draw.cast<stan::math::var>().eval();
+      log_p = log_density_fun(theta).val();
     } else {
       log_p = std::numeric_limits<double>::quiet_NaN();
     }

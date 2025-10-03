@@ -5,8 +5,8 @@
 #include <stan/math/prim/fun/log1p_exp.hpp>
 #include <stan/math/prim/fun/inv_logit.hpp>
 #include <stan/math/prim/fun/finite_diff_stepsize.hpp>
-#include <stan/math/prim/fun/lub_free.hpp>
-#include <stan/math/prim/fun/lub_constrain.hpp>
+#include <stan/math/prim/constraint/lub_free.hpp>
+#include <stan/math/prim/constraint/lub_constrain.hpp>
 #include <stan/math/prim/functor/apply_scalar_ternary.hpp>
 #include <stan/math/prim/functor/finite_diff_gradient_auto.hpp>
 #include <stan/math/rev/core.hpp>

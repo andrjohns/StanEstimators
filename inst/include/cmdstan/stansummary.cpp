@@ -1,6 +1,5 @@
 #include <cmdstan/return_codes.hpp>
 #include <cmdstan/stansummary_helper.hpp>
-#include <stan/mcmc/chains.hpp>
 #include <stan/io/ends_with.hpp>
 #include <algorithm>
 #include <fstream>
@@ -34,7 +33,7 @@ Options:
   -c, --csv_filename [file]   Write statistics to a csv file.
   -h, --help                  Produce help message, then exit.
   -p, --percentiles [values]  Percentiles to report as ordered set of
-                              comma-separated numbers from (0.1,99.9), inclusive.
+                              comma-separated numbers from (0.0,100.0), inclusive.
                               Default is 5,50,95.
   -s, --sig_figs [n]          Significant figures reported. Default is 2.
                               Must be an integer from (1, 18), inclusive.
@@ -140,17 +139,21 @@ Options:
 
     // check for stan csv file parse errors written to output stream
     std::stringstream cout_ss;
-    stan::mcmc::chains<> chains = parse_csv_files(
-        filenames, metadata, warmup_times, sampling_times, thin, &std::cout);
+    auto chains = parse_csv_files(filenames, metadata, warmup_times,
+                                  sampling_times, thin, &std::cout);
 
     // Get column headers for sampler, model params
     size_t max_name_length = 0;
-    size_t num_sampler_params = -1;  // don't count name 'lp__'
+    size_t num_sampler_params = 0;
     for (int i = 0; i < chains.num_params(); ++i) {
       if (chains.param_name(i).length() > max_name_length)
         max_name_length = chains.param_name(i).length();
       if (stan::io::ends_with("__", chains.param_name(i)))
         num_sampler_params++;
+    }
+    // don't count name 'lp__'
+    if (num_sampler_params > 0) {
+      num_sampler_params--;
     }
 
     // Get column indices for the sampler params

@@ -31,7 +31,7 @@ class adapt_softabs_xhmc : public softabs_xhmc<Model, BaseRNG>,
     return s;
   }
 
-  void disengage_adaptation() {
+  void disengage_adaptation() noexcept {
     base_adapter::disengage_adaptation();
     this->stepsize_adaptation_.complete_adaptation(this->nom_epsilon_);
   }

@@ -42,7 +42,7 @@ class adapt_diag_e_static_uniform
     return s;
   }
 
-  void disengage_adaptation() {
+  void disengage_adaptation() noexcept {
     base_adapter::disengage_adaptation();
     this->stepsize_adaptation_.complete_adaptation(this->nom_epsilon_);
   }

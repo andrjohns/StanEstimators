@@ -31,7 +31,7 @@ class adapt_unit_e_xhmc : public unit_e_xhmc<Model, BaseRNG>,
     return s;
   }
 
-  void disengage_adaptation() {
+  void disengage_adaptation() noexcept {
     base_adapter::disengage_adaptation();
     this->stepsize_adaptation_.complete_adaptation(this->nom_epsilon_);
   }
