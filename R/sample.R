@@ -180,9 +180,10 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
     chains_to_run <- num_chains - parallel_procs
 
     # TODO: Clean this up, code-smell
-    while(chains_alive > 0) {
+    while((chains_alive > 0) || (chains_to_run > 0)) {
       for (chain in seq_len(parallel_procs)) {
         if (r_bg_procs[[chain]]$proc$is_alive()) {
+
           r_bg_procs[[chain]]$proc$wait(0.1)
           r_bg_procs[[chain]]$proc$poll_io(0)
           if (!quiet) {
@@ -229,6 +230,7 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
                             output_args = output)
     call_stan_impl(args, inputs)
   }
+  return(chain_calls)
 
   if (!isTRUE(eval_standalone) && num_chains == 1) {
     output_files <- paste0(inputs$output_basename, ".csv")
