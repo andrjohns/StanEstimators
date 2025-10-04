@@ -255,7 +255,7 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
   diagnostics <- posterior::subset_draws(draws, variable = diagnostic_vars)
   check_hmc_diagnostics(diagnostics, as.numeric(metadata$max_depth))
-
+ 
   methods::new("StanMCMC",
     metadata = metadata,
     adaptation = adaptation,
