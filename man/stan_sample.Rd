@@ -42,7 +42,8 @@ stan_sample(
   metric = NULL,
   metric_file = NULL,
   stepsize = NULL,
-  stepsize_jitter = NULL
+  stepsize_jitter = NULL,
+  check_diagnostics = TRUE
 )
 }
 \arguments{
@@ -153,6 +154,10 @@ approximation to continuous Hamiltonian dynamics.}
 \item{stepsize_jitter}{(real in \verb{(0,1)}) Allows step size to be “jittered”
 randomly during sampling to avoid any poor interactions with a
 fixed step size and regions of high curvature.}
+
+\item{check_diagnostics}{(logical) Whether to check for common problems
+with HMC sampling (divergent transitions, max tree depth hits, and
+low Bayesian fraction of missing information). Default is \code{TRUE}.}
 }
 \value{
 \code{StanMCMC} object

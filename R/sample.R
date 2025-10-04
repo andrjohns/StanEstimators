@@ -87,6 +87,9 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @param stepsize_jitter (real in `(0,1)`) Allows step size to be “jittered”
 #'    randomly during sampling to avoid any poor interactions with a
 #'    fixed step size and regions of high curvature.
+#' @param check_diagnostics (logical) Whether to check for common problems
+#'   with HMC sampling (divergent transitions, max tree depth hits, and
+#'   low Bayesian fraction of missing information). Default is `TRUE`.
 #' @return \code{StanMCMC} object
 #' @export
 stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = list(),
@@ -119,7 +122,8 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
                           metric = NULL,
                           metric_file = NULL,
                           stepsize = NULL,
-                          stepsize_jitter = NULL) {
+                          stepsize_jitter = NULL,
+                          check_diagnostics = TRUE) {
   if (!isTRUE(eval_standalone) && parallel_chains > 1) {
     stop("Cannot run parallel chains when evaluating in current R session!",
          call. = FALSE)
@@ -259,7 +263,12 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
   diagnostics <- posterior::subset_draws(draws, variable = diagnostic_vars)
-  check_hmc_diagnostics(diagnostics, as.numeric(metadata$max_depth))
+  if (save_warmup) {
+    diagnostics <- diagnostics[diagnostics$.iteration > num_warmup, ]
+  }
+  if (check_diagnostics) {
+    check_hmc_diagnostics(diagnostics, as.numeric(metadata$max_depth))
+  }
 
   methods::new("StanMCMC",
     metadata = metadata,

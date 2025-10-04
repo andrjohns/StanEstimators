@@ -455,7 +455,7 @@ check_hmc_diagnostics <- function(draws_df, max_treedepth) {
   if (n_divergent > 0) {
     message(
       n_divergent, " of ", num_draws, " (", perc_divergent, "%)",
-      " iterations ended with a divergence.\n",
+      " sampling iterations ended with a divergence.\n",
       "These divergent transitions indicate that HMC is not fully able to ",
       "explore the posterior distribution.\n",
       "Try increasing adapt_delta closer to 1.\n",
