@@ -43,7 +43,13 @@ double r_function(const T& v,
                   std::ostream* pstream__) {
   double lp = 0;
   auto v_cons = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
-  return Rcpp::as<double>(internal::ll_fun(v_cons)) + lp;
+  SEXP res = internal::ll_fun(v_cons);
+  // If the result has a "message" attribute, it indicates an error in the user function
+  if (Rcpp::RObject(res).hasAttribute("message")) {
+    std::string msg = Rcpp::as<std::string>(Rcpp::RObject(res).attr("message"));
+    throw std::domain_error("Error in user-defined function: " + msg);
+  }
+  return Rcpp::as<double>(res) + lp;
 }
 
 template <bool jacobian__, typename T, stan::require_st_var<T>* = nullptr>
@@ -69,7 +75,13 @@ stan::math::var r_function(const T& v,
     rtn = funwrap(v.val());
   } else {
     arena_v = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
-    arena_grad = Rcpp::as<Eigen::VectorXd>(internal::grad_fun(arena_v.val()));
+    SEXP res = internal::grad_fun(arena_v.val());
+    // If the result has a "message" attribute, it indicates an error in the user function
+    if (Rcpp::RObject(res).hasAttribute("message")) {
+      std::string msg = Rcpp::as<std::string>(Rcpp::RObject(res).attr("message"));
+      throw std::domain_error("Error in user-defined gradient function: " + msg);
+    }
+    arena_grad = Rcpp::as<Eigen::VectorXd>(res);
     rtn = Rcpp::as<double>(internal::ll_fun(arena_v.val()));
   }
   return make_callback_var(

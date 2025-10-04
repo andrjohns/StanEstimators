@@ -100,7 +100,16 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
          call. = FALSE)
   }
 
-  fn1 <- function(v) { do.call(fn, c(list(v), extra_args_list)) }
+  fn1 <- function(v) {
+    # Catch errors in user function and return -Inf with message as attribute
+    tryCatch({
+      do.call(fn, c(list(v), extra_args_list))
+    }, error = function(e) {
+      res <- -Inf
+      attr(res, "message") <- e$message
+      res
+    })
+  }
   for (chain in seq_len(num_chains)) {
     validate_function(fn1, inits[[chain]], extra_args_list, grad = FALSE)
   }
@@ -121,7 +130,16 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     fun_packages <- c(gp$packages, packages)
   }
   if (!is.null(grad_fun)) {
-    gr1 <- function(v) { do.call(grad_fun, c(list(v), extra_args_list)) }
+    gr1 <- function(v) {
+      # Catch errors in user function and return -Inf with message as attribute
+      tryCatch({
+        do.call(grad_fun, c(list(v), extra_args_list))
+      }, error = function(e) {
+        res <- rep(-Inf, length(v))
+        attr(res, "message") <- e$message
+        res
+      })
+    }
     for (chain in seq_len(num_chains)) {
       validate_function(gr1, inits[[chain]], extra_args_list, grad = TRUE)
     }
