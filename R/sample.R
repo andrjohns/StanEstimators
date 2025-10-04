@@ -263,7 +263,7 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
   diagnostics <- posterior::subset_draws(draws, variable = diagnostic_vars)
-  if (save_warmup) {
+  if (isTRUE(save_warmup)) {
     diagnostics <- diagnostics[diagnostics$.iteration > num_warmup, ]
   }
   if (check_diagnostics) {
