@@ -71,7 +71,7 @@ y <- rnorm(500, 10, 2)
 
 As with other estimation routines provided in R, we need to specify this as a
 function which takes a vector of parameters as its first argument and returns a
-single scalar value (the log-likelihood), as well as initial values for the
+single scalar value (the unnormalized target log density), as well as initial values for the
 parameters:
 
 ```{r}

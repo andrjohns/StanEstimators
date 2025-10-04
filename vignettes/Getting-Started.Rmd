@@ -71,7 +71,7 @@ sigma <- c(15, 10, 16, 11,  9, 11, 10, 18)
 
 ### Specifying the Function
 
-To specify this as a function compatible with `StanEstimators`, we need to define a function that takes in a vector of parameters as the first argument and returns a single value (generally the joint log-likelihood):
+To specify this as a function compatible with `StanEstimators`, we need to define a function that takes in a vector of parameters as the first argument and returns a single value (generally the unnormalized target log density):
 
 ```{r}
 eight_schools_lpdf <- function(v, y, sigma) {
@@ -127,7 +127,7 @@ summary(fit)
 
 ## Model Checking and Comparison - Leave-One-Out Cross-Validation (LOO-CV)
 
-`StanEstimators` also supports the use of the [loo](https://mc-stan.org/loo/articles/loo2-example.html) package for model checking and comparison. To use this, we need to specify a function which returns the pointwise log-likelihood for each observation in the data - as our original function returns the sum of all log-likelihoods.
+`StanEstimators` also supports the use of the [loo](https://mc-stan.org/loo/articles/loo2-example.html) package for model checking and comparison. To use this, we need to specify a function which returns the pointwise unnormalized target log density for each observation in the data - as our original function returns the sum over all observations.
 
 For our model, we can define this function as:
 
@@ -141,7 +141,7 @@ eight_schools_pointwise <- function(v, y, sigma) {
   # https://mc-stan.org/docs/stan-users-guide/reparameterization.html
   theta <- mu + tau * eta
 
-  # Only the log-likelihood for the outcome variable
+  # Only the density for the outcome variable
   dnorm(y, mean = theta, sd = sigma, log = TRUE)
 }
 ```
