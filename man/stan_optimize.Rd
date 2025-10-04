@@ -37,7 +37,11 @@ stan_optimize(
 \arguments{
 \item{fn}{Function to estimate parameters for}
 
-\item{par_inits}{Initial values for parameters
+\item{par_inits}{Initial values for parameters. This can either be a numeric vector
+of initial values (which will be used for all chains), a list of numeric vectors (of length
+equal to the number of chains), a function taking a single argument (the chain ID) and
+returning a numeric vector of initial values, or NULL (in which case Stan will
+generate initial values automatically).
 (must be specified if \code{n_pars} is NULL)}
 
 \item{n_pars}{Number of parameters to estimate

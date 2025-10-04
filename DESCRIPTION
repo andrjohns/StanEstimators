@@ -1,6 +1,6 @@
 Package: StanEstimators
 Title: Estimate Parameters for Arbitrary R Functions using 'Stan'
-Version: 0.2.0
+Version: 0.2.0.9000
 Authors@R: c(
   person(given = c("Andrew", "R."), family = "Johnson", role = c("aut", "cre"),
           email = "andrew.johnson@arjohnsonau.com",
@@ -20,7 +20,7 @@ Description: Allows for the estimation of parameters for 'R' functions using the
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 NeedsCompilation: yes
 UseLTO: true
 SystemRequirements: GNU make

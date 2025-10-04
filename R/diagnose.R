@@ -3,7 +3,11 @@
 #' Check gradient estimation using Stan's 'Diagnose' method
 #'
 #' @param fn Function to estimate parameters for
-#' @param par_inits Initial values for parameters
+#' @param par_inits Initial values for parameters. This can either be a numeric vector
+#'  of initial values (which will be used for all chains), a list of numeric vectors (of length
+#'  equal to the number of chains), a function taking a single argument (the chain ID) and
+#'  returning a numeric vector of initial values, or NULL (in which case Stan will
+#'  generate initial values automatically).
 #'  (must be specified if `n_pars` is NULL)
 #' @param n_pars Number of parameters to estimate
 #'  (must be specified if `par_inits` is NULL)
@@ -51,7 +55,7 @@ stan_diagnose <- function(fn, par_inits = NULL, n_pars = NULL, additional_args =
   args <- build_stan_call(method = "diagnose",
                           method_args = "",
                           data_file = inputs$data_filepath,
-                          init = inputs$init_filepath,
+                          init = inputs$init_filepath[1],
                           seed = seed,
                           output_args = output)
   call_stan(args, inputs, quiet)

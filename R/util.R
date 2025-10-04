@@ -19,9 +19,11 @@ inits_to_json <- function(inits) {
 }
 
 write_inits <- function(inits, init_filepath) {
-  dat_string <- inits_to_json(inits)
-  writeLines(dat_string, con = init_filepath)
-  dat_string
+  lapply(seq_len(length(inits)), function(i) {
+    dat_string <- inits_to_json(inits[[i]])
+    writeLines(dat_string, con = init_filepath[[i]])
+    dat_string
+  })
 }
 
 prepare_and_write_json <- function(what, input_list) {
@@ -44,10 +46,9 @@ with_env <- function(f, e=parent.frame()) {
   f
 }
 
-prepare_function <- function(fn, inits, extra_args_list, grad = FALSE) {
-  fn_wrapper <- function(v) { do.call(fn, c(list(v), extra_args_list)) }
+validate_function <- function(fn, inits, extra_args_list, grad = FALSE) {
   fn_type <- ifelse(isTRUE(grad), "Gradient", "Log-Likelihood")
-  test_fn <- try(invisible(fn_wrapper(inits)), silent = TRUE)
+  test_fn <- try(invisible(fn(inits)), silent = TRUE)
   correct_length <- ifelse(isTRUE(grad), length(inits), 1)
 
   if (inherits(test_fn, "try-error")) {
@@ -60,12 +61,12 @@ prepare_function <- function(fn, inits, extra_args_list, grad = FALSE) {
     stop(fn_type, " function should have return of length ", correct_length,
           ", but return was length ", length(test_fn), "instead!", call. = FALSE)
   } else {
-    fn_wrapper
+    invisible(NULL)
   }
 }
 
 prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, lower, upper,
-                            globals, packages, eval_standalone, output_dir, output_basename) {
+                            globals, packages, eval_standalone, output_dir, output_basename, num_chains = 1) {
   user_inits <- TRUE
   if (is.null(par_inits)) {
     if (is.null(n_pars)) {
@@ -83,7 +84,26 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     user_inits <- FALSE
   }
 
-  fn1 <- prepare_function(fn, par_inits, extra_args_list, grad = FALSE)
+  inits <- NULL
+  if (is.list(par_inits)) {
+    if (length(par_inits) != num_chains) {
+      stop("If par_inits is a list, it must have length equal to num_chains",
+           call. = FALSE)
+    }
+    inits <- par_inits
+  } else if (is.numeric(par_inits)) {
+    inits <- lapply(seq_len(num_chains), function(i) { par_inits })
+  } else if (is.function(par_inits)) {
+    inits <- lapply(seq_len(num_chains), function(i) { par_inits(i) })
+  } else {
+    stop("par_inits must be NULL, a numeric vector, a list of numeric vectors, or a function",
+         call. = FALSE)
+  }
+
+  fn1 <- function(v) { do.call(fn, c(list(v), extra_args_list)) }
+  for (chain in seq_len(num_chains)) {
+    validate_function(fn1, inits[[chain]], extra_args_list, grad = FALSE)
+  }
   fun_globals <- NULL
   fun_packages <- NULL
   if (isTRUE(eval_standalone)) {
@@ -101,7 +121,10 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     fun_packages <- c(gp$packages, packages)
   }
   if (!is.null(grad_fun)) {
-    gr1 <- prepare_function(grad_fun, par_inits, extra_args_list, grad = TRUE)
+    gr1 <- function(v) { do.call(grad_fun, c(list(v), extra_args_list)) }
+    for (chain in seq_len(num_chains)) {
+      validate_function(gr1, inits[[chain]], extra_args_list, grad = TRUE)
+    }
     if (isTRUE(eval_standalone)) {
       gr_gp <- future::getGlobalsAndPackages(grad_fun, globals = globals)
       fun_globals <- c(fun_globals, gr_gp$globals)
@@ -111,13 +134,13 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     gr1 <- fn1
   }
 
-  if ((length(par_inits) > 1) && (length(lower) == 1)) {
-    lower <- rep(lower, length(par_inits))
+  if ((length(inits[[1]]) > 1) && (length(lower) == 1)) {
+    lower <- rep(lower, length(inits[[1]]))
   }
-  if ((length(par_inits) > 1) && (length(upper) == 1)) {
-    upper <- rep(upper, length(par_inits))
+  if ((length(inits[[1]]) > 1) && (length(upper) == 1)) {
+    upper <- rep(upper, length(inits[[1]]))
   }
-  bounds_types <- sapply(seq_len(length(par_inits)), function(i) {
+  bounds_types <- sapply(seq_len(length(inits[[1]])), function(i) {
     if (lower[i] != -Inf && upper[i] != Inf) {
       3
     } else if (lower[i] != -Inf) {
@@ -139,7 +162,9 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
 
   init_filepath <- NULL
   if (user_inits) {
-    init_filepath <- tempfile(fileext = ".json", tmpdir = output_dir)
+    init_filepath <- sapply(seq_len(num_chains), function(i) {
+      tempfile(fileext = ".json", tmpdir = output_dir)
+    })
   }
 
   structured <- list(
@@ -148,9 +173,9 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     globals = fun_globals,
     packages = fun_packages,
     eval_standalone = eval_standalone,
-    inits = par_inits,
+    inits = inits,
     finite_diff = as.integer(is.null(grad_fun)),
-    Npars = length(par_inits),
+    Npars = length(inits[[1]]),
     lower_bounds = lower,
     upper_bounds = upper,
     bounds_types = bounds_types,

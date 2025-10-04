@@ -18,7 +18,11 @@ setMethod("summary", "StanPathfinder", function(object, ...) {
 #' Estimate parameters using Stan's pathfinder algorithm
 #'
 #' @param fn Function to estimate parameters for
-#' @param par_inits Initial values for parameters
+#' @param par_inits Initial values for parameters. This can either be a numeric vector
+#'  of initial values (which will be used for all chains), a list of numeric vectors (of length
+#'  equal to the number of chains), a function taking a single argument (the chain ID) and
+#'  returning a numeric vector of initial values, or NULL (in which case Stan will
+#'  generate initial values automatically).
 #'  (must be specified if `n_pars` is NULL)
 #' @param n_pars Number of parameters to estimate
 #'  (must be specified if `par_inits` is NULL)
@@ -80,7 +84,8 @@ stan_pathfinder <- function(fn, par_inits = NULL, n_pars = NULL, additional_args
                           max_lbfgs_iters = NULL, num_draws = NULL,
                           num_elbo_draws = NULL) {
   inputs <- prepare_inputs(fn, par_inits, n_pars, additional_args, grad_fun, lower, upper,
-                            globals, packages, eval_standalone, output_dir, output_basename)
+                            globals, packages, eval_standalone, output_dir, output_basename,
+                            ifelse(is.null(num_paths), 4, num_paths)) # Default to 4 pathfinders
   method_args <- list(
     init_alpha = init_alpha,
     tol_obj = tol_obj,
@@ -108,7 +113,7 @@ stan_pathfinder <- function(fn, par_inits = NULL, n_pars = NULL, additional_args
   args <- build_stan_call(method = "pathfinder",
                           method_args = method_args,
                           data_file = inputs$data_filepath,
-                          init = inputs$init_filepath,
+                          init = paste0(inputs$init_filepath, collapse = ","), # Pass all inits for multiple pathfinders
                           seed = seed,
                           output_args = output)
 

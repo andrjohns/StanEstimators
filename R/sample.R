@@ -18,7 +18,11 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' Estimate parameters using Stan's sampling algorithms
 #'
 #' @param fn Function to estimate parameters for
-#' @param par_inits Initial values for parameters
+#' @param par_inits Initial values for parameters. This can either be a numeric vector
+#'  of initial values (which will be used for all chains), a list of numeric vectors (of length
+#'  equal to the number of chains), a function taking a single argument (the chain ID) and
+#'  returning a numeric vector of initial values, or NULL (in which case Stan will
+#'  generate initial values automatically).
 #'  (must be specified if `n_pars` is NULL)
 #' @param n_pars Number of parameters to estimate
 #'  (must be specified if `par_inits` is NULL)
@@ -121,7 +125,9 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
          call. = FALSE)
   }
   inputs <- prepare_inputs(fn, par_inits, n_pars, additional_args, grad_fun, lower, upper,
-                            globals, packages, eval_standalone, output_dir, output_basename)
+                            globals, packages, eval_standalone, output_dir, output_basename,
+                            num_chains)
+
   method_args <- list(
     algorithm = algorithm,
     algorithm_args = list(
@@ -161,7 +167,7 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
       args <- build_stan_call(method = "sample",
                               method_args = method_args,
                               data_file = inputs$data_filepath,
-                              init = inputs$init_filepath,
+                              init = inputs$init_filepath[chain],
                               seed = seed,
                               output_args = output,
                               id = chain)
@@ -225,7 +231,7 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
     args <- build_stan_call(method = "sample",
                             method_args = method_args,
                             data_file = inputs$data_filepath,
-                            init = inputs$init_filepath,
+                            init = paste0(inputs$init_filepath, collapse = ","),
                             seed = seed,
                             output_args = output)
     call_stan_impl(args, inputs)
