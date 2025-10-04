@@ -4,3 +4,6 @@
 ^README\.Rmd$
 .vscode
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

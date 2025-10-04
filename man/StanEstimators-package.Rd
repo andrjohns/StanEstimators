@@ -8,6 +8,13 @@
 \description{
 ToDO
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://andrjohns.github.io/StanEstimators/}
+}
+
+}
 \author{
 \strong{Maintainer}: Andrew R. Johnson \email{andrew.johnson@arjohnsonau.com} (\href{https://orcid.org/0000-0001-7000-8065}{ORCID})
 
