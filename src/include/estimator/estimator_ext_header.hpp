@@ -44,9 +44,10 @@ double r_function(const T& v,
   double lp = 0;
   auto v_cons = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
   SEXP res = internal::ll_fun(v_cons);
+  SEXP msgSEXP = Rf_getAttrib(res, Rf_install("message"));
   // If the result has a "message" attribute, it indicates an error in the user function
-  if (Rcpp::RObject(res).hasAttribute("message")) {
-    std::string msg = Rcpp::as<std::string>(Rcpp::RObject(res).attr("message"));
+  if (msgSEXP != R_NilValue) {
+    std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
     throw std::domain_error("Error in user-defined function: " + msg);
   }
   return Rcpp::as<double>(res) + lp;
@@ -76,9 +77,10 @@ stan::math::var r_function(const T& v,
   } else {
     arena_v = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
     SEXP res = internal::grad_fun(arena_v.val());
+    SEXP msgSEXP = Rf_getAttrib(res, Rf_install("message"));
     // If the result has a "message" attribute, it indicates an error in the user function
-    if (Rcpp::RObject(res).hasAttribute("message")) {
-      std::string msg = Rcpp::as<std::string>(Rcpp::RObject(res).attr("message"));
+    if (msgSEXP != R_NilValue) {
+      std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
       throw std::domain_error("Error in user-defined gradient function: " + msg);
     }
     arena_grad = Rcpp::as<Eigen::VectorXd>(res);
