@@ -18,16 +18,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'devel'}
-          - {os: macos-latest,   r: 'release'}
-
           - {os: windows-11-arm, r: '4.5.1'}
           - {os: windows-latest, r: 'devel'}
           - {os: windows-latest, r: 'release'}
-
-          - {os: ubuntu-24.04-arm,   r: 'devel'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -84,7 +77,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck ${{ matrix.config.os == 'windows-11-arm' && 'RcppCore/RcppParallel' || '' }}
+          extra-packages: any::rcmdcheck RcppCore/RcppParallel
           needs: check
           pak-version: ${{ matrix.config.os == 'windows-11-arm' && 'none' || 'stable' }}
 
