@@ -59,6 +59,8 @@ jobs:
       - name: Install package dependencies
         shell: Rscript {0}
         run: install.packages("RcppParallel", type = "source", repos = "https://cloud.r-project.org")
+        env:
+          ASAN_OPTIONS: "detect_odr_violation=0"
 
       - uses: r-hub/actions/setup-deps@main
         with:
