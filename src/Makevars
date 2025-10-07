@@ -1,11 +1,10 @@
-PKG_CPPFLAGS = -I"include" -D_REENTRANT -DSTAN_THREADS -w
-PKG_CPPFLAGS += -DSTRICT_R_HEADERS -D_HAS_AUTO_PTR_ETC=0 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
+PKG_CPPFLAGS = -I"include" -D_REENTRANT -DSTAN_THREADS -D_HAS_AUTO_PTR_ETC=0 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
 PKG_CXXFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | tail -n 1)
-
 PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "cat(paste0('-L', shQuote(RcppParallel::tbbLibraryPath())))" | tail -n 1)
 TBB_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "cat(basename(RcppParallel::tbbLibraryPath('tbb')))" | sed -E 's/^(lib)?(tbb([0-9]*)?)([.].*)?$$/\2/')
-PKG_LIBS += -l$(TBB_NAME)
 TBB_MALLOC_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "cat(basename(RcppParallel::tbbLibraryPath('tbbmalloc')))" | sed -E 's/^(lib)?(tbbmalloc)([.].*)?$$/\2/')
+
+PKG_LIBS += -l$(TBB_NAME)
 ifneq ($(TBB_MALLOC_NAME),)
   PKG_LIBS += -l$(TBB_MALLOC_NAME)
 endif
