@@ -59,6 +59,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           job-config: ${{ toJson(matrix.config) }}
+
+      - name: Install package dependencies
+        if: matrix.config.label == 'rchk'
+        shell: Rscript {0}
+        run: install.packages("RcppParallel", type = "source", repos = "https://cloud.r-project.org")
+
       - uses: r-hub/actions/run-check@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
