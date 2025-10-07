@@ -61,7 +61,6 @@ jobs:
           job-config: ${{ toJson(matrix.config) }}
 
       - name: Install package dependencies
-        if: matrix.config.label == 'rchk'
         shell: Rscript {0}
         run: install.packages("RcppParallel", type = "source", repos = "https://cloud.r-project.org")
 
