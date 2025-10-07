@@ -55,14 +55,15 @@ jobs:
         if: matrix.config.label == 'gcc15'
         run: |
           dnf update -y && dnf install -y awk
-      - uses: r-hub/actions/setup-deps@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          job-config: ${{ toJson(matrix.config) }}
 
       - name: Install package dependencies
         shell: Rscript {0}
         run: install.packages("RcppParallel", type = "source", repos = "https://cloud.r-project.org")
+
+      - uses: r-hub/actions/setup-deps@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          job-config: ${{ toJson(matrix.config) }}
 
       - uses: r-hub/actions/run-check@main
         with:
