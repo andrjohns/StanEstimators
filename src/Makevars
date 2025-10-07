@@ -1,4 +1,5 @@
 PKG_CPPFLAGS = -I"include" -D_REENTRANT -DSTAN_THREADS
 PKG_CPPFLAGS += -DSTRICT_R_HEADERS -D_HAS_AUTO_PTR_ETC=0 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
 PKG_CXXFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | tail -n 1)
-PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()" | tail -n 1)
+PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "cat(paste0('-L', shQuote(RcppParallel:::TBB_LIB), ' -l', RcppParallel:::TBB_NAME))" | tail -n 1)
+PKG_LIBS += $(shell "${R_HOME}/bin/Rscript" -e "cat(ifelse(nzchar(RcppParallel:::TBB_MALLOC_NAME), paste0('-l', RcppParallel:::TBB_MALLOC_NAME), ''))" | tail -n 1)
