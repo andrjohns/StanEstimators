@@ -3,7 +3,7 @@ PKG_CXXFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | 
 PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "cat(paste0('-L', shQuote(RcppParallel::tbbLibraryPath())))" | tail -n 1)
 
 TBB_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "cat(basename(RcppParallel::tbbLibraryPath('tbb')))" | sed -E 's/^(lib)?(tbb([0-9]*)?)([.].*)?$$/\2/')
-TBB_MALLOC_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "cat(basename(RcppParallel::tbbLibraryPath('tbbmalloc')))" | sed -E 's/^(lib)?(tbbmalloc)([.].*)?$$/\2/')
+TBB_MALLOC_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "try(cat(basename(RcppParallel::tbbLibraryPath('tbbmalloc'))), silent = TRUE)" | sed -E 's/^(lib)?(tbbmalloc)([.].*)?$$/\2/')
 
 PKG_LIBS += -l$(TBB_NAME)
 ifneq ($(TBB_MALLOC_NAME),)
