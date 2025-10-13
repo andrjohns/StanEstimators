@@ -99,6 +99,36 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     stop("par_inits must be NULL, a numeric vector, a list of numeric vectors, or a function",
          call. = FALSE)
   }
+  
+  if (isTRUE(grad_fun == "RTMB")) {
+    rtmb_withr_installed <- sapply(c("withr", "RTMB"), function(pkg) {
+      requireNamespace(pkg, quietly = TRUE)
+    })
+    
+    if (!all(rtmb_withr_installed)) {
+      stop("To use automatic differentiation of R functions ",
+           "you must install the `withr` and `RTMB` packages.",
+           call. = FALSE)
+    }
+    
+    user_fn <- fn
+    user_args <- extra_args_list
+    
+    obj <- withr::with_package(
+      "RTMB",
+      RTMB::MakeADFun(
+        func = function(v) { do.call(user_fn, append(user_args, v)) },
+        parameters = list(v = inits[[1]]),
+        silent = TRUE
+      )
+    )
+    fn <- obj$fn
+    grad_fun <- obj$gr
+    extra_args_list <- list()
+    packages <- c(packages, "RTMB")
+  }
+
+  
 
   fn1 <- function(v) {
     # Catch errors in user function and return -Inf with message as attribute

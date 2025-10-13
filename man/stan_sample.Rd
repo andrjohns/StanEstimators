@@ -66,7 +66,12 @@ or \code{"fixed_param"}.}
 
 \item{engine}{(string) The \code{HMC} engine to use, one of \code{"nuts"} or \code{"static"}}
 
-\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+\item{grad_fun}{Either:
+\itemize{
+\item \code{NULL} for finite-differences (default)
+\item A function for calculating gradients w.r.t. each parameter
+\item "RTMB" to use the RTMB package for automatic differentiation
+}}
 
 \item{lower}{Lower bound constraint(s) for parameters}
 

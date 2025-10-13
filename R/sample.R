@@ -30,7 +30,10 @@ setMethod("summary", "StanMCMC", function(object, ...) {
 #' @param algorithm (string) The sampling algorithm. One of `"hmc"`
 #'    or `"fixed_param"`.
 #' @param engine (string) The `HMC` engine to use, one of `"nuts"` or `"static"`
-#' @param grad_fun Function calculating gradients w.r.t. each parameter
+#' @param grad_fun Either:
+#'   - `NULL` for finite-differences (default)
+#'   - A function for calculating gradients w.r.t. each parameter
+#'   - "RTMB" to use the RTMB package for automatic differentiation
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
 #' @param eval_standalone (logical) Whether to evaluate the function in a

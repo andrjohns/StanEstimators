@@ -29,7 +29,10 @@ setMethod("summary", "StanOptimize", function(object, ...) {
 #' @param additional_args List of additional arguments to pass to the function
 #' @param algorithm (string) The optimization algorithm. One of `"lbfgs"`,
 #'   `"bfgs"`, or `"newton"`.
-#' @param grad_fun Function calculating gradients w.r.t. each parameter
+#' @param grad_fun Either:
+#'   - `NULL` for finite-differences (default)
+#'   - A function for calculating gradients w.r.t. each parameter
+#'   - "RTMB" to use the RTMB package for automatic differentiation
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
 #' @param eval_standalone (logical) Whether to evaluate the function in a

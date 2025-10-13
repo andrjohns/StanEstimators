@@ -27,7 +27,10 @@ setMethod("summary", "StanLaplace", function(object, ...) {
 #' @param n_pars Number of parameters to estimate
 #'  (must be specified if `par_inits` is NULL)
 #' @param additional_args List of additional arguments to pass to the function
-#' @param grad_fun Function calculating gradients w.r.t. each parameter
+#' @param grad_fun Either:
+#'   - `NULL` for finite-differences (default)
+#'   - A function for calculating gradients w.r.t. each parameter
+#'   - "RTMB" to use the RTMB package for automatic differentiation
 #' @param lower Lower bound constraint(s) for parameters
 #' @param upper Upper bound constraint(s) for parameters
 #' @param eval_standalone (logical) Whether to evaluate the function in a
