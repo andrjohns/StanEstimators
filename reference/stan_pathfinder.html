@@ -101,7 +101,10 @@ generate initial values automatically).
 
 
 <dt id="arg-grad-fun">grad_fun<a class="anchor" aria-label="anchor" href="#arg-grad-fun"></a></dt>
-<dd><p>Function calculating gradients w.r.t. each parameter</p></dd>
+<dd><p>Either:</p><ul><li><p><code>NULL</code> for finite-differences (default)</p></li>
+<li><p>A function for calculating gradients w.r.t. each parameter</p></li>
+<li><p>"RTMB" to use the RTMB package for automatic differentiation</p></li>
+</ul></dd>
 
 
 <dt id="arg-lower">lower<a class="anchor" aria-label="anchor" href="#arg-lower"></a></dt>
