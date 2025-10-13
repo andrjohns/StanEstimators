@@ -141,9 +141,9 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     grad_fun <- obj$gr
     extra_args_list <- list()
     if (isTRUE(eval_standalone)) {
-      packages <- unique(c(packages, "RTMB"))
-      user_fn_globals <- names(future::getGlobalsAndPackages(user_fn)$globals)
-      globals  <- unique(c(globals, user_fn_globals))
+      user_gp <- future::getGlobalsAndPackages(user_fn)
+      packages <- unique(c("RTMB", packages, user_gp$packages))
+      globals  <- unique(c(globals, names(user_gp$globals)))
     }
   }
 
