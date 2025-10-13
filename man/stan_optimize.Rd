@@ -52,7 +52,12 @@ generate initial values automatically).
 \item{algorithm}{(string) The optimization algorithm. One of \code{"lbfgs"},
 \code{"bfgs"}, or \code{"newton"}.}
 
-\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+\item{grad_fun}{Either:
+\itemize{
+\item \code{NULL} for finite-differences (default)
+\item A function for calculating gradients w.r.t. each parameter
+\item "RTMB" to use the RTMB package for automatic differentiation
+}}
 
 \item{lower}{Lower bound constraint(s) for parameters}
 

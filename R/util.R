@@ -100,6 +100,53 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
          call. = FALSE)
   }
 
+  if (isTRUE(eval_standalone)) {
+    callr_future_installed <- sapply(c("callr", "future"), function(pkg) {
+      requireNamespace(pkg, quietly = TRUE)
+    })
+
+    if (!all(callr_future_installed)) {
+      stop("To use `eval_standalone = TRUE` or `parallel_chains > 1`, ",
+          "you must install the `callr` and `future` packages.",
+          call. = FALSE)
+    }
+  }
+
+  if (is.character(grad_fun)) {
+    if (grad_fun != "RTMB") {
+      stop("If grad_fun is a character string, it must be 'RTMB'", call. = FALSE)
+    }
+    rtmb_withr_installed <- sapply(c("withr", "RTMB", "future"), function(pkg) {
+      requireNamespace(pkg, quietly = TRUE)
+    })
+
+    if (!all(rtmb_withr_installed)) {
+      stop("To use automatic differentiation of R functions ",
+           "you must install the `withr` and `RTMB` packages.",
+           call. = FALSE)
+    }
+
+    user_fn <- fn
+    user_args <- extra_args_list
+
+    obj <- withr::with_package(
+      "RTMB",
+      RTMB::MakeADFun(
+        func = function(v) { do.call(user_fn, append(user_args, v)) },
+        parameters = list(v = inits[[1]]),
+        silent = TRUE
+      )
+    )
+    fn <- obj$fn
+    grad_fun <- obj$gr
+    extra_args_list <- list()
+    if (isTRUE(eval_standalone)) {
+      user_gp <- future::getGlobalsAndPackages(user_fn)
+      packages <- unique(c("RTMB", packages, user_gp$packages))
+      globals  <- unique(c(globals, names(user_gp$globals)))
+    }
+  }
+
   fn1 <- function(v) {
     # Catch errors in user function and return -Inf with message as attribute
     tryCatch({
@@ -116,15 +163,6 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
   fun_globals <- NULL
   fun_packages <- NULL
   if (isTRUE(eval_standalone)) {
-    callr_future_installed <- sapply(c("callr", "future"), function(pkg) {
-      requireNamespace(pkg, quietly = TRUE)
-    })
-
-    if (!all(callr_future_installed)) {
-      stop("To use `eval_standalone = TRUE` or `parallel_chains > 1`, ",
-          "you must install the `callr` and `future` packages.",
-          call. = FALSE)
-    }
     gp <- future::getGlobalsAndPackages(fn, globals = globals)
     fun_globals <- gp$globals
     fun_packages <- c(gp$packages, packages)
@@ -210,7 +248,7 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
   structured$data_string <- data_json_string
   structured$init_string <- init_json_string
   structured
-}
+    }
 
 cmdstan_syntax_tree <- list(
   "sample" = list(

@@ -42,7 +42,12 @@ generate initial values automatically).
 
 \item{additional_args}{List of additional arguments to pass to the function}
 
-\item{grad_fun}{Function calculating gradients w.r.t. each parameter}
+\item{grad_fun}{Either:
+\itemize{
+\item \code{NULL} for finite-differences (default)
+\item A function for calculating gradients w.r.t. each parameter
+\item "RTMB" to use the RTMB package for automatic differentiation
+}}
 
 \item{lower}{Lower bound constraint(s) for parameters}
 
