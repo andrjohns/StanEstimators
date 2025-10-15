@@ -132,7 +132,7 @@ prepare_inputs <- function(fn, par_inits, n_pars, extra_args_list, grad_fun, low
     obj <- withr::with_package(
       "RTMB",
       RTMB::MakeADFun(
-        func = function(v) { do.call(user_fn, append(user_args, v)) },
+        func = function(v) { do.call(user_fn, c(list(v$v), user_args)) },
         parameters = list(v = inits[[1]]),
         silent = TRUE
       )

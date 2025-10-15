@@ -7,8 +7,8 @@ inits <- c(0, 5)
 
 
 test_that("RTMB with explicit data - serial", {
-  loglik_fun <- function(v, x) {
-    sum(dnorm(x, v[1], v[2], log = TRUE))
+  loglik_fun <- function(pars, x) {
+    sum(dnorm(x, pars[1], pars[2], log = TRUE))
   }
 
   samp_fd <- stan_sample(loglik_fun, n_pars = 2, grad_fun = "RTMB",
@@ -31,8 +31,8 @@ test_that("RTMB with explicit data - serial", {
 })
 
 test_that("RTMB with explicit data - parallel", {
-  loglik_fun <- function(v, x) {
-    sum(dnorm(x, v[1], v[2], log = TRUE))
+  loglik_fun <- function(pars, x) {
+    sum(dnorm(x, pars[1], pars[2], log = TRUE))
   }
 
   samp_fd <- stan_sample(loglik_fun, n_pars = 2, grad_fun = "RTMB",
@@ -57,8 +57,8 @@ test_that("RTMB with explicit data - parallel", {
 
 test_that("RTMB with captured data - serial", {
   # Check with implicit additional args
-  loglik_fun <- function(v) {
-    sum(dnorm(y, v[1], v[2], log = TRUE))
+  loglik_fun <- function(pars) {
+    sum(dnorm(y, pars[1], pars[2], log = TRUE))
   }
 
   samp_fd <- stan_sample(loglik_fun, n_pars = 2, grad_fun = "RTMB",
@@ -83,8 +83,8 @@ test_that("RTMB with captured data - serial", {
 
 test_that("RTMB with captured data - parallel", {
   # Check with implicit additional args
-  loglik_fun <- function(v) {
-    sum(dnorm(y, v[1], v[2], log = TRUE))
+  loglik_fun <- function(pars) {
+    sum(dnorm(y, pars[1], pars[2], log = TRUE))
   }
 
   samp_fd <- stan_sample(loglik_fun, n_pars = 2, grad_fun = "RTMB",
@@ -109,8 +109,8 @@ test_that("RTMB with captured data - parallel", {
 
 
 test_that("RTMB works with data argument - standalone", {
-  loglik_fun <- function(v, x) {
-    sum(dnorm(x, v[1], v[2], log = TRUE))
+  loglik_fun <- function(pars, x) {
+    sum(dnorm(x, pars[1], pars[2], log = TRUE))
   }
 
   samp_fd <- stan_sample(loglik_fun, n_pars = 2, grad_fun = "RTMB",
