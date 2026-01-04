@@ -503,12 +503,12 @@ match_draws_format <- function(reference_draws, draws) {
   to_draws_format(draws, reference_format)
 }
 
-check_hmc_diagnostics <- function(draws_df, max_treedepth) {
+check_hmc_diagnostics <- function(draws_df, max_treedepth, print=TRUE) {
   num_draws <- nrow(draws_df)
   n_divergent <- sum(draws_df$divergent__)
   perc_divergent <- round(100 * n_divergent / num_draws, 2)
 
-  if (n_divergent > 0) {
+  if (n_divergent > 0 & print) {
     message(
       n_divergent, " of ", num_draws, " (", perc_divergent, "%)",
       " sampling iterations ended with a divergence.\n",
@@ -518,10 +518,10 @@ check_hmc_diagnostics <- function(draws_df, max_treedepth) {
       "If this doesn't remove all divergences, try to reparameterize the model.")
   }
 
-  max_treedepths <- sum(draws_df$treedepth__ > max_treedepth)
+  max_treedepths <- sum(draws_df$treedepth__ >= max_treedepth)
   perc_treedepth <- round(100 * max_treedepths / num_draws, 2)
 
-  if (max_treedepths > 0) {
+  if (max_treedepths > 0 & print) {
     message(
       max_treedepths, " of ", num_draws, " (", perc_treedepth, "%)",
       " transitions hit the maximum treedepth limit of ", max_treedepth,
@@ -538,7 +538,7 @@ check_hmc_diagnostics <- function(draws_df, max_treedepth) {
 
   num_below_threshold <- sum(ebfmi_thresholds_by_chain)
 
-  if (num_below_threshold > 0) {
+  if (num_below_threshold > 0 & print) {
     message(
       num_below_threshold, " of ", length(ebfmi_thresholds_by_chain),
       " chains had an E-BFMI below the nominal threshold of 0.3 which ",
@@ -546,5 +546,8 @@ check_hmc_diagnostics <- function(draws_df, max_treedepth) {
       "If possible, try to reparameterize the model."
     )
   }
-  invisible(NULL)
+  out <- data.frame(perc_divergent=perc_divergent,
+                    perc_treedepth=perc_treedepth,
+                    num_below_threshold=num_below_threshold)
+  invisible(out)
 }
