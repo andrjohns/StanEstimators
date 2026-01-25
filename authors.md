@@ -18,13 +18,13 @@
 ## Citation
 
 Johnson AR (2026). *StanEstimators: Estimate Parameters for Arbitrary R
-Functions using 'Stan'*. R package version 0.2.0.9000,
+Functions using 'Stan'*. R package version 0.3.0,
 <https://andrjohns.github.io/StanEstimators/>.
 
     @Manual{,
       title = {StanEstimators: Estimate Parameters for Arbitrary R Functions using 'Stan'},
       author = {Andrew R. Johnson},
       year = {2026},
-      note = {R package version 0.2.0.9000},
+      note = {R package version 0.3.0},
       url = {https://andrjohns.github.io/StanEstimators/},
     }
