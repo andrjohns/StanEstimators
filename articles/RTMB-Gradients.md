@@ -109,8 +109,8 @@ knitr::kable(timing_results_pois, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        10.12 |    1.00 |
-| elapsed | RTMB               |         2.28 |    4.45 |
+|         | Finite Differences |        10.05 |     1.0 |
+| elapsed | RTMB               |         2.39 |     4.2 |
 
 Performance comparison for Poisson regression
 
@@ -186,17 +186,6 @@ timing_logit_rtmb <- system.time({
 })
 ```
 
-### Using stan_optimize
-
-RTMB also works with other Stan methods. For example, we can find the
-maximum likelihood estimate using `stan_optimize`:
-
-``` r
-fit_logit_mle <- stan_optimize(logistic_loglik, inits_logit,
-                               grad_fun = "RTMB",
-                               additional_args = list(y = y_binom, X = X_logit))
-```
-
 ### Results
 
 ``` r
@@ -211,8 +200,8 @@ knitr::kable(timing_results_logit, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |         5.37 |    1.00 |
-| elapsed | RTMB               |         0.97 |    5.54 |
+|         | Finite Differences |         5.40 |     1.0 |
+| elapsed | RTMB               |         0.91 |     5.9 |
 
 Performance comparison for Logistic regression
 
@@ -226,13 +215,6 @@ summary(fit_logit_rtmb)
 #> 3 pars[2]     1.56     1.55  0.206 0.207    1.24      1.89   1.00     740.
 #> 4 pars[3]    -0.915   -0.920 0.176 0.174   -1.20     -0.614  1.00     600.
 #> # ℹ 1 more variable: ess_tail <dbl>
-```
-
-``` r
-# Maximum likelihood estimates
-summary(fit_logit_mle)
-#>        lp__   pars[1]  pars[2]    pars[3]
-#> 1 -150.7363 0.2267225 1.517124 -0.8917454
 ```
 
 ## Gaussian Mixture Model
@@ -269,17 +251,16 @@ y_mix <- ifelse(component == 1,
 ``` r
 mixture_loglik <- function(pars, y) {
   # Transform parameters to satisfy constraints
-  pi <- plogis(pars[1])  # mixing proportion in [0,1]
+  pi <- pars[1]  # mixing proportion in [0,1]
   mu1 <- pars[2]
   mu2 <- pars[3]
-  sigma1 <- exp(pars[4])  # positive
-  sigma2 <- exp(pars[5])  # positive
+  sigma1 <- pars[4]  # positive
+  sigma2 <- pars[5]  # positive
 
   # Log-likelihood for each component
   log_lik1 <- dnorm(y, mu1, sigma1, log = TRUE) + log(pi)
   log_lik2 <- dnorm(y, mu2, sigma2, log = TRUE) + log(1 - pi)
 
-  # Log-sum-exp for numerical stability
   sum(log(exp(log_lik1) + exp(log_lik2)))
 }
 ```
@@ -288,11 +269,13 @@ mixture_loglik <- function(pars, y) {
 
 ``` r
 # Initialize near true values (mixture models can have multimodality)
-inits_mix <- c(qlogis(0.3), -2, 3, log(1), log(1.5))
+inits_mix <- c(0.3, -2, 3, 1, 1.5)
 
 # Finite differences
 timing_mix_fd <- system.time({
   fit_mix_fd <- stan_sample(mixture_loglik, inits_mix,
+                            lower = c(0, -Inf, -Inf, 0, 0),
+                            upper = c(1, Inf, Inf, Inf, Inf),
                             additional_args = list(y = y_mix),
                             num_chains = 1, seed = 1234)
 })
@@ -300,6 +283,8 @@ timing_mix_fd <- system.time({
 # RTMB
 timing_mix_rtmb <- system.time({
   fit_mix_rtmb <- stan_sample(mixture_loglik, inits_mix,
+                              lower = c(0, -Inf, -Inf, 0, 0),
+                              upper = c(1, Inf, Inf, Inf, Inf),
                               grad_fun = "RTMB",
                               additional_args = list(y = y_mix),
                               num_chains = 1, seed = 1234)
@@ -320,22 +305,22 @@ knitr::kable(timing_results_mix, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        14.62 |    1.00 |
-| elapsed | RTMB               |         1.79 |    8.16 |
+|         | Finite Differences |        14.73 |    1.00 |
+| elapsed | RTMB               |         1.75 |    8.43 |
 
 Performance comparison for Gaussian Mixture
 
 ``` r
 summary(fit_mix_rtmb)
 #> # A tibble: 6 × 10
-#>   variable      mean    median     sd    mad        q5      q95  rhat ess_bulk
-#>   <chr>        <dbl>     <dbl>  <dbl>  <dbl>     <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp__     -908.     -908.     1.55   1.38   -911.     -906.    1.00      412.
-#> 2 pars[1]    -0.885    -0.885  0.124  0.120    -1.10     -0.688 1.00      806.
-#> 3 pars[2]    -2.05     -2.06   0.123  0.119    -2.25     -1.85  1.00      804.
-#> 4 pars[3]     2.95      2.96   0.102  0.104     2.78      3.12  1.00      907.
-#> 5 pars[4]     0.0726    0.0704 0.0913 0.0916   -0.0729    0.217 1.000     910.
-#> 6 pars[5]     0.408     0.408  0.0542 0.0545    0.322     0.498 1.000     987.
+#>   variable     mean   median     sd    mad       q5      q95  rhat ess_bulk
+#>   <chr>       <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
+#> 1 lp__     -909.    -909.    1.75   1.60   -913.    -907.     1.00     441.
+#> 2 pars[1]     0.294    0.293 0.0264 0.0248    0.251    0.338  1.01     776.
+#> 3 pars[2]    -2.05    -2.05  0.134  0.123    -2.27    -1.82   1.01     623.
+#> 4 pars[3]     2.95     2.95  0.110  0.110     2.77     3.14   1.00     878.
+#> 5 pars[4]     1.08     1.07  0.105  0.104     0.930    1.26   1.01     917.
+#> 6 pars[5]     1.51     1.51  0.0872 0.0842    1.37     1.66   1.00     725.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -368,8 +353,8 @@ to (-1, 1).
 
 ``` r
 ar1_loglik <- function(pars, y) {
-  phi <- tanh(pars[1])  # constrain to (-1, 1)
-  sigma <- exp(pars[2])  # positive
+  phi <- pars[1]  # constrain to (-1, 1)
+  sigma <-pars[2]  # positive
 
   n <- length(y)
 
@@ -388,11 +373,13 @@ ar1_loglik <- function(pars, y) {
 ### Performance Comparison
 
 ``` r
-inits_ar <- c(atanh(0.5), log(1))
+inits_ar <- c(0.5, 1)
 
 # Finite differences
 timing_ar_fd <- system.time({
   fit_ar_fd <- stan_sample(ar1_loglik, inits_ar,
+                           lower = c(-1, 0),
+                           upper = c(0, Inf),
                            additional_args = list(y = y_ar),
                            num_chains = 1, seed = 1234)
 })
@@ -400,6 +387,8 @@ timing_ar_fd <- system.time({
 # RTMB
 timing_ar_rtmb <- system.time({
   fit_ar_rtmb <- stan_sample(ar1_loglik, inits_ar,
+                             lower = c(-1, 0),
+                             upper = c(0, Inf),
                              grad_fun = "RTMB",
                              additional_args = list(y = y_ar),
                              num_chains = 1, seed = 1234)
@@ -420,19 +409,19 @@ knitr::kable(timing_results_ar, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        27.60 |    1.00 |
-| elapsed | RTMB               |         0.76 |   36.32 |
+|         | Finite Differences |        41.77 |    1.00 |
+| elapsed | RTMB               |         1.03 |   40.51 |
 
 Performance comparison for AR(1) model
 
 ``` r
 summary(fit_ar_rtmb)
 #> # A tibble: 3 × 10
-#>   variable       mean      median     sd    mad       q5      q95  rhat ess_bulk
-#>   <chr>         <dbl>       <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp__     -284.         -2.84e+2 1.02   0.783  -2.86e+2 -2.83e+2 1.01      402.
-#> 2 pars[1]     0.999       9.90e-1 0.117  0.117   8.31e-1  1.20e+0 1.00      894.
-#> 3 pars[2]     0.00147    -1.16e-5 0.0501 0.0505 -7.97e-2  8.58e-2 1.000     890.
+#>   variable       mean    median      sd     mad       q5      q95  rhat ess_bulk
+#>   <chr>         <dbl>     <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
+#> 1 lp__     -373.       -3.73e+2 0.990   0.767   -3.75e+2 -3.72e+2 0.999     453.
+#> 2 pars[1]    -0.00660  -4.55e-3 0.00660 0.00475 -1.97e-2 -3.52e-4 1.01      473.
+#> 3 pars[2]     1.53      1.53e+0 0.0748  0.0743   1.41e+0  1.66e+0 1.00      540.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -450,12 +439,12 @@ fit_ar_path <- stan_pathfinder(ar1_loglik, inits_ar,
 ``` r
 summary(fit_ar_path)
 #> # A tibble: 5 × 10
-#>   variable          mean   median     sd    mad       q5      q95  rhat ess_bulk
-#>   <chr>            <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp_approx__    2.15e+0  2.65e+0 1.51   0.803  -9.44e-1  3.39e+0 1.00    356.  
-#> 2 lp__          -2.84e+2 -2.84e+2 1.01   0.761  -2.87e+2 -2.83e+2 1.00    461.  
-#> 3 path__         2.47e+0  2   e+0 1.11   1.48    1   e+0  4   e+0 2.51      1.22
-#> 4 pars[1]        1.01e+0  9.93e-1 0.120  0.112   8.33e-1  1.22e+0 1.00    377.  
-#> 5 pars[2]        5.57e-4 -9.35e-4 0.0495 0.0474 -7.97e-2  8.21e-2 1.000   781.  
+#>   variable        mean   median     sd    mad       q5      q95  rhat ess_bulk
+#>   <chr>          <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
+#> 1 lp_approx__    3.20     3.50  1.01   0.781     1.18     4.19  1.00    739.  
+#> 2 lp__        -284.    -284.    0.926  0.787  -286.    -283.    1.00    758.  
+#> 3 path__         2.46     2     1.14   1.48      1        4     2.70      1.19
+#> 4 pars[1]        0.750    0.748 0.0467 0.0477    0.674    0.831 1.00    786.  
+#> 5 pars[2]        1.00     1.00  0.0506 0.0493    0.925    1.09  1.000   552.  
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```

@@ -187,14 +187,14 @@ is the expected count.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">10.12</td>
-<td align="right">1.00</td>
+<td align="right">10.05</td>
+<td align="right">1.0</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">2.28</td>
-<td align="right">4.45</td>
+<td align="right">2.39</td>
+<td align="right">4.2</td>
 </tr>
 </tbody>
 </table>
@@ -272,19 +272,9 @@ is the probability of success.</p>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="using-stan_optimize">Using stan_optimize<a class="anchor" aria-label="anchor" href="#using-stan_optimize"></a>
-</h3>
-<p>RTMB also works with other Stan methods. For example, we can find the
-maximum likelihood estimate using <code>stan_optimize</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_logit_mle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_optimize.html">stan_optimize</a></span><span class="op">(</span><span class="va">logistic_loglik</span>, <span class="va">inits_logit</span>,</span>
-<span>                               grad_fun <span class="op">=</span> <span class="st">"RTMB"</span>,</span>
-<span>                               additional_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y_binom</span>, X <span class="op">=</span> <span class="va">X_logit</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
 <h3 id="results-1">Results<a class="anchor" aria-label="anchor" href="#results-1"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timing_results_logit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  Method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Finite Differences"</span>, <span class="st">"RTMB"</span><span class="op">)</span>,</span>
 <span>  Time_seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">timing_logit_fd</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">timing_logit_rtmb</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>,</span>
@@ -304,18 +294,18 @@ maximum likelihood estimate using <code>stan_optimize</code>:</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">5.37</td>
-<td align="right">1.00</td>
+<td align="right">5.40</td>
+<td align="right">1.0</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">0.97</td>
-<td align="right">5.54</td>
+<td align="right">0.91</td>
+<td align="right">5.9</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_logit_rtmb</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 10</span></span></span>
 <span><span class="co">#&gt;   variable     mean   median    sd   mad        q5      q95  rhat ess_bulk</span></span>
@@ -325,11 +315,6 @@ maximum likelihood estimate using <code>stan_optimize</code>:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> pars[2]     1.56     1.55  0.206 0.207    1.24      1.89   1.00     740.</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[3]    -<span style="color: #BB0000;">0.915</span>   -<span style="color: #BB0000;">0.920</span> 0.176 0.174   -<span style="color: #BB0000;">1.20</span>     -<span style="color: #BB0000;">0.614</span>  1.00     600.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Maximum likelihood estimates</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_logit_mle</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        lp__   pars[1]  pars[2]    pars[3]</span></span>
-<span><span class="co">#&gt; 1 -150.7363 0.2267225 1.517124 -0.8917454</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -343,7 +328,7 @@ Gaussian mixture.</p>
 <div class="section level3">
 <h3 id="simulating-data-2">Simulating Data<a class="anchor" aria-label="anchor" href="#simulating-data-2"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
 <span></span>
@@ -363,33 +348,34 @@ Gaussian mixture.</p>
 <div class="section level3">
 <h3 id="defining-the-log-likelihood-2">Defining the Log-Likelihood<a class="anchor" aria-label="anchor" href="#defining-the-log-likelihood-2"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mixture_loglik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pars</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Transform parameters to satisfy constraints</span></span>
-<span>  <span class="va">pi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">pars</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>  <span class="co"># mixing proportion in [0,1]</span></span>
+<span>  <span class="va">pi</span> <span class="op">&lt;-</span> <span class="va">pars</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>  <span class="co"># mixing proportion in [0,1]</span></span>
 <span>  <span class="va">mu1</span> <span class="op">&lt;-</span> <span class="va">pars</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
 <span>  <span class="va">mu2</span> <span class="op">&lt;-</span> <span class="va">pars</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span></span>
-<span>  <span class="va">sigma1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">pars</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>  <span class="co"># positive</span></span>
-<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">pars</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>  <span class="co"># positive</span></span>
+<span>  <span class="va">sigma1</span> <span class="op">&lt;-</span> <span class="va">pars</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>  <span class="co"># positive</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="va">pars</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span>  <span class="co"># positive</span></span>
 <span></span>
 <span>  <span class="co"># Log-likelihood for each component</span></span>
 <span>  <span class="va">log_lik1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">mu1</span>, <span class="va">sigma1</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">pi</span><span class="op">)</span></span>
 <span>  <span class="va">log_lik2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">mu2</span>, <span class="va">sigma2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">pi</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="co"># Log-sum-exp for numerical stability</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">log_lik1</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">log_lik2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="performance-comparison-2">Performance Comparison<a class="anchor" aria-label="anchor" href="#performance-comparison-2"></a>
 </h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Initialize near true values (mixture models can have multimodality)</span></span>
-<span><span class="va">inits_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="fl">0.3</span><span class="op">)</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">inits_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">1.5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Finite differences</span></span>
 <span><span class="va">timing_mix_fd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="va">fit_mix_fd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_sample.html">stan_sample</a></span><span class="op">(</span><span class="va">mixture_loglik</span>, <span class="va">inits_mix</span>,</span>
+<span>                            lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="cn">Inf</span>, <span class="op">-</span><span class="cn">Inf</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>                            upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
 <span>                            additional_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y_mix</span><span class="op">)</span>,</span>
 <span>                            num_chains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
@@ -397,6 +383,8 @@ Gaussian mixture.</p>
 <span><span class="co"># RTMB</span></span>
 <span><span class="va">timing_mix_rtmb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="va">fit_mix_rtmb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_sample.html">stan_sample</a></span><span class="op">(</span><span class="va">mixture_loglik</span>, <span class="va">inits_mix</span>,</span>
+<span>                              lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="cn">Inf</span>, <span class="op">-</span><span class="cn">Inf</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>                              upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
 <span>                              grad_fun <span class="op">=</span> <span class="st">"RTMB"</span>,</span>
 <span>                              additional_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y_mix</span><span class="op">)</span>,</span>
 <span>                              num_chains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span></span>
@@ -405,7 +393,7 @@ Gaussian mixture.</p>
 <div class="section level3">
 <h3 id="results-2">Results<a class="anchor" aria-label="anchor" href="#results-2"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timing_results_mix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  Method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Finite Differences"</span>, <span class="st">"RTMB"</span><span class="op">)</span>,</span>
 <span>  Time_seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">timing_mix_fd</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">timing_mix_rtmb</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>,</span>
@@ -425,28 +413,28 @@ Gaussian mixture.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">14.62</td>
+<td align="right">14.73</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">1.79</td>
-<td align="right">8.16</td>
+<td align="right">1.75</td>
+<td align="right">8.43</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_mix_rtmb</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
-<span><span class="co">#&gt;   variable      mean    median     sd    mad        q5      q95  rhat ess_bulk</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp__     -<span style="color: #BB0000;">908.</span>     -<span style="color: #BB0000;">908.</span>     1.55   1.38   -<span style="color: #BB0000;">911.</span>     -<span style="color: #BB0000;">906.</span>    1.00      412.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> pars[1]    -<span style="color: #BB0000;">0.885</span>    -<span style="color: #BB0000;">0.885</span>  0.124  0.120    -<span style="color: #BB0000;">1.10</span>     -<span style="color: #BB0000;">0.688</span> 1.00      806.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> pars[2]    -<span style="color: #BB0000;">2.05</span>     -<span style="color: #BB0000;">2.06</span>   0.123  0.119    -<span style="color: #BB0000;">2.25</span>     -<span style="color: #BB0000;">1.85</span>  1.00      804.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[3]     2.95      2.96   0.102  0.104     2.78      3.12  1.00      907.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> pars[4]     0.072<span style="text-decoration: underline;">6</span>    0.070<span style="text-decoration: underline;">4</span> 0.091<span style="text-decoration: underline;">3</span> 0.091<span style="text-decoration: underline;">6</span>   -<span style="color: #BB0000;">0.072</span><span style="color: #BB0000; text-decoration: underline;">9</span>    0.217 1.000     910.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> pars[5]     0.408     0.408  0.054<span style="text-decoration: underline;">2</span> 0.054<span style="text-decoration: underline;">5</span>    0.322     0.498 1.000     987.</span></span>
+<span><span class="co">#&gt;   variable     mean   median     sd    mad       q5      q95  rhat ess_bulk</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp__     -<span style="color: #BB0000;">909.</span>    -<span style="color: #BB0000;">909.</span>    1.75   1.60   -<span style="color: #BB0000;">913.</span>    -<span style="color: #BB0000;">907.</span>     1.00     441.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> pars[1]     0.294    0.293 0.026<span style="text-decoration: underline;">4</span> 0.024<span style="text-decoration: underline;">8</span>    0.251    0.338  1.01     776.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> pars[2]    -<span style="color: #BB0000;">2.05</span>    -<span style="color: #BB0000;">2.05</span>  0.134  0.123    -<span style="color: #BB0000;">2.27</span>    -<span style="color: #BB0000;">1.82</span>   1.01     623.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[3]     2.95     2.95  0.110  0.110     2.77     3.14   1.00     878.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> pars[4]     1.08     1.07  0.105  0.104     0.930    1.26   1.01     917.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> pars[5]     1.51     1.51  0.087<span style="text-decoration: underline;">2</span> 0.084<span style="text-decoration: underline;">2</span>    1.37     1.66   1.00     725.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 </div>
@@ -462,7 +450,7 @@ for stationarity.</p>
 <div class="section level3">
 <h3 id="simulating-data-3">Simulating Data<a class="anchor" aria-label="anchor" href="#simulating-data-3"></a>
 </h3>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">202</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">true_phi</span> <span class="op">&lt;-</span> <span class="fl">0.7</span></span>
@@ -479,10 +467,10 @@ for stationarity.</p>
 <h3 id="defining-the-log-likelihood-3">Defining the Log-Likelihood<a class="anchor" aria-label="anchor" href="#defining-the-log-likelihood-3"></a>
 </h3>
 <p>We use <code><a href="https://rdrr.io/r/base/Hyperbolic.html" class="external-link">tanh()</a></code> to constrain φ to (-1, 1).</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ar1_loglik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pars</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html" class="external-link">tanh</a></span><span class="op">(</span><span class="va">pars</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>  <span class="co"># constrain to (-1, 1)</span></span>
-<span>  <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">pars</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>  <span class="co"># positive</span></span>
+<span>  <span class="va">phi</span> <span class="op">&lt;-</span> <span class="va">pars</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>  <span class="co"># constrain to (-1, 1)</span></span>
+<span>  <span class="va">sigma</span> <span class="op">&lt;-</span><span class="va">pars</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>  <span class="co"># positive</span></span>
 <span></span>
 <span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span></span>
@@ -500,12 +488,14 @@ for stationarity.</p>
 <div class="section level3">
 <h3 id="performance-comparison-3">Performance Comparison<a class="anchor" aria-label="anchor" href="#performance-comparison-3"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">inits_ar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html" class="external-link">atanh</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">inits_ar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Finite differences</span></span>
 <span><span class="va">timing_ar_fd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="va">fit_ar_fd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_sample.html">stan_sample</a></span><span class="op">(</span><span class="va">ar1_loglik</span>, <span class="va">inits_ar</span>,</span>
+<span>                           lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>                           upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
 <span>                           additional_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y_ar</span><span class="op">)</span>,</span>
 <span>                           num_chains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
@@ -513,6 +503,8 @@ for stationarity.</p>
 <span><span class="co"># RTMB</span></span>
 <span><span class="va">timing_ar_rtmb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="va">fit_ar_rtmb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_sample.html">stan_sample</a></span><span class="op">(</span><span class="va">ar1_loglik</span>, <span class="va">inits_ar</span>,</span>
+<span>                             lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>                             upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
 <span>                             grad_fun <span class="op">=</span> <span class="st">"RTMB"</span>,</span>
 <span>                             additional_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y_ar</span><span class="op">)</span>,</span>
 <span>                             num_chains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span></span>
@@ -521,7 +513,7 @@ for stationarity.</p>
 <div class="section level3">
 <h3 id="results-3">Results<a class="anchor" aria-label="anchor" href="#results-3"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">timing_results_ar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  Method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Finite Differences"</span>, <span class="st">"RTMB"</span><span class="op">)</span>,</span>
 <span>  Time_seconds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">timing_ar_fd</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">timing_ar_rtmb</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>,</span>
@@ -541,25 +533,25 @@ for stationarity.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">27.60</td>
+<td align="right">41.77</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">0.76</td>
-<td align="right">36.32</td>
+<td align="right">1.03</td>
+<td align="right">40.51</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_ar_rtmb</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 10</span></span></span>
-<span><span class="co">#&gt;   variable       mean      median     sd    mad       q5      q95  rhat ess_bulk</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp__     -<span style="color: #BB0000;">284.</span>         -<span style="color: #BB0000;">2.84</span><span style="color: #949494;">e</span>+2 1.02   0.783  -<span style="color: #BB0000;">2.86</span><span style="color: #949494;">e</span>+2 -<span style="color: #BB0000;">2.83</span><span style="color: #949494;">e</span>+2 1.01      402.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> pars[1]     0.999       9.90<span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.117  0.117   8.31<span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span>  1.20<span style="color: #949494;">e</span>+0 1.00      894.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> pars[2]     0.001<span style="text-decoration: underline;">47</span>    -<span style="color: #BB0000;">1.16</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span> 0.050<span style="text-decoration: underline;">1</span> 0.050<span style="text-decoration: underline;">5</span> -<span style="color: #BB0000;">7.97</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  8.58<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 1.000     890.</span></span>
+<span><span class="co">#&gt;   variable       mean    median      sd     mad       q5      q95  rhat ess_bulk</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp__     -<span style="color: #BB0000;">373.</span>       -<span style="color: #BB0000;">3.73</span><span style="color: #949494;">e</span>+2 0.990   0.767   -<span style="color: #BB0000;">3.75</span><span style="color: #949494;">e</span>+2 -<span style="color: #BB0000;">3.72</span><span style="color: #949494;">e</span>+2 0.999     453.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> pars[1]    -<span style="color: #BB0000;">0.006</span><span style="color: #BB0000; text-decoration: underline;">60</span>  -<span style="color: #BB0000;">4.55</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-3</span> 0.006<span style="text-decoration: underline;">60</span> 0.004<span style="text-decoration: underline;">75</span> -<span style="color: #BB0000;">1.97</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">3.52</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 1.01      473.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> pars[2]     1.53      1.53<span style="color: #949494;">e</span>+0 0.074<span style="text-decoration: underline;">8</span>  0.074<span style="text-decoration: underline;">3</span>   1.41<span style="color: #949494;">e</span>+0  1.66<span style="color: #949494;">e</span>+0 1.00      540.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -567,20 +559,20 @@ for stationarity.</p>
 </h3>
 <p>RTMB also works with Pathfinder, Stan’s fast variational inference
 method:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_ar_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stan_pathfinder.html">stan_pathfinder</a></span><span class="op">(</span><span class="va">ar1_loglik</span>, <span class="va">inits_ar</span>,</span>
 <span>                               grad_fun <span class="op">=</span> <span class="st">"RTMB"</span>,</span>
 <span>                               additional_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y_ar</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_ar_path</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 10</span></span></span>
-<span><span class="co">#&gt;   variable          mean   median     sd    mad       q5      q95  rhat ess_bulk</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp_approx__    2.15<span style="color: #949494;">e</span>+0  2.65<span style="color: #949494;">e</span>+0 1.51   0.803  -<span style="color: #BB0000;">9.44</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span>  3.39<span style="color: #949494;">e</span>+0 1.00    356.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> lp__          -<span style="color: #BB0000;">2.84</span><span style="color: #949494;">e</span>+2 -<span style="color: #BB0000;">2.84</span><span style="color: #949494;">e</span>+2 1.01   0.761  -<span style="color: #BB0000;">2.87</span><span style="color: #949494;">e</span>+2 -<span style="color: #BB0000;">2.83</span><span style="color: #949494;">e</span>+2 1.00    461.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> path__         2.47<span style="color: #949494;">e</span>+0  2   <span style="color: #949494;">e</span>+0 1.11   1.48    1   <span style="color: #949494;">e</span>+0  4   <span style="color: #949494;">e</span>+0 2.51      1.22</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[1]        1.01<span style="color: #949494;">e</span>+0  9.93<span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.120  0.112   8.33<span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span>  1.22<span style="color: #949494;">e</span>+0 1.00    377.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> pars[2]        5.57<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> -<span style="color: #BB0000;">9.35</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 0.049<span style="text-decoration: underline;">5</span> 0.047<span style="text-decoration: underline;">4</span> -<span style="color: #BB0000;">7.97</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  8.21<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 1.000   781.  </span></span>
+<span><span class="co">#&gt;   variable        mean   median     sd    mad       q5      q95  rhat ess_bulk</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp_approx__    3.20     3.50  1.01   0.781     1.18     4.19  1.00    739.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> lp__        -<span style="color: #BB0000;">284.</span>    -<span style="color: #BB0000;">284.</span>    0.926  0.787  -<span style="color: #BB0000;">286.</span>    -<span style="color: #BB0000;">283.</span>    1.00    758.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> path__         2.46     2     1.14   1.48      1        4     2.70      1.19</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[1]        0.750    0.748 0.046<span style="text-decoration: underline;">7</span> 0.047<span style="text-decoration: underline;">7</span>    0.674    0.831 1.00    786.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> pars[2]        1.00     1.00  0.050<span style="text-decoration: underline;">6</span> 0.049<span style="text-decoration: underline;">3</span>    0.925    1.09  1.000   552.  </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 </div>
