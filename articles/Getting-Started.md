@@ -143,20 +143,19 @@ We can inspect the estimates using the `summary` function (which calls
 ``` r
 summary(fit)
 #> # A tibble: 11 × 10
-#>    variable      mean   median    sd   mad      q5     q95  rhat ess_bulk
-#>    <chr>        <dbl>    <dbl> <dbl> <dbl>   <dbl>   <dbl> <dbl>    <dbl>
-#>  1 lp__     -39.1     -38.8    2.64  2.46  -44.1   -35.3   0.999     252.
-#>  2 pars[1]    8.01      7.92   5.75  5.51   -0.899  18.0   1.000     519.
-#>  3 pars[2]    7.50      5.90   6.62  5.25    0.498  20.0   1.00      293.
-#>  4 pars[3]    0.391     0.379  0.933 0.877  -1.11    1.87  0.999     791.
-#>  5 pars[4]    0.00988   0.0320 0.850 0.777  -1.38    1.43  1.01      897.
-#>  6 pars[5]   -0.191    -0.205  0.859 0.812  -1.58    1.30  1.00      981.
-#>  7 pars[6]   -0.0438   -0.0369 0.859 0.845  -1.46    1.39  0.999     848.
-#>  8 pars[7]   -0.363    -0.373  0.813 0.821  -1.66    0.970 1.01      754.
-#>  9 pars[8]   -0.190    -0.195  0.829 0.775  -1.54    1.15  1.000    1167.
-#> 10 pars[9]    0.356     0.353  0.854 0.839  -1.11    1.78  0.999    1318.
-#> 11 pars[10]   0.0781    0.0452 0.928 0.876  -1.45    1.67  1.01     1232.
-#> # ℹ 1 more variable: ess_tail <dbl>
+#>    variable     mean   median    sd   mad      q5    q95  rhat ess_bulk ess_tail
+#>    <chr>       <dbl>    <dbl> <dbl> <dbl>   <dbl>  <dbl> <dbl>    <dbl>    <dbl>
+#>  1 lp__     -39.4    -3.90e+1 2.52  2.31  -43.8   -35.8  1.00      345.     389.
+#>  2 pars[1]    7.73    7.67e+0 5.24  4.57   -0.994  16.4  0.999     333.     230.
+#>  3 pars[2]    6.56    5.43e+0 5.18  4.89    0.637  16.4  0.999     452.     499.
+#>  4 pars[3]    0.417   3.98e-1 0.898 0.942  -1.02    1.87 1.00      790.     649.
+#>  5 pars[4]   -0.0115 -2.18e-2 0.834 0.789  -1.35    1.37 1.00      976.     874.
+#>  6 pars[5]   -0.166  -1.55e-1 0.937 0.922  -1.70    1.40 1.01      701.     654.
+#>  7 pars[6]   -0.0250 -8.67e-3 0.938 0.897  -1.57    1.48 1.00      718.     640.
+#>  8 pars[7]   -0.333  -3.40e-1 0.864 0.834  -1.72    1.09 1.000     915.     721.
+#>  9 pars[8]   -0.189  -1.84e-1 0.859 0.887  -1.61    1.20 1.00      816.     674.
+#> 10 pars[9]    0.331   3.29e-1 0.793 0.734  -0.969   1.67 1.00      876.     872.
+#> 11 pars[10]   0.0580  6.01e-2 0.894 0.888  -1.44    1.51 0.999     835.     736.
 ```
 
 ### Model Checking and Comparison - Leave-One-Out Cross-Validation (LOO-CV)
@@ -195,12 +194,12 @@ loo(fit, pointwise_ll_fun = eight_schools_pointwise,
 #> Computed from 1000 by 8 log-likelihood matrix.
 #> 
 #>          Estimate  SE
-#> elpd_loo    -30.9 0.9
-#> p_loo         1.3 0.3
-#> looic        61.8 1.8
+#> elpd_loo    -31.2 1.0
+#> p_loo         1.5 0.4
+#> looic        62.4 1.9
 #> ------
 #> MCSE of elpd_loo is 0.1.
-#> MCSE and ESS estimates assume MCMC draws (r_eff in [0.5, 1.0]).
+#> MCSE and ESS estimates assume MCMC draws (r_eff in [0.6, 0.9]).
 #> 
 #> All Pareto k estimates are good (k < 0.67).
 #> See help('pareto-k-diagnostic') for details.

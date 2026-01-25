@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">StanEstimators</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -268,20 +268,19 @@ function (which calls <code><a href="https://mc-stan.org/posterior/reference/dra
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 11 × 10</span></span></span>
-<span><span class="co">#&gt;    variable      mean   median    sd   mad      q5     q95  rhat ess_bulk</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> lp__     -<span style="color: #BB0000;">39.1</span>     -<span style="color: #BB0000;">38.8</span>    2.64  2.46  -<span style="color: #BB0000;">44.1</span>   -<span style="color: #BB0000;">35.3</span>   0.999     252.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> pars[1]    8.01      7.92   5.75  5.51   -<span style="color: #BB0000;">0.899</span>  18.0   1.000     519.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> pars[2]    7.50      5.90   6.62  5.25    0.498  20.0   1.00      293.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> pars[3]    0.391     0.379  0.933 0.877  -<span style="color: #BB0000;">1.11</span>    1.87  0.999     791.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> pars[4]    0.009<span style="text-decoration: underline;">88</span>   0.032<span style="text-decoration: underline;">0</span> 0.850 0.777  -<span style="color: #BB0000;">1.38</span>    1.43  1.01      897.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> pars[5]   -<span style="color: #BB0000;">0.191</span>    -<span style="color: #BB0000;">0.205</span>  0.859 0.812  -<span style="color: #BB0000;">1.58</span>    1.30  1.00      981.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> pars[6]   -<span style="color: #BB0000;">0.043</span><span style="color: #BB0000; text-decoration: underline;">8</span>   -<span style="color: #BB0000;">0.036</span><span style="color: #BB0000; text-decoration: underline;">9</span> 0.859 0.845  -<span style="color: #BB0000;">1.46</span>    1.39  0.999     848.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> pars[7]   -<span style="color: #BB0000;">0.363</span>    -<span style="color: #BB0000;">0.373</span>  0.813 0.821  -<span style="color: #BB0000;">1.66</span>    0.970 1.01      754.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> pars[8]   -<span style="color: #BB0000;">0.190</span>    -<span style="color: #BB0000;">0.195</span>  0.829 0.775  -<span style="color: #BB0000;">1.54</span>    1.15  1.000    <span style="text-decoration: underline;">1</span>167.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> pars[9]    0.356     0.353  0.854 0.839  -<span style="color: #BB0000;">1.11</span>    1.78  0.999    <span style="text-decoration: underline;">1</span>318.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> pars[10]   0.078<span style="text-decoration: underline;">1</span>    0.045<span style="text-decoration: underline;">2</span> 0.928 0.876  -<span style="color: #BB0000;">1.45</span>    1.67  1.01     <span style="text-decoration: underline;">1</span>232.</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt;    variable     mean   median    sd   mad      q5    q95  rhat ess_bulk ess_tail</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> lp__     -<span style="color: #BB0000;">39.4</span>    -<span style="color: #BB0000;">3.90</span><span style="color: #949494;">e</span>+1 2.52  2.31  -<span style="color: #BB0000;">43.8</span>   -<span style="color: #BB0000;">35.8</span>  1.00      345.     389.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> pars[1]    7.73    7.67<span style="color: #949494;">e</span>+0 5.24  4.57   -<span style="color: #BB0000;">0.994</span>  16.4  0.999     333.     230.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> pars[2]    6.56    5.43<span style="color: #949494;">e</span>+0 5.18  4.89    0.637  16.4  0.999     452.     499.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> pars[3]    0.417   3.98<span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.898 0.942  -<span style="color: #BB0000;">1.02</span>    1.87 1.00      790.     649.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> pars[4]   -<span style="color: #BB0000;">0.011</span><span style="color: #BB0000; text-decoration: underline;">5</span> -<span style="color: #BB0000;">2.18</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.834 0.789  -<span style="color: #BB0000;">1.35</span>    1.37 1.00      976.     874.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> pars[5]   -<span style="color: #BB0000;">0.166</span>  -<span style="color: #BB0000;">1.55</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.937 0.922  -<span style="color: #BB0000;">1.70</span>    1.40 1.01      701.     654.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> pars[6]   -<span style="color: #BB0000;">0.025</span><span style="color: #BB0000; text-decoration: underline;">0</span> -<span style="color: #BB0000;">8.67</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-3</span> 0.938 0.897  -<span style="color: #BB0000;">1.57</span>    1.48 1.00      718.     640.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> pars[7]   -<span style="color: #BB0000;">0.333</span>  -<span style="color: #BB0000;">3.40</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.864 0.834  -<span style="color: #BB0000;">1.72</span>    1.09 1.000     915.     721.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> pars[8]   -<span style="color: #BB0000;">0.189</span>  -<span style="color: #BB0000;">1.84</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.859 0.887  -<span style="color: #BB0000;">1.61</span>    1.20 1.00      816.     674.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> pars[9]    0.331   3.29<span style="color: #949494;">e</span><span style="color: #BB0000;">-1</span> 0.793 0.734  -<span style="color: #BB0000;">0.969</span>   1.67 1.00      876.     872.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> pars[10]   0.058<span style="text-decoration: underline;">0</span>  6.01<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.894 0.888  -<span style="color: #BB0000;">1.44</span>    1.51 0.999     835.     736.</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -316,12 +315,12 @@ the LOO-CV estimate:</p>
 <span><span class="co">#&gt; Computed from 1000 by 8 log-likelihood matrix.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate  SE</span></span>
-<span><span class="co">#&gt; elpd_loo    -30.9 0.9</span></span>
-<span><span class="co">#&gt; p_loo         1.3 0.3</span></span>
-<span><span class="co">#&gt; looic        61.8 1.8</span></span>
+<span><span class="co">#&gt; elpd_loo    -31.2 1.0</span></span>
+<span><span class="co">#&gt; p_loo         1.5 0.4</span></span>
+<span><span class="co">#&gt; looic        62.4 1.9</span></span>
 <span><span class="co">#&gt; ------</span></span>
 <span><span class="co">#&gt; MCSE of elpd_loo is 0.1.</span></span>
-<span><span class="co">#&gt; MCSE and ESS estimates assume MCMC draws (r_eff in [0.5, 1.0]).</span></span>
+<span><span class="co">#&gt; MCSE and ESS estimates assume MCMC draws (r_eff in [0.6, 0.9]).</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; All Pareto k estimates are good (k &lt; 0.67).</span></span>
 <span><span class="co">#&gt; See help('pareto-k-diagnostic') for details.</span></span></code></pre></div>
