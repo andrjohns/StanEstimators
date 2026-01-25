@@ -265,14 +265,22 @@ stan_sample <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = l
   diagnostic_vars <- c("accept_stat__", "stepsize__", "treedepth__", "n_leapfrog__", "divergent__", "energy__")
   par_vars <- draw_names[!(draw_names %in% diagnostic_vars)]
   draws <- posterior::as_draws_df(do.call(rbind.data.frame, draws))
-  diagnostics <- posterior::subset_draws(draws, variable = diagnostic_vars)
-
-  if (check_diagnostics) {
-    if (isTRUE(save_warmup)) {
-      check_hmc_diagnostics(diagnostics[diagnostics$.iteration > num_warmup, ],
-                            as.numeric(metadata$max_depth))
-    } else {
-    check_hmc_diagnostics(diagnostics, as.numeric(metadata$max_depth))
+  diagnostics <- NULL
+  if (algorithm == "fixed_param") {
+    diagnostics <- posterior::draws_df("stepsize__" = NA,
+                                       "treedepth__" = NA,
+                                       "n_leapfrog__" = NA,
+                                       "divergent__" = NA,
+                                       "energy__" = NA)
+  } else {
+    diagnostics <- posterior::subset_draws(draws, variable = diagnostic_vars)
+    if (check_diagnostics) {
+      if (isTRUE(save_warmup)) {
+        check_hmc_diagnostics(diagnostics[diagnostics$.iteration > num_warmup, ],
+                              as.numeric(metadata$max_depth))
+      } else {
+        check_hmc_diagnostics(diagnostics, as.numeric(metadata$max_depth))
+      }
     }
   }
 
