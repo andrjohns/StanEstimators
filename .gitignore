@@ -8,4 +8,3 @@ inst/doc
 docs
 compile_commands.json
 .cache
-.clang-tidy

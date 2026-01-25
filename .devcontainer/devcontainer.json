@@ -1,0 +1,6 @@
+{
+    "name": "stanestimators",
+    "build": {
+        "dockerfile": "Dockerfile"
+    }
+}
