@@ -21,7 +21,7 @@ namespace math {
  * @return minimum value of the two arguments
  */
 template <typename T1, typename T2, require_all_arithmetic_t<T1, T2>* = nullptr>
-auto min(T1 x, T2 y) {
+inline auto min(T1 x, T2 y) {
   return std::min(x, y);
 }
 
@@ -39,7 +39,7 @@ auto min(T1 x, T2 y) {
  */
 template <typename T, require_container_t<T>* = nullptr>
 inline value_type_t<T> min(T&& m) {
-  if (std::is_integral<value_type_t<T>>::value) {
+  if constexpr (std::is_integral<value_type_t<T>>::value) {
     check_nonzero_size("min", "int vector", m);
   } else if (m.size() == 0) {
     return INFTY;

@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include <cstdint>
 #include <tbb/global_control.h>
 #include <cmdstan/command.hpp>
 #include <cmdstan/version.hpp>

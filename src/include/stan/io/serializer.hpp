@@ -45,7 +45,8 @@ class serializer {
 
   template <typename S>
   using is_arithmetic_or_ad
-      = bool_constant<std::is_arithmetic<S>::value || is_autodiff<S>::value>;
+      = bool_constant<(std::is_arithmetic<S>::value || is_autodiff<S>::value)
+                      && is_stan_scalar<S>::value>;
 
  public:
   using matrix_t = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;

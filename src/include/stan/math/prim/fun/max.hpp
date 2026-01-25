@@ -22,7 +22,7 @@ namespace math {
  * @return maximum value of the two arguments
  */
 template <typename T1, typename T2, require_all_arithmetic_t<T1, T2>* = nullptr>
-auto max(T1 x, T2 y) {
+inline auto max(T1 x, T2 y) {
   return std::max(x, y);
 }
 
@@ -40,7 +40,7 @@ auto max(T1 x, T2 y) {
  */
 template <typename T, require_container_t<T>* = nullptr>
 inline value_type_t<T> max(T&& m) {
-  if (std::is_integral<value_type_t<T>>::value) {
+  if constexpr (std::is_integral<value_type_t<T>>::value) {
     check_nonzero_size("max", "int vector", m);
   } else if (m.size() == 0) {
     return NEGATIVE_INFTY;
