@@ -48,3 +48,4 @@ Suggests:
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://andrjohns.github.io/StanEstimators/
+Config/build/compilation-database: true

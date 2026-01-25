@@ -6,3 +6,6 @@ inst/lib
 inst/doc
 .vscode
 docs
+compile_commands.json
+.cache
+.clang-tidy
