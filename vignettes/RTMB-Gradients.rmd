@@ -173,16 +173,6 @@ timing_logit_rtmb <- system.time({
 })
 ```
 
-## Using stan_optimize
-
-RTMB also works with other Stan methods. For example, we can find the maximum likelihood estimate using `stan_optimize`:
-
-```{r, results=FALSE, message=FALSE, warning=FALSE}
-fit_logit_mle <- stan_optimize(logistic_loglik, inits_logit,
-                               grad_fun = "RTMB",
-                               additional_args = list(y = y_binom, X = X_logit))
-```
-
 ## Results
 
 ```{r}
@@ -199,10 +189,6 @@ knitr::kable(timing_results_logit, digits = 2,
 summary(fit_logit_rtmb)
 ```
 
-```{r}
-# Maximum likelihood estimates
-summary(fit_logit_mle)
-```
 
 # Gaussian Mixture Model
 
@@ -235,17 +221,16 @@ y_mix <- ifelse(component == 1,
 ```{r}
 mixture_loglik <- function(pars, y) {
   # Transform parameters to satisfy constraints
-  pi <- plogis(pars[1])  # mixing proportion in [0,1]
+  pi <- pars[1]  # mixing proportion in [0,1]
   mu1 <- pars[2]
   mu2 <- pars[3]
-  sigma1 <- exp(pars[4])  # positive
-  sigma2 <- exp(pars[5])  # positive
+  sigma1 <- pars[4]  # positive
+  sigma2 <- pars[5]  # positive
 
   # Log-likelihood for each component
   log_lik1 <- dnorm(y, mu1, sigma1, log = TRUE) + log(pi)
   log_lik2 <- dnorm(y, mu2, sigma2, log = TRUE) + log(1 - pi)
 
-  # Log-sum-exp for numerical stability
   sum(log(exp(log_lik1) + exp(log_lik2)))
 }
 ```
@@ -254,11 +239,13 @@ mixture_loglik <- function(pars, y) {
 
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
 # Initialize near true values (mixture models can have multimodality)
-inits_mix <- c(qlogis(0.3), -2, 3, log(1), log(1.5))
+inits_mix <- c(0.3, -2, 3, 1, 1.5)
 
 # Finite differences
 timing_mix_fd <- system.time({
   fit_mix_fd <- stan_sample(mixture_loglik, inits_mix,
+                            lower = c(0, -Inf, -Inf, 0, 0),
+                            upper = c(1, Inf, Inf, Inf, Inf),
                             additional_args = list(y = y_mix),
                             num_chains = 1, seed = 1234)
 })
@@ -266,6 +253,8 @@ timing_mix_fd <- system.time({
 # RTMB
 timing_mix_rtmb <- system.time({
   fit_mix_rtmb <- stan_sample(mixture_loglik, inits_mix,
+                              lower = c(0, -Inf, -Inf, 0, 0),
+                              upper = c(1, Inf, Inf, Inf, Inf),
                               grad_fun = "RTMB",
                               additional_args = list(y = y_mix),
                               num_chains = 1, seed = 1234)
@@ -315,8 +304,8 @@ We use `tanh()` to constrain φ to (-1, 1).
 
 ```{r}
 ar1_loglik <- function(pars, y) {
-  phi <- tanh(pars[1])  # constrain to (-1, 1)
-  sigma <- exp(pars[2])  # positive
+  phi <- pars[1]  # constrain to (-1, 1)
+  sigma <-pars[2]  # positive
 
   n <- length(y)
 
@@ -335,11 +324,13 @@ ar1_loglik <- function(pars, y) {
 ## Performance Comparison
 
 ```{r, results=FALSE, message=FALSE, warning=FALSE}
-inits_ar <- c(atanh(0.5), log(1))
+inits_ar <- c(0.5, 1)
 
 # Finite differences
 timing_ar_fd <- system.time({
   fit_ar_fd <- stan_sample(ar1_loglik, inits_ar,
+                           lower = c(-1, 0),
+                           upper = c(0, Inf),
                            additional_args = list(y = y_ar),
                            num_chains = 1, seed = 1234)
 })
@@ -347,6 +338,8 @@ timing_ar_fd <- system.time({
 # RTMB
 timing_ar_rtmb <- system.time({
   fit_ar_rtmb <- stan_sample(ar1_loglik, inits_ar,
+                             lower = c(-1, 0),
+                             upper = c(0, Inf),
                              grad_fun = "RTMB",
                              additional_args = list(y = y_ar),
                              num_chains = 1, seed = 1234)
