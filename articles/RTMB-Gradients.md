@@ -109,8 +109,8 @@ knitr::kable(timing_results_pois, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        10.05 |     1.0 |
-| elapsed | RTMB               |         2.39 |     4.2 |
+|         | Finite Differences |         9.94 |    1.00 |
+| elapsed | RTMB               |         1.98 |    5.03 |
 
 Performance comparison for Poisson regression
 
@@ -119,10 +119,10 @@ summary(fit_pois_rtmb)
 #> # A tibble: 4 × 10
 #>   variable     mean   median     sd    mad       q5      q95  rhat ess_bulk
 #>   <chr>       <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp__     -315.    -314.    1.22   1.09   -317.    -313.     1.00     453.
-#> 2 pars[1]     0.543    0.544 0.0609 0.0609    0.436    0.637  1.01     482.
-#> 3 pars[2]     1.15     1.15  0.0472 0.0488    1.08     1.23   1.01     515.
-#> 4 pars[3]    -0.734   -0.734 0.0515 0.0521   -0.817   -0.651  1.00     580.
+#> 1 lp__     -315.    -314.    1.31   1.02   -317.    -313.     1.00     421.
+#> 2 pars[1]     0.546    0.546 0.0613 0.0611    0.447    0.646  1.00     506.
+#> 3 pars[2]     1.15     1.15  0.0478 0.0453    1.07     1.23   1.00     515.
+#> 4 pars[3]    -0.730   -0.729 0.0507 0.0496   -0.818   -0.645  1.00     542.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -200,8 +200,8 @@ knitr::kable(timing_results_logit, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |         5.40 |     1.0 |
-| elapsed | RTMB               |         0.91 |     5.9 |
+|         | Finite Differences |         5.39 |    1.00 |
+| elapsed | RTMB               |         0.86 |    6.25 |
 
 Performance comparison for Logistic regression
 
@@ -210,10 +210,10 @@ summary(fit_logit_rtmb)
 #> # A tibble: 4 × 10
 #>   variable     mean   median    sd   mad        q5      q95  rhat ess_bulk
 #>   <chr>       <dbl>    <dbl> <dbl> <dbl>     <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp__     -152.    -152.    1.31  1.09  -155.     -151.     1.00     546.
-#> 2 pars[1]     0.224    0.225 0.151 0.150   -0.0283    0.462  1.00     736.
-#> 3 pars[2]     1.56     1.55  0.206 0.207    1.24      1.89   1.00     740.
-#> 4 pars[3]    -0.915   -0.920 0.176 0.174   -1.20     -0.614  1.00     600.
+#> 1 lp__     -152.    -152.    1.31  0.924 -155.     -151.    0.999     495.
+#> 2 pars[1]     0.220    0.225 0.150 0.142   -0.0330    0.453 1.01      759.
+#> 3 pars[2]     1.55     1.54  0.201 0.210    1.23      1.87  0.999     695.
+#> 4 pars[3]    -0.896   -0.895 0.160 0.154   -1.18     -0.625 1.00      915.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -305,8 +305,8 @@ knitr::kable(timing_results_mix, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        14.73 |    1.00 |
-| elapsed | RTMB               |         1.75 |    8.43 |
+|         | Finite Differences |        14.48 |    1.00 |
+| elapsed | RTMB               |         1.19 |   12.18 |
 
 Performance comparison for Gaussian Mixture
 
@@ -315,12 +315,12 @@ summary(fit_mix_rtmb)
 #> # A tibble: 6 × 10
 #>   variable     mean   median     sd    mad       q5      q95  rhat ess_bulk
 #>   <chr>       <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp__     -909.    -909.    1.75   1.60   -913.    -907.     1.00     441.
-#> 2 pars[1]     0.294    0.293 0.0264 0.0248    0.251    0.338  1.01     776.
-#> 3 pars[2]    -2.05    -2.05  0.134  0.123    -2.27    -1.82   1.01     623.
-#> 4 pars[3]     2.95     2.95  0.110  0.110     2.77     3.14   1.00     878.
-#> 5 pars[4]     1.08     1.07  0.105  0.104     0.930    1.26   1.01     917.
-#> 6 pars[5]     1.51     1.51  0.0872 0.0842    1.37     1.66   1.00     725.
+#> 1 lp__     -909.    -909.    1.54   1.42   -912.    -907.    0.999     461.
+#> 2 pars[1]     0.294    0.293 0.0254 0.0256    0.252    0.336 1.000     802.
+#> 3 pars[2]    -2.05    -2.06  0.120  0.123    -2.23    -1.85  0.999     744.
+#> 4 pars[3]     2.95     2.96  0.104  0.103     2.78     3.12  1.000     603.
+#> 5 pars[4]     1.08     1.07  0.0988 0.0960    0.929    1.25  1.01      779.
+#> 6 pars[5]     1.51     1.50  0.0833 0.0808    1.38     1.66  1.00      644.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -409,8 +409,8 @@ knitr::kable(timing_results_ar, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        41.77 |    1.00 |
-| elapsed | RTMB               |         1.03 |   40.51 |
+|         | Finite Differences |        38.73 |    1.00 |
+| elapsed | RTMB               |         0.63 |   61.37 |
 
 Performance comparison for AR(1) model
 
@@ -419,9 +419,9 @@ summary(fit_ar_rtmb)
 #> # A tibble: 3 × 10
 #>   variable       mean    median      sd     mad       q5      q95  rhat ess_bulk
 #>   <chr>         <dbl>     <dbl>   <dbl>   <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp__     -373.       -3.73e+2 0.990   0.767   -3.75e+2 -3.72e+2 0.999     453.
-#> 2 pars[1]    -0.00660  -4.55e-3 0.00660 0.00475 -1.97e-2 -3.52e-4 1.01      473.
-#> 3 pars[2]     1.53      1.53e+0 0.0748  0.0743   1.41e+0  1.66e+0 1.00      540.
+#> 1 lp__     -373.       -3.73e+2 1.15    0.768   -3.75e+2 -3.72e+2  1.01     228.
+#> 2 pars[1]    -0.00659  -4.74e-3 0.00634 0.00487 -1.94e-2 -1.66e-4  1.00     448.
+#> 3 pars[2]     1.53      1.52e+0 0.0734  0.0722   1.41e+0  1.65e+0  1.00     751.
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
 
@@ -441,10 +441,10 @@ summary(fit_ar_path)
 #> # A tibble: 5 × 10
 #>   variable        mean   median     sd    mad       q5      q95  rhat ess_bulk
 #>   <chr>          <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp_approx__    3.20     3.50  1.01   0.781     1.18     4.19  1.00    739.  
-#> 2 lp__        -284.    -284.    0.926  0.787  -286.    -283.    1.00    758.  
-#> 3 path__         2.46     2     1.14   1.48      1        4     2.70      1.19
-#> 4 pars[1]        0.750    0.748 0.0467 0.0477    0.674    0.831 1.00    786.  
-#> 5 pars[2]        1.00     1.00  0.0506 0.0493    0.925    1.09  1.000   552.  
+#> 1 lp_approx__    3.19     3.54  1.09   0.775     1.01     4.22  1.00    710.  
+#> 2 lp__        -284.    -284.    0.982  0.725  -286.    -283.    1.00    695.  
+#> 3 path__         2.49     2     1.10   1.48      1        4     2.63      1.20
+#> 4 pars[1]        0.749    0.748 0.0473 0.0475    0.671    0.824 1.00    648.  
+#> 5 pars[2]        1.00     1.00  0.0498 0.0500    0.925    1.09  1.000   860.  
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
