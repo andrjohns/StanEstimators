@@ -115,8 +115,8 @@ knitr::kable(timing_results_pois, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        10.09 |    1.00 |
-| elapsed | RTMB               |         2.36 |    4.28 |
+|         | Finite Differences |        10.22 |    1.00 |
+| elapsed | RTMB               |         2.42 |    4.22 |
 
 Performance comparison for Poisson regression {.table}
 
@@ -211,8 +211,8 @@ knitr::kable(timing_results_logit, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |         5.36 |    1.00 |
-| elapsed | RTMB               |         1.12 |    4.77 |
+|         | Finite Differences |         5.39 |    1.00 |
+| elapsed | RTMB               |         1.10 |    4.88 |
 
 Performance comparison for Logistic regression {.table}
 
@@ -321,8 +321,8 @@ knitr::kable(timing_results_mix, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        14.81 |    1.00 |
-| elapsed | RTMB               |         1.71 |    8.67 |
+|         | Finite Differences |        15.22 |    1.00 |
+| elapsed | RTMB               |         1.65 |    9.25 |
 
 Performance comparison for Gaussian Mixture {.table}
 
@@ -430,8 +430,8 @@ knitr::kable(timing_results_ar, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        40.69 |     1.0 |
-| elapsed | RTMB               |         0.94 |    43.1 |
+|         | Finite Differences |        42.39 |    1.00 |
+| elapsed | RTMB               |         0.95 |   44.53 |
 
 Performance comparison for AR(1) model {.table}
 
@@ -465,10 +465,10 @@ summary(fit_ar_path)
 #> # A tibble: 5 × 10
 #>   variable        mean   median     sd    mad       q5      q95  rhat ess_bulk
 #>   <chr>          <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp_approx__    3.24     3.53  1.06   0.734     1.30     4.19   1.01   788.  
-#> 2 lp__        -284.    -284.    0.963  0.699  -286.    -283.     1.01   797.  
-#> 3 path__         2.51     3     1.10   1.48      1        4      2.63     1.20
-#> 4 pars[1]        0.751    0.753 0.0442 0.0458    0.678    0.826  1.00   951.  
-#> 5 pars[2]        1.00     0.999 0.0511 0.0518    0.921    1.09   1.00   801.  
+#> 1 lp_approx__    3.09     3.54  1.34   0.741     0.511    4.20   1.00   656.  
+#> 2 lp__        -284.    -284.    1.14   0.736  -287.    -283.     1.00   688.  
+#> 3 path__         2.53     3     1.14   1.48      1        4      2.61     1.20
+#> 4 pars[1]        0.750    0.750 0.0489 0.0481    0.673    0.832  1.01   773.  
+#> 5 pars[2]        1.01     1.00  0.0525 0.0483    0.928    1.10   1.00   652.  
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```
