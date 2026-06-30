@@ -13,6 +13,7 @@ provide a function for analytical calculation.
 You can install pre-built binaries using:
 
 ``` r
+
 # we recommend running this is a fresh R session or restarting your current session
 install.packages('StanEstimators', repos = c('https://andrjohns.r-universe.dev', 'https://cloud.r-project.org'))
 ```
@@ -20,6 +21,7 @@ install.packages('StanEstimators', repos = c('https://andrjohns.r-universe.dev',
 Or you can build from source using:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("andrjohns/StanEstimators")
 ```
@@ -30,15 +32,22 @@ Consider the goal of estimating the mean and standard deviation of a
 normal distribution, with uniform uninformative priors on both
 parameters:
 
-$$y \sim \textbf{𝐍}(\mu,\sigma)$$
+``` math
+y \sim \textbf{N}(\mu, \sigma)
+```
 
-$$\mu \sim \textbf{𝐔}\lbrack - \infty,\infty\rbrack$$
+``` math
+\mu \sim \textbf{U}[-\infty, \infty]
+```
 
-$$\sigma \sim \textbf{𝐔}\lbrack 0,\infty\rbrack$$
+``` math
+\sigma \sim \textbf{U}[0, \infty]
+```
 
 With known true values for verification:
 
 ``` r
+
 y <- rnorm(500, 10, 2)
 ```
 
@@ -48,6 +57,7 @@ and returns a single scalar value (the unnormalized target log density),
 as well as initial values for the parameters:
 
 ``` r
+
 loglik_fun <- function(v, x) {
   sum(dnorm(x, v[1], v[2], log = TRUE))
 }
@@ -59,6 +69,7 @@ Estimation time can also be significantly reduced by providing a
 gradient function, rather than relying on finite-differencing:
 
 ``` r
+
 grad <- function(v, x) {
   inv_sigma <- 1 / v[2]
   y_scaled = (x - v[1]) * inv_sigma
@@ -77,6 +88,7 @@ function, which uses Stan’s default No U-Turn Sampler (NUTS) unless
 otherwise specified:
 
 ``` r
+
 library(StanEstimators)
 
 fit <- stan_sample(loglik_fun, inits, additional_args = list(y),
@@ -89,6 +101,7 @@ estimation was relatively fast: ~1 sec for 1000 warmup and 1000
 iterations
 
 ``` r
+
 unlist(fit@timing)
 #>   warmup sampling 
 #>    0.720    0.707
@@ -105,6 +118,7 @@ Estimation time can be improved further by providing a gradient
 function:
 
 ``` r
+
 fit_grad <- stan_sample(loglik_fun, inits, additional_args = list(y),
                         grad_fun = grad,
                         lower = c(-Inf, 0),
@@ -116,6 +130,7 @@ Which shows that the estimation time was dramatically improved, now
 ~0.15 seconds for 1000 warmup and 1000 iterations.
 
 ``` r
+
 unlist(fit_grad@timing)
 #>   warmup sampling 
 #>    0.103    0.093
@@ -131,6 +146,7 @@ summary(fit_grad)
 ### Optimization
 
 ``` r
+
 opt_fd <- stan_optimize(loglik_fun, inits, additional_args = list(y),
                           lower = c(-Inf, 0),
                           seed = 1234)
@@ -141,6 +157,7 @@ opt_grad <- stan_optimize(loglik_fun, inits, additional_args = list(y),
 ```
 
 ``` r
+
 summary(opt_fd)
 #>        lp__ pars[1] pars[2]
 #> 1 -1046.049  9.9691 1.96036
@@ -152,6 +169,7 @@ summary(opt_grad)
 ### Laplace Approximation
 
 ``` r
+
 # Can provide the mode as a numeric vector:
 lapl_num <- stan_laplace(loglik_fun, inits, additional_args = list(y),
                           mode = c(10, 2),
@@ -171,6 +189,7 @@ lapl_est <- stan_laplace(loglik_fun, inits, additional_args = list(y),
 ```
 
 ``` r
+
 summary(lapl_num)
 #> # A tibble: 4 × 10
 #>   variable     mean    median     sd    mad       q5        q95  rhat ess_bulk
@@ -203,6 +222,7 @@ summary(lapl_est)
 ### Variational Inference
 
 ``` r
+
 var_fd <- stan_variational(loglik_fun, inits, additional_args = list(y),
                               lower = c(-Inf, 0),
                               seed = 1234)
@@ -213,6 +233,7 @@ var_grad <- stan_variational(loglik_fun, inits, additional_args = list(y),
 ```
 
 ``` r
+
 summary(var_fd)
 #> # A tibble: 5 × 10
 #>   variable      mean    median     sd    mad       q5        q95   rhat ess_bulk
@@ -238,6 +259,7 @@ summary(var_grad)
 ### Pathfinder
 
 ``` r
+
 path_fd <- stan_pathfinder(loglik_fun, inits, additional_args = list(y),
                               lower = c(-Inf, 0),
                               seed = 1234)
@@ -248,6 +270,7 @@ path_grad <- stan_pathfinder(loglik_fun, inits, additional_args = list(y),
 ```
 
 ``` r
+
 summary(path_fd)
 #> # A tibble: 5 × 10
 #>   variable        mean   median     sd    mad        q5      q95  rhat ess_bulk

@@ -1,6 +1,7 @@
 # Automatic Differentiation with RTMB
 
 ``` r
+
 library(StanEstimators)
 ```
 
@@ -29,6 +30,7 @@ To use RTMB with `StanEstimators`, you need to install the `RTMB`,
 `withr`, and `future` packages:
 
 ``` r
+
 install.packages(c("RTMB", "withr", "future"))
 ```
 
@@ -43,12 +45,13 @@ vignette.
 
 Next, we’ll examine a generalized linear model (GLM) for count data.
 Poisson regression uses a log-link function:
-$\log\left( \lambda_{i} \right) = X_{i}\beta$, where $\lambda_{i}$ is
-the expected count.
+$`\log(\lambda_i) = X_i\beta`$, where $`\lambda_i`$ is the expected
+count.
 
 ### Simulating Data
 
 ``` r
+
 set.seed(456)
 n <- 200
 p <- 2  # number of predictors (plus intercept)
@@ -67,6 +70,7 @@ y_pois <- rpois(n, lambda)
 ### Defining the Log-Likelihood
 
 ``` r
+
 poisson_loglik <- function(pars, y, X) {
   eta <- X %*% pars
   lambda <- exp(eta)
@@ -77,6 +81,7 @@ poisson_loglik <- function(pars, y, X) {
 ### Performance Comparison
 
 ``` r
+
 inits_pois <- rep(0, 3)
 
 # Finite differences
@@ -98,6 +103,7 @@ timing_pois_rtmb <- system.time({
 ### Results
 
 ``` r
+
 timing_results_pois <- data.frame(
   Method = c("Finite Differences", "RTMB"),
   Time_seconds = c(timing_pois_fd[3], timing_pois_rtmb[3]),
@@ -109,12 +115,13 @@ knitr::kable(timing_results_pois, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |         9.94 |    1.00 |
-| elapsed | RTMB               |         1.98 |    5.03 |
+|         | Finite Differences |        10.09 |    1.00 |
+| elapsed | RTMB               |         2.36 |    4.28 |
 
-Performance comparison for Poisson regression
+Performance comparison for Poisson regression {.table}
 
 ``` r
+
 summary(fit_pois_rtmb)
 #> # A tibble: 4 × 10
 #>   variable     mean   median     sd    mad       q5      q95  rhat ess_bulk
@@ -133,12 +140,13 @@ recovering the true parameter values.
 ## Logistic Regression
 
 Logistic regression models binary outcomes using a logit link:
-$\text{logit}\left( p_{i} \right) = X_{i}\beta$, where $p_{i}$ is the
-probability of success.
+$`\text{logit}(p_i) = X_i\beta`$, where $`p_i`$ is the probability of
+success.
 
 ### Simulating Data
 
 ``` r
+
 set.seed(789)
 n <- 300
 p <- 2
@@ -158,6 +166,7 @@ y_binom <- rbinom(n, size = 1, prob = prob)
 ### Defining the Log-Likelihood
 
 ``` r
+
 logistic_loglik <- function(pars, y, X) {
   eta <- X %*% pars
   p <- plogis(eta)
@@ -168,6 +177,7 @@ logistic_loglik <- function(pars, y, X) {
 ### Performance Comparison
 
 ``` r
+
 inits_logit <- rep(0, 3)
 
 # Finite differences
@@ -189,6 +199,7 @@ timing_logit_rtmb <- system.time({
 ### Results
 
 ``` r
+
 timing_results_logit <- data.frame(
   Method = c("Finite Differences", "RTMB"),
   Time_seconds = c(timing_logit_fd[3], timing_logit_rtmb[3]),
@@ -200,12 +211,13 @@ knitr::kable(timing_results_logit, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |         5.39 |    1.00 |
-| elapsed | RTMB               |         0.86 |    6.25 |
+|         | Finite Differences |         5.36 |    1.00 |
+| elapsed | RTMB               |         1.12 |    4.77 |
 
-Performance comparison for Logistic regression
+Performance comparison for Logistic regression {.table}
 
 ``` r
+
 summary(fit_logit_rtmb)
 #> # A tibble: 4 × 10
 #>   variable     mean   median    sd   mad        q5      q95  rhat ess_bulk
@@ -224,11 +236,12 @@ benefits for challenging models. We’ll fit a two-component Gaussian
 mixture.
 
 The model is:
-$p(y) = \pi \cdot N\left( \mu_{1},\sigma_{1}^{2} \right) + (1 - \pi) \cdot N\left( \mu_{2},\sigma_{2}^{2} \right)$
+$`p(y) = \pi \cdot N(\mu_1, \sigma_1^2) + (1-\pi) \cdot N(\mu_2, \sigma_2^2)`$
 
 ### Simulating Data
 
 ``` r
+
 set.seed(101)
 n <- 400
 
@@ -249,6 +262,7 @@ y_mix <- ifelse(component == 1,
 ### Defining the Log-Likelihood
 
 ``` r
+
 mixture_loglik <- function(pars, y) {
   # Transform parameters to satisfy constraints
   pi <- pars[1]  # mixing proportion in [0,1]
@@ -268,6 +282,7 @@ mixture_loglik <- function(pars, y) {
 ### Performance Comparison
 
 ``` r
+
 # Initialize near true values (mixture models can have multimodality)
 inits_mix <- c(0.3, -2, 3, 1, 1.5)
 
@@ -294,6 +309,7 @@ timing_mix_rtmb <- system.time({
 ### Results
 
 ``` r
+
 timing_results_mix <- data.frame(
   Method = c("Finite Differences", "RTMB"),
   Time_seconds = c(timing_mix_fd[3], timing_mix_rtmb[3]),
@@ -305,12 +321,13 @@ knitr::kable(timing_results_mix, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        14.48 |    1.00 |
-| elapsed | RTMB               |         1.19 |   12.18 |
+|         | Finite Differences |        14.81 |    1.00 |
+| elapsed | RTMB               |         1.71 |    8.67 |
 
-Performance comparison for Gaussian Mixture
+Performance comparison for Gaussian Mixture {.table}
 
 ``` r
+
 summary(fit_mix_rtmb)
 #> # A tibble: 6 × 10
 #>   variable     mean   median     sd    mad       q5      q95  rhat ess_bulk
@@ -327,12 +344,13 @@ summary(fit_mix_rtmb)
 ## Time Series: AR(1) Model
 
 An autoregressive model of order 1 (AR(1)) captures temporal dependence:
-$y_{t} = \phi y_{t - 1} + \epsilon_{t}$, where $|\phi| < 1$ for
+$`y_t = \phi y_{t-1} + \epsilon_t`$, where $`|\phi| < 1`$ for
 stationarity.
 
 ### Simulating Data
 
 ``` r
+
 set.seed(202)
 n <- 200
 true_phi <- 0.7
@@ -352,6 +370,7 @@ We use [`tanh()`](https://rdrr.io/r/base/Hyperbolic.html) to constrain φ
 to (-1, 1).
 
 ``` r
+
 ar1_loglik <- function(pars, y) {
   phi <- pars[1]  # constrain to (-1, 1)
   sigma <-pars[2]  # positive
@@ -373,6 +392,7 @@ ar1_loglik <- function(pars, y) {
 ### Performance Comparison
 
 ``` r
+
 inits_ar <- c(0.5, 1)
 
 # Finite differences
@@ -398,6 +418,7 @@ timing_ar_rtmb <- system.time({
 ### Results
 
 ``` r
+
 timing_results_ar <- data.frame(
   Method = c("Finite Differences", "RTMB"),
   Time_seconds = c(timing_ar_fd[3], timing_ar_rtmb[3]),
@@ -409,12 +430,13 @@ knitr::kable(timing_results_ar, digits = 2,
 
 |         | Method             | Time_seconds | Speedup |
 |:--------|:-------------------|-------------:|--------:|
-|         | Finite Differences |        38.73 |    1.00 |
-| elapsed | RTMB               |         0.63 |   61.37 |
+|         | Finite Differences |        40.69 |     1.0 |
+| elapsed | RTMB               |         0.94 |    43.1 |
 
-Performance comparison for AR(1) model
+Performance comparison for AR(1) model {.table}
 
 ``` r
+
 summary(fit_ar_rtmb)
 #> # A tibble: 3 × 10
 #>   variable       mean    median      sd     mad       q5      q95  rhat ess_bulk
@@ -431,20 +453,22 @@ RTMB also works with Pathfinder, Stan’s fast variational inference
 method:
 
 ``` r
+
 fit_ar_path <- stan_pathfinder(ar1_loglik, inits_ar,
                                grad_fun = "RTMB",
                                additional_args = list(y = y_ar))
 ```
 
 ``` r
+
 summary(fit_ar_path)
 #> # A tibble: 5 × 10
 #>   variable        mean   median     sd    mad       q5      q95  rhat ess_bulk
 #>   <chr>          <dbl>    <dbl>  <dbl>  <dbl>    <dbl>    <dbl> <dbl>    <dbl>
-#> 1 lp_approx__    3.19     3.54  1.09   0.775     1.01     4.22  1.00    710.  
-#> 2 lp__        -284.    -284.    0.982  0.725  -286.    -283.    1.00    695.  
-#> 3 path__         2.49     2     1.10   1.48      1        4     2.63      1.20
-#> 4 pars[1]        0.749    0.748 0.0473 0.0475    0.671    0.824 1.00    648.  
-#> 5 pars[2]        1.00     1.00  0.0498 0.0500    0.925    1.09  1.000   860.  
+#> 1 lp_approx__    3.24     3.53  1.06   0.734     1.30     4.19   1.01   788.  
+#> 2 lp__        -284.    -284.    0.963  0.699  -286.    -283.     1.01   797.  
+#> 3 path__         2.51     3     1.10   1.48      1        4      2.63     1.20
+#> 4 pars[1]        0.751    0.753 0.0442 0.0458    0.678    0.826  1.00   951.  
+#> 5 pars[2]        1.00     0.999 0.0511 0.0518    0.921    1.09   1.00   801.  
 #> # ℹ 1 more variable: ess_tail <dbl>
 ```

@@ -1,6 +1,7 @@
 # Getting Started with StanEstimators
 
 ``` r
+
 library(StanEstimators)
 ```
 
@@ -48,7 +49,7 @@ N(\mu, \tau), \quad j=1,\ldots,8 \$\$
 
 With data:
 
-| School | Estimate ($y_{j}$) | Standard Error ($\sigma_{j}$) |
+| School | Estimate ($`y_j`$) | Standard Error ($`\sigma_j`$) |
 |--------|--------------------|-------------------------------|
 | A      | 28                 | 15                            |
 | B      | 8                  | 10                            |
@@ -60,6 +61,7 @@ With data:
 | H      | 12                 | 18                            |
 
 ``` r
+
 y <- c(28,  8, -3,  7, -1,  1, 18, 12)
 sigma <- c(15, 10, 16, 11,  9, 11, 10, 18)
 ```
@@ -72,6 +74,7 @@ argument and returns a single value (generally the unnormalized target
 log density):
 
 ``` r
+
 eight_schools_lpdf <- function(v, y, sigma) {
   mu <- v[1]
   tau <- v[2]
@@ -87,9 +90,10 @@ eight_schools_lpdf <- function(v, y, sigma) {
 ```
 
 Note that any additional data required by the function are passed as
-additional arguments. In this case, we need to pass the data for $y$ and
-$\sigma$. Alternatively, the function can assume that these data will be
-available in the global environment, rather than passed as arguments.
+additional arguments. In this case, we need to pass the data for $`y`$
+and $`\sigma`$. Alternatively, the function can assume that these data
+will be available in the global environment, rather than passed as
+arguments.
 
 #### Estimating the Function
 
@@ -100,16 +104,17 @@ No-U-Turn Sampler by default).
 
 ##### Parameter Bounds
 
-Because we are estimating a standard deviation in our model ($\tau$), we
-need to ensure that it is positive. We can do this by specifying a lower
-bound of 0 for $\tau$. This is done by passing a vector of lower bounds
-to the `lower` argument, with the corresponding elements of the vector
-matching the order of the parameters in the function. Noting that $\tau$
-is the second parameter in the function, and we do not want to specify a
-lower bound for any other parameters, we can specify the lower bounds
-as:
+Because we are estimating a standard deviation in our model ($`\tau`$),
+we need to ensure that it is positive. We can do this by specifying a
+lower bound of 0 for $`\tau`$. This is done by passing a vector of lower
+bounds to the `lower` argument, with the corresponding elements of the
+vector matching the order of the parameters in the function. Noting that
+$`\tau`$ is the second parameter in the function, and we do not want to
+specify a lower bound for any other parameters, we can specify the lower
+bounds as:
 
 ``` r
+
 lower <- c(-Inf, 0, rep(-Inf, 8))
 ```
 
@@ -125,6 +130,7 @@ how many parameters are in the model, and so cannot automatically
 determine this.
 
 ``` r
+
 fit <- stan_sample(eight_schools_lpdf,
                    n_pars = 10,
                    additional_args = list(y = y, sigma = sigma),
@@ -141,21 +147,22 @@ We can inspect the estimates using the `summary` function (which calls
 [`posterior::summarise_draws`](https://mc-stan.org/posterior/reference/draws_summary.html)):
 
 ``` r
+
 summary(fit)
 #> # A tibble: 11 × 10
 #>    variable     mean   median    sd   mad      q5    q95  rhat ess_bulk ess_tail
 #>    <chr>       <dbl>    <dbl> <dbl> <dbl>   <dbl>  <dbl> <dbl>    <dbl>    <dbl>
-#>  1 lp__     -39.3    -39.0    2.57  2.53  -43.8   -35.5  1.01      249.     358.
-#>  2 pars[1]    8.10     7.89   5.08  4.99    0.453  16.9  0.999     596.     492.
-#>  3 pars[2]    6.80     5.55   5.57  4.66    0.571  16.9  1.00      379.     535.
-#>  4 pars[3]    0.367    0.347  0.909 0.913  -1.13    1.85 1.00     1581.     908.
-#>  5 pars[4]   -0.0265  -0.0499 0.846 0.830  -1.40    1.35 1.00     1446.     799.
-#>  6 pars[5]   -0.184   -0.216  0.941 0.892  -1.76    1.40 1.01     1375.     733.
-#>  7 pars[6]   -0.0233  -0.0294 0.856 0.870  -1.43    1.33 1.00     1221.     681.
-#>  8 pars[7]   -0.361   -0.400  0.843 0.781  -1.65    1.09 1.000    1080.     627.
-#>  9 pars[8]   -0.240   -0.233  0.849 0.844  -1.65    1.17 1.000    1556.     825.
-#> 10 pars[9]    0.369    0.367  0.846 0.806  -1.04    1.74 1.01      973.     476.
-#> 11 pars[10]   0.0444   0.0405 0.916 0.919  -1.41    1.52 1.00     1462.     734.
+#>  1 lp__     -39.5    -39.3    2.62  2.65  -44.3   -35.6  1.01      289.     526.
+#>  2 pars[1]    7.75     7.82   5.03  4.91   -0.439  16.1  1.00      663.     355.
+#>  3 pars[2]    6.44     5.21   5.37  4.68    0.536  16.4  1.00      413.     591.
+#>  4 pars[3]    0.377    0.375  0.954 0.944  -1.18    1.88 0.999     845.     634.
+#>  5 pars[4]   -0.0618  -0.0615 0.817 0.752  -1.50    1.32 1.000     777.     461.
+#>  6 pars[5]   -0.143   -0.201  0.933 0.925  -1.62    1.43 1.01      769.     600.
+#>  7 pars[6]   -0.0152  -0.0311 0.842 0.860  -1.42    1.33 1.00      816.     660.
+#>  8 pars[7]   -0.344   -0.342  0.874 0.816  -1.80    1.18 1.00      821.     566.
+#>  9 pars[8]   -0.210   -0.233  0.909 0.896  -1.70    1.36 1.00      792.     625.
+#> 10 pars[9]    0.353    0.362  0.925 0.920  -1.17    1.86 1.000     924.     648.
+#> 11 pars[10]   0.0243  -0.0138 0.924 1.01   -1.41    1.60 1.00      773.     707.
 ```
 
 ### Model Checking and Comparison - Leave-One-Out Cross-Validation (LOO-CV)
@@ -170,6 +177,7 @@ over all observations.
 For our model, we can define this function as:
 
 ``` r
+
 eight_schools_pointwise <- function(v, y, sigma) {
   mu <- v[1]
   tau <- v[2]
@@ -188,6 +196,7 @@ This can then be used with the `loo` function to calculate the LOO-CV
 estimate:
 
 ``` r
+
 loo(fit, pointwise_ll_fun = eight_schools_pointwise,
     additional_args = list(y = y, sigma = sigma))
 #> Warning: Some Pareto k diagnostic values are too high. See help('pareto-k-diagnostic') for details.
@@ -196,16 +205,16 @@ loo(fit, pointwise_ll_fun = eight_schools_pointwise,
 #> 
 #>          Estimate  SE
 #> elpd_loo    -31.1 1.0
-#> p_loo         1.5 0.3
+#> p_loo         1.4 0.3
 #> looic        62.1 2.0
 #> ------
 #> MCSE of elpd_loo is NA.
-#> MCSE and ESS estimates assume MCMC draws (r_eff in [0.4, 1.1]).
+#> MCSE and ESS estimates assume MCMC draws (r_eff in [0.6, 0.9]).
 #> 
 #> Pareto k diagnostic values:
 #>                           Count Pct.    Min. ESS
-#> (-Inf, 0.67]   (good)     6     75.0%   428     
-#>    (0.67, 1]   (bad)      2     25.0%   <NA>    
+#> (-Inf, 0.67]   (good)     7     87.5%   310     
+#>    (0.67, 1]   (bad)      1     12.5%   <NA>    
 #>     (1, Inf)   (very bad) 0      0.0%   <NA>    
 #> See help('pareto-k-diagnostic') for details.
 ```

@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Automatic Differentiation with RTMB • StanEstimators</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Automatic Differentiation with RTMB">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">StanEstimators</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
                         <h4 data-toc-skip class="author">Andrew
 Johnson</h4>
             
-            <h4 data-toc-skip class="date">2026-04-13</h4>
+            <h4 data-toc-skip class="date">2026-06-30</h4>
       
 
       <div class="d-none name"><code>RTMB-Gradients.rmd</code></div>
@@ -111,7 +111,7 @@ differentiation.</p>
 </h2>
 <p>Next, we’ll examine a generalized linear model (GLM) for count data.
 Poisson regression uses a log-link function:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>X</mi><mi>i</mi></msub><mi>β</mi></mrow><annotation encoding="application/x-tex">\log(\lambda_i) = X_i\beta</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>λ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>X</mi><mi>i</mi></msub><mi>β</mi></mrow><annotation encoding="application/x-tex">\log(\lambda_i) = X_i\beta</annotation></semantics></math>,
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\lambda_i</annotation></semantics></math>
 is the expected count.</p>
@@ -187,14 +187,14 @@ is the expected count.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">9.94</td>
+<td align="right">10.09</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">1.98</td>
-<td align="right">5.03</td>
+<td align="right">2.36</td>
+<td align="right">4.28</td>
 </tr>
 </tbody>
 </table>
@@ -217,7 +217,7 @@ while correctly recovering the true parameter values.</p>
 <h2 id="logistic-regression">Logistic Regression<a class="anchor" aria-label="anchor" href="#logistic-regression"></a>
 </h2>
 <p>Logistic regression models binary outcomes using a logit link:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">logit</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>X</mi><mi>i</mi></msub><mi>β</mi></mrow><annotation encoding="application/x-tex">\text{logit}(p_i) = X_i\beta</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">logit</mtext><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>X</mi><mi>i</mi></msub><mi>β</mi></mrow><annotation encoding="application/x-tex">\text{logit}(p_i) = X_i\beta</annotation></semantics></math>,
 where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
 is the probability of success.</p>
@@ -294,14 +294,14 @@ is the probability of success.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">5.39</td>
+<td align="right">5.36</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">0.86</td>
-<td align="right">6.25</td>
+<td align="right">1.12</td>
+<td align="right">4.77</td>
 </tr>
 </tbody>
 </table>
@@ -324,7 +324,7 @@ is the probability of success.</p>
 RTMB’s benefits for challenging models. We’ll fit a two-component
 Gaussian mixture.</p>
 <p>The model is:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>π</mi><mo>⋅</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>,</mo><msubsup><mi>σ</mi><mn>1</mn><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>π</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mn>2</mn></msub><mo>,</mo><msubsup><mi>σ</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(y) = \pi \cdot N(\mu_1, \sigma_1^2) + (1-\pi) \cdot N(\mu_2, \sigma_2^2)</annotation></semantics></math></p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>π</mi><mo>⋅</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>,</mo><msubsup><mi>σ</mi><mn>1</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mn>2</mn></msub><mo>,</mo><msubsup><mi>σ</mi><mn>2</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(y) = \pi \cdot N(\mu_1, \sigma_1^2) + (1-\pi) \cdot N(\mu_2, \sigma_2^2)</annotation></semantics></math></p>
 <div class="section level3">
 <h3 id="simulating-data-2">Simulating Data<a class="anchor" aria-label="anchor" href="#simulating-data-2"></a>
 </h3>
@@ -413,14 +413,14 @@ Gaussian mixture.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">14.48</td>
+<td align="right">14.81</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">1.19</td>
-<td align="right">12.18</td>
+<td align="right">1.71</td>
+<td align="right">8.67</td>
 </tr>
 </tbody>
 </table>
@@ -445,7 +445,7 @@ Gaussian mixture.</p>
 dependence:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>ϕ</mi><msub><mi>y</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>ϵ</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">y_t = \phi y_{t-1} + \epsilon_t</annotation></semantics></math>,
 where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">|</mo></mrow><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\phi| &lt; 1</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">|</mo><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">|\phi| &lt; 1</annotation></semantics></math>
 for stationarity.</p>
 <div class="section level3">
 <h3 id="simulating-data-3">Simulating Data<a class="anchor" aria-label="anchor" href="#simulating-data-3"></a>
@@ -533,14 +533,14 @@ for stationarity.</p>
 <tr class="odd">
 <td align="left"></td>
 <td align="left">Finite Differences</td>
-<td align="right">38.73</td>
-<td align="right">1.00</td>
+<td align="right">40.69</td>
+<td align="right">1.0</td>
 </tr>
 <tr class="even">
 <td align="left">elapsed</td>
 <td align="left">RTMB</td>
-<td align="right">0.63</td>
-<td align="right">61.37</td>
+<td align="right">0.94</td>
+<td align="right">43.1</td>
 </tr>
 </tbody>
 </table>
@@ -568,11 +568,11 @@ method:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 10</span></span></span>
 <span><span class="co">#&gt;   variable        mean   median     sd    mad       q5      q95  rhat ess_bulk</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp_approx__    3.19     3.54  1.09   0.775     1.01     4.22  1.00    710.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> lp__        -<span style="color: #BB0000;">284.</span>    -<span style="color: #BB0000;">284.</span>    0.982  0.725  -<span style="color: #BB0000;">286.</span>    -<span style="color: #BB0000;">283.</span>    1.00    695.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> path__         2.49     2     1.10   1.48      1        4     2.63      1.20</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[1]        0.749    0.748 0.047<span style="text-decoration: underline;">3</span> 0.047<span style="text-decoration: underline;">5</span>    0.671    0.824 1.00    648.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> pars[2]        1.00     1.00  0.049<span style="text-decoration: underline;">8</span> 0.050<span style="text-decoration: underline;">0</span>    0.925    1.09  1.000   860.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> lp_approx__    3.24     3.53  1.06   0.734     1.30     4.19   1.01   788.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> lp__        -<span style="color: #BB0000;">284.</span>    -<span style="color: #BB0000;">284.</span>    0.963  0.699  -<span style="color: #BB0000;">286.</span>    -<span style="color: #BB0000;">283.</span>     1.01   797.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> path__         2.51     3     1.10   1.48      1        4      2.63     1.20</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> pars[1]        0.751    0.753 0.044<span style="text-decoration: underline;">2</span> 0.045<span style="text-decoration: underline;">8</span>    0.678    0.826  1.00   951.  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> pars[2]        1.00     0.999 0.051<span style="text-decoration: underline;">1</span> 0.051<span style="text-decoration: underline;">8</span>    0.921    1.09   1.00   801.  </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 </div>
