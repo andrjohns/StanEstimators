@@ -1,5 +1,6 @@
 call_stan_impl <- function(options_vector, input_list) {
   if (isTRUE(input_list$eval_standalone)) {
+    library(StanEstimators, quietly = TRUE)
     for (pkg in input_list$packages) {
       library(pkg, character.only = TRUE, quietly = TRUE)
     }
