@@ -11,7 +11,7 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
   internal::grad_fun = Rcpp::Function(grad_fun);
   std::vector<std::string> options = Rcpp::as<std::vector<std::string>>(options_vector);
   int argc = 1 + options.size();
-  const char* argv[argc];
+  std::vector<const char*> argv(argc);
 
   // Read in the name
   std::string name = "\0";
@@ -26,7 +26,7 @@ RcppExport SEXP call_stan_(SEXP options_vector, SEXP ll_fun, SEXP grad_fun) {
       argv[counter++] = options[i].c_str();
     }
   }
-  return Rcpp::wrap(cmdstan::command(argc, argv));
+  return Rcpp::wrap(cmdstan::command(argc, argv.data()));
   END_RCPP
 }
 

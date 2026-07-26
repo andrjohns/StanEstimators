@@ -13,6 +13,7 @@
 namespace internal {
   Rcpp::Function ll_fun("ls");
   Rcpp::Function grad_fun("ls");
+  SEXP message_sym = Rf_install("message");
 }
 
 template <typename F, typename T>
@@ -42,11 +43,15 @@ double r_function(const T& v,
   double lp = 0;
   auto v_cons = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
   SEXP res = internal::ll_fun(v_cons);
-  SEXP msgSEXP = Rf_getAttrib(res, Rf_install("message"));
-  // If the result has a "message" attribute, it indicates an error in the user function
-  if (msgSEXP != R_NilValue) {
-    std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
-    throw std::domain_error("Error in user-defined function: " + msg);
+  // Fast path: successful calls return a plain numeric scalar (REALSXP).
+  // Only check attributes when the result is a list (VECSXP), which indicates
+  // the user function returned a list (e.g., with a "message" on error).
+  if (TYPEOF(res) == VECSXP) {
+    SEXP msgSEXP = Rf_getAttrib(res, internal::message_sym);
+    if (msgSEXP != R_NilValue) {
+      std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
+      throw std::domain_error("Error in user-defined function: " + msg);
+    }
   }
   return Rcpp::as<double>(res) + lp;
 }
@@ -75,14 +80,24 @@ stan::math::var r_function(const T& v,
   } else {
     arena_v = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
     SEXP res = internal::grad_fun(arena_v.val());
-    SEXP msgSEXP = Rf_getAttrib(res, Rf_install("message"));
-    // If the result has a "message" attribute, it indicates an error in the user function
-    if (msgSEXP != R_NilValue) {
-      std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
-      throw std::domain_error("Error in user-defined gradient function: " + msg);
+    // Fast path: successful gradient calls return a plain numeric vector.
+    if (TYPEOF(res) == VECSXP) {
+      SEXP msgSEXP = Rf_getAttrib(res, internal::message_sym);
+      if (msgSEXP != R_NilValue) {
+        std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
+        throw std::domain_error("Error in user-defined gradient function: " + msg);
+      }
     }
     arena_grad = Rcpp::as<Eigen::VectorXd>(res);
-    rtn = Rcpp::as<double>(internal::ll_fun(arena_v.val()));
+    SEXP ll_res = internal::ll_fun(arena_v.val());
+    if (TYPEOF(ll_res) == VECSXP) {
+      SEXP msgSEXP = Rf_getAttrib(ll_res, internal::message_sym);
+      if (msgSEXP != R_NilValue) {
+        std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
+        throw std::domain_error("Error in user-defined function: " + msg);
+      }
+    }
+    rtn = Rcpp::as<double>(ll_res);
   }
   return make_callback_var(
     rtn,
