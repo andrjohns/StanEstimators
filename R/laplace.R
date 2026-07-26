@@ -78,7 +78,7 @@ stan_laplace <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = 
   mode_file <- paste0(inputs$output_basename, "_mode.json")
   if (!is.null(mode)) {
     if (inherits(mode, "StanOptimize")) {
-      mode_vals <- mode@estimates[, -1] # First estimate is lp__
+      mode_vals <- mode@estimates[, -c(1,2)] # ignore lp__ & converged__
     } else {
       mode_vals <- mode
     }
@@ -98,7 +98,7 @@ stan_laplace <- function(fn, par_inits = NULL, n_pars = NULL, additional_args = 
       sig_figs = sig_figs
     )
     opt <- do.call(stan_optimize, c(curr_args, opt_args))
-    mode_vals <- opt@estimates[, -1]
+    mode_vals <- opt@estimates[, -c(1,2)]
   }
   mode_vals <- as.numeric(mode_vals)
   if (length(mode_vals) != length(inputs$inits[[1]])) {

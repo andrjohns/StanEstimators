@@ -102,6 +102,7 @@
 #include <stan/math/prim/fun/fmod.hpp>
 #include <stan/math/prim/fun/gamma_p.hpp>
 #include <stan/math/prim/fun/gamma_q.hpp>
+#include <stan/math/prim/fun/generate_laplace_options.hpp>
 #include <stan/math/prim/fun/generalized_inverse.hpp>
 #include <stan/math/prim/fun/get.hpp>
 #include <stan/math/prim/fun/get_base1.hpp>
@@ -327,6 +328,7 @@
 #include <stan/math/prim/fun/to_row_vector.hpp>
 #include <stan/math/prim/fun/to_vector.hpp>
 #include <stan/math/prim/fun/trace.hpp>
+#include <stan/math/prim/fun/trace_dot.hpp>
 #include <stan/math/prim/fun/trace_gen_inv_quad_form_ldlt.hpp>
 #include <stan/math/prim/fun/trace_gen_quad_form.hpp>
 #include <stan/math/prim/fun/trace_inv_quad_form_ldlt.hpp>
