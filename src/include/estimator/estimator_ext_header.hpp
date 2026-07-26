@@ -1,3 +1,4 @@
+#include "stan/math/rev/core/callback_vari.hpp"
 #include <string>
 #include <stan/math/prim/fun/Eigen.hpp>
 #include <stan/math/prim/fun/log1p_exp.hpp>
@@ -41,8 +42,12 @@ double r_function(const T& v,
                   const Eigen::Map<Eigen::VectorXd>& upper_bounds,
                   std::ostream* pstream__) {
   double lp = 0;
-  auto v_cons = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
-  SEXP res = internal::ll_fun(v_cons);
+  SEXP res;
+  if (no_bounds) {
+    res = internal::ll_fun(v);
+  } else {
+    res = internal::ll_fun(stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp));
+  }
   // Fast path: successful calls return a plain numeric scalar (REALSXP).
   // Only check attributes when the result is a list (VECSXP), which indicates
   // the user function returned a list (e.g., with a "message" on error).
@@ -63,32 +68,25 @@ stan::math::var r_function(const T& v,
                   const Eigen::Map<Eigen::VectorXd>& lower_bounds,
                   const Eigen::Map<Eigen::VectorXd>& upper_bounds,
                   std::ostream* pstream__) {
-  using stan::math::finite_diff_gradient_auto;
   using stan::math::make_callback_var;
 
-  auto funwrap = [&](const auto& x) {
-    return r_function<jacobian__>(x, finite_diff, no_bounds, bounds_types, lower_bounds, upper_bounds, pstream__);
-  };
-  stan::math::var lp(0);
   stan::arena_t<Eigen::Matrix<stan::math::var, -1, 1>> arena_v;
-  stan::arena_t<Eigen::VectorXd> arena_grad;
   double rtn;
   if (finite_diff) {
+    auto funwrap = [finite_diff, no_bounds, bounds_types, lower_bounds, upper_bounds, pstream__](const auto& x) {
+      return r_function<jacobian__>(x, finite_diff, no_bounds, bounds_types, lower_bounds, upper_bounds, pstream__);
+    };
     arena_v = v;
-    arena_grad = fdiff(funwrap, arena_v.val());
-    rtn = funwrap(v.val());
+    return make_callback_var(funwrap(v.val()), [arena_v, funwrap](auto& vi) mutable {
+      arena_v.adj() += vi.adj() * fdiff(funwrap, arena_v.val());
+    });
   } else {
-    arena_v = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
-    SEXP res = internal::grad_fun(arena_v.val());
-    // Fast path: successful gradient calls return a plain numeric vector.
-    if (TYPEOF(res) == VECSXP) {
-      SEXP msgSEXP = Rf_getAttrib(res, internal::message_sym);
-      if (msgSEXP != R_NilValue) {
-        std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
-        throw std::domain_error("Error in user-defined gradient function: " + msg);
-      }
+    stan::math::var lp(0);
+    if (no_bounds) {
+      arena_v = v;
+    } else {
+      arena_v = stan::math::lub_constrain<jacobian__>(v, lower_bounds, upper_bounds, lp);
     }
-    arena_grad = Rcpp::as<Eigen::VectorXd>(res);
     SEXP ll_res = internal::ll_fun(arena_v.val());
     if (TYPEOF(ll_res) == VECSXP) {
       SEXP msgSEXP = Rf_getAttrib(ll_res, internal::message_sym);
@@ -97,13 +95,21 @@ stan::math::var r_function(const T& v,
         throw std::domain_error("Error in user-defined function: " + msg);
       }
     }
-    rtn = Rcpp::as<double>(ll_res);
+    return make_callback_var(
+      Rcpp::as<double>(ll_res),
+      [arena_v](auto& vi) mutable {
+        SEXP res = internal::grad_fun(arena_v.val());
+        // Fast path: successful gradient calls return a plain numeric vector.
+        if (TYPEOF(res) == VECSXP) {
+          SEXP msgSEXP = Rf_getAttrib(res, internal::message_sym);
+          if (msgSEXP != R_NilValue) {
+            std::string msg = Rf_translateCharUTF8(STRING_ELT(msgSEXP, 0));
+            throw std::domain_error("Error in user-defined gradient function: " + msg);
+          }
+        }
+        arena_v.adj() += vi.adj() * Rcpp::as<Eigen::Map<Eigen::VectorXd>>(res);
+    }) + lp;
   }
-  return make_callback_var(
-    rtn,
-    [arena_v, arena_grad](auto& vi) mutable {
-      arena_v.adj() += vi.adj() * arena_grad;
-  }) + lp;
 }
 
 #ifdef USING_R
