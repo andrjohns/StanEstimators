@@ -1,20 +1,13 @@
-TBB_CPPFLAGS = $(shell pkg-config --cflags tbb32 2>/dev/null)
-TBB_LIBS = $(shell pkg-config --libs tbb32 2>/dev/null)
-
 PKG_CPPFLAGS = -I"include" -D_REENTRANT -DSTAN_THREADS -D_HAS_AUTO_PTR_ETC=0 -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS
+PKG_CPPFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | tail -n 1)
 
-ifeq ($(TBB_CPPFLAGS),)
-  PKG_CXXFLAGS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::CxxFlags()" | tail -n 1)
-  PKG_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "cat(paste0('-L', shQuote(RcppParallel::tbbLibraryPath())))" | tail -n 1)
+TBB_LIBS = $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()" | tail -n 1)
 
-  TBB_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "cat(basename(RcppParallel::tbbLibraryPath('tbb')))" | sed -E 's/^(lib)?(tbb([0-9]*)?)([.].*)?$$/\2/')
-  TBB_MALLOC_NAME = $(shell "${R_HOME}/bin/Rscript" -e  "try(cat(basename(RcppParallel::tbbLibraryPath('tbbmalloc'))), silent = TRUE)" | sed -E 's/^(lib)?(tbbmalloc)([.].*)?$$/\2/')
-
-  PKG_LIBS += -l$(TBB_NAME)
-  ifneq ($(TBB_MALLOC_NAME),)
-    PKG_LIBS += -l$(TBB_MALLOC_NAME)
-  endif
-else
-  PKG_CPPFLAGS += $(TBB_CPPFLAGS) -DTBB_INTERFACE_NEW
-  PKG_LIBS = $(TBB_LIBS)
+ifeq ($(OS),Windows_NT)
+    TBB_CHECK = $(shell "${R_HOME}/bin/Rscript" -e "cat(utils::packageVersion('RcppParallel') > '6.0.0' && utils::packageVersion('RcppParallel') < '6.2.0')")
+	ifeq ($(TBB_CHECK),TRUE)
+		TBB_LIBS = -ltbb12 -ltbbmalloc
+	endif
 endif
+
+PKG_LIBS += $(TBB_LIBS)
